@@ -1,0 +1,10 @@
+site_name: QTE (Quantum Series Encoder)
+repo_url: https://github.com/3KD/QTE
+theme:
+  name: material
+  features: [content.code.copy]
+nav:
+  - Home: index.md
+  - CLI: cli.md
+  - Labels: labels.md
+  - Dev notes: dev.md
