@@ -1,0 +1,22 @@
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Build / dist
+build/
+dist/
+
+# Project outputs (keep CSVs, ignore heavy arrays)
+paper_outputs/*.npy
+# If you also want to ignore generated CSVs, uncomment:
+# paper_outputs/*.csv

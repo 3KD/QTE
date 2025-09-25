@@ -1,0 +1,1806 @@
+# QTEGUI.py — Quantum Transcendental Encoder (QTE)
+# Modes: EGF / Terms / Periodic p/q / Value Phase (PEA) / Digit QROM
+# Multi-constant picker with per-constant methods + syntax:  π(Machin), e, Li(2,0.5)
+# Extras: register block labeling, grid overlays, Schmidt entropies, register marginals
+# NEW in this build (single-file):
+# - macOS-safe Save/Open dialogs inline (no state_io.py dependency)
+# - Similarity & Clustering use probability vectors with zero-padding (works across sizes, split/active OK)
+# - Tomography uses qiskit-experiments new API (with graceful fallback if Aer lacks PauliMeasZ)
+# - Gates tab: hide or decompose initialize, optional barrier split, ASCII/Text drawer, and summary
+# - NEW Tab: Chunks (Hierarchical) — simulate blockwise pair-merging of amplitude chunks
+
+import tkinter as tk
+from tkinter import ttk, messagebox, simpledialog, MULTIPLE
+try:
+    from tkinter import filedialog  # used by Save/Open (handled safely on macOS)
+except Exception:
+    filedialog = None
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+from typing import List, Dict, Optional, Tuple
+
+# Qiskit
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import Aer
+try:
+    from qiskit_aer import AerSimulator
+except Exception:
+    AerSimulator = None
+from qiskit.quantum_info import Statevector, DensityMatrix
+from qiskit.circuit import Instruction  # for compact "Init |ψ⟩" drawing
+
+# Optional tomography
+try:
+    from qiskit_experiments.library import StateTomography
+    from qiskit_experiments.framework import ExperimentData
+    from qiskit.quantum_info import state_fidelity
+    TOMO_OK = True
+except Exception:
+    TOMO_OK = False
+
+# App modules (expected to be present in your repo)
+from series_encoding import get_series_amplitudes, compute_series, compute_series_value
+from ibm_backend import get_backend, initialize_ibm
+from harmonic_analysis import compute_fft_spectrum_from_amplitudes
+from quantum_embedding import (
+    qft_spectrum_from_series, index_qft_spectrum_circuit,
+    run_circuit, simulate_statevector, generate_series_encoding,
+    encode_entangled_constants, entangle_series_registers, entangle_series_multi,
+    analyze_tensor_structure, perform_schmidt_decomposition,
+    value_phase_estimation_circuit, periodic_phase_state, digit_qrom_circuit,
+)
+
+# ============================================================
+# Inline, macOS-safe Save/Open helpers (no external file needed)
+# ============================================================
+
+def _suggest_name(label: str, n_qubits: int, data: np.ndarray) -> str:
+    """
+    Conservative, portable default filename. We avoid fancy hashes to keep it short.
+    """
+    base = (label or "state").replace("/", "_")
+    return f"{base}__n{n_qubits}.npz"
+
+def _sv_to_npz(path: str, sv: Statevector, label: str):
+    n_qubits = int(np.log2(len(sv.data)))
+    np.savez(path, data=sv.data, label=label or "", n_qubits=n_qubits)
+
+def save_statevector_dialog(parent, sv: Statevector, label: Optional[str] = None) -> Optional[str]:
+    """
+    Open a native Save dialog and write the state to .npz. Returns saved path or None if cancelled.
+    Uses a single, explicit extension entry to avoid macOS Cocoa panel edge cases.
+    """
+    if filedialog is None:
+        # No GUI dialog available; just save to ./states with a suggested name
+        import os
+        out_dir = "states"
+        os.makedirs(out_dir, exist_ok=True)
+        n_qubits = int(np.log2(len(sv.data)))
+        suggested = _suggest_name(label or "state", n_qubits, sv.data)
+        path = os.path.join(out_dir, suggested)
+        _sv_to_npz(path, sv, label or "")
+        return path
+
+    n_qubits = int(np.log2(len(sv.data)))
+    suggested = _suggest_name(label or "state", n_qubits, sv.data)
+
+    # macOS-safe: single entry with a glob pattern (no "All files")
+    filetypes = [("QTE State (*.npz)", "*.npz")]
+
+    path = filedialog.asksaveasfilename(
+        parent=parent,
+        title="Save QTE State",
+        initialfile=suggested,
+        defaultextension=".npz",
+        filetypes=filetypes,
+        confirmoverwrite=True,
+    )
+    if not path:
+        return None
+    _sv_to_npz(path, sv, label or "")
+    return path
+
+def load_statevector_dialog(parent) -> Optional[Tuple[str, Statevector]]:
+    """
+    Open a native Open dialog and return (label, Statevector). Returns None if cancelled.
+    """
+    if filedialog is None:
+        return None
+
+    # macOS-safe: single entry with explicit extension
+    filetypes = [("QTE State (*.npz)", "*.npz")]
+
+    path = filedialog.askopenfilename(
+        parent=parent,
+        title="Load QTE State",
+        filetypes=filetypes,
+    )
+    if not path:
+        return None
+
+    with np.load(path, allow_pickle=False) as npz:
+        data = np.asarray(npz["data"], dtype=np.complex128)
+        try:
+            raw = npz["label"]
+            label = str(raw.item()) if hasattr(raw, "item") else str(raw)
+            label = label or path.rsplit("/", 1)[-1]
+        except KeyError:
+            label = path.rsplit("/", 1)[-1]
+    return label, Statevector(data)
+
+# -----------------------------
+# Constant picker & parsing
+# -----------------------------
+
+METHOD_CHOICES: Dict[str, List[str]] = {
+    "π": ["Leibniz", "Nilakantha", "Machin", "Ramanujan", "Chudnovsky"],
+    "pi": ["Leibniz", "Nilakantha", "Machin", "Ramanujan", "Chudnovsky"],
+}
+DEFAULT_METHOD: Dict[str, str] = {"π": "Machin", "pi": "Machin"}
+KNOWN_METHODS = {m.lower() for arr in METHOD_CHOICES.values() for m in arr}
+
+SUGGESTED_LABELS = [
+    "π", "e", "ln(2)", "ζ(2)", "ζ(3)", "γ", "Catalan", "φ",
+    "exp(π)", "2^√2", "Liouville", "Champernowne10",
+    "Li(2,0.5)", "polylog(3, 0.5)", "J0"  # <-- added J0, "Maclaurin[sin(x), "Maclaurin[sin(x), "Maclaurin[log(1+x), "J1", "J2", "J3", "QFT[sin(2*pi*x); N=64; a=0; b=1; ifft, "Maclaurin[log(1+x); auto_r; real_coeffs]"][rail]"]"]"]"]
+
+def _norm_label(label: str) -> str:
+    s = label.strip()
+    return "π" if s.lower() == "pi" else s
+
+def _supports_method(label: str) -> bool:
+    l = _norm_label(label).strip().lower()
+    return l in ("π",)
+
+def _canonical_method(label: str, method: Optional[str]) -> Optional[str]:
+    lab = _norm_label(label)
+    if not _supports_method(lab):
+        return None
+    if not method:
+        return DEFAULT_METHOD.get(lab, "Machin")
+    opts = METHOD_CHOICES.get(lab, [])
+    return method if method in opts else DEFAULT_METHOD.get(lab, "Machin")
+
+# --- NEW: labels restricted to Terms only (e.g., J0) ---
+def _is_terms_only(label: str) -> bool:
+    """Return True if this label only supports Terms mode (not EGF)."""
+    return _norm_label(label) in {"J0"}
+
+def _split_top_level(s: str) -> List[str]:
+    out, depth, buf = [], 0, []
+    for ch in s:
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        if ch == ',' and depth == 0:
+            token = ''.join(buf).strip()
+            if token:
+                out.append(token)
+            buf = []
+        else:
+            buf.append(ch)
+    token = ''.join(buf).strip()
+    if token:
+        out.append(token)
+    return out
+
+def _parse_constants_syntax(s: str) -> List[Tuple[str, Optional[str]]]:
+    """
+    Grammar (informal):
+      token := LABEL [ "(" ARGS ")" ] [ "(" METHOD ")" ]?
+    Only π/pi consumes METHOD (Leibniz, Nilakantha, Machin, Ramanujan, Chudnovsky).
+    """
+    parts = _split_top_level(s)
+    out: List[Tuple[str, Optional[str]]] = []
+    for raw in parts:
+        t = raw.strip()
+        if not t:
+            continue
+
+        # locate outermost trailing "(...)"
+        depth, last_open, last_close = 0, -1, -1
+        for i, ch in enumerate(t):
+            if ch == '(':
+                if depth == 0:
+                    last_open = i
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+                if depth == 0:
+                    last_close = i
+        if depth != 0:
+            raise ValueError(f"Unbalanced parentheses in: {t}")
+
+        label, method = t, None
+
+        if last_open != -1 and last_close == len(t) - 1:
+            inside = t[last_open + 1:last_close].strip()
+            before = t[:last_open].strip()
+            if inside.lower() in KNOWN_METHODS and _supports_method(before or t):
+                label = before or t
+                method = inside
+            else:
+                label = t  # parentheses belong to label (e.g., Li(2,0.5))
+
+        label = _norm_label(label)
+
+        if _supports_method(label):
+            method = _canonical_method(label, method)
+        else:
+            method = None
+
+        out.append((label, method))
+    return out
+
+def _constants_to_syntax(pairs: List[Tuple[str, Optional[str]]]) -> str:
+    toks = []
+    for lab, meth in pairs:
+        lab = _norm_label(lab)
+        if meth and _supports_method(lab):
+            toks.append(f"{lab}({meth})")
+        else:
+            toks.append(lab)
+    return ", ".join(toks)
+
+class ConstantPicker(tk.Toplevel):
+    def __init__(self, master, initial: List[Tuple[str, Optional[str]]]):
+        super().__init__(master)
+        self.title("Pick constants")
+        self.resizable(False, False)
+        self.transient(master)
+        self.grab_set()
+
+        self._selected: Dict[str, Optional[str]] = {_norm_label(lab): meth for lab, meth in initial}
+
+        body = ttk.Frame(self, padding=8)
+        body.pack(fill="both", expand=True)
+
+        left = ttk.Frame(body)
+        left.grid(row=0, column=0, sticky="nsw", padx=(0,10))
+        right = ttk.Frame(body)
+        right.grid(row=0, column=1, sticky="nse")
+
+        ttk.Label(left, text="Constants").pack(anchor="w")
+
+        self.box = tk.Listbox(left, selectmode=MULTIPLE, height=12, exportselection=False, width=28)
+        for lab in SUGGESTED_LABELS:
+            self.box.insert("end", lab)
+        self.box.pack()
+        self.box.bind("<<ListboxSelect>>", self._on_select)
+
+        for i, lab in enumerate(SUGGESTED_LABELS):
+            if _norm_label(lab) in self._selected:
+                self.box.selection_set(i)
+
+        addrow = ttk.Frame(left); addrow.pack(fill="x", pady=(8,0))
+        self.custom_var = tk.StringVar(value="")
+        ttk.Entry(addrow, textvariable=self.custom_var, width=20).pack(side="left")
+        ttk.Button(addrow, text="Add", command=self._add_custom).pack(side="left", padx=4)
+
+        ttk.Label(right, text="Method (for highlighted π)").grid(row=0, column=0, sticky="w")
+        self.method_var = tk.StringVar(value="")
+        self.method_combo = ttk.Combobox(right, textvariable=self.method_var, state="disabled",
+                                         values=METHOD_CHOICES.get("π", []), width=18)
+        self.method_combo.grid(row=1, column=0, sticky="w", pady=(2,8))
+        ttk.Button(right, text="Set Method", command=self._apply_method).grid(row=2, column=0, sticky="w")
+
+        btns = ttk.Frame(body); btns.grid(row=1, column=0, columnspan=2, sticky="e", pady=(10,0))
+        ttk.Button(btns, text="OK", command=self._ok).pack(side="right", padx=6)
+        ttk.Button(btns, text="Cancel", command=self._cancel).pack(side="right")
+
+        self.result: Optional[List[Tuple[str, Optional[str]]]] = None
+
+    def _on_select(self, _evt=None):
+        sel = self._current_highlight()
+        if sel and _supports_method(sel):
+            self.method_combo.config(state="readonly", values=METHOD_CHOICES.get(_norm_label(sel), []))
+            self.method_var.set(self._selected.get(_norm_label(sel)) or _canonical_method(sel, None))
+        else:
+            self.method_combo.config(state="disabled")
+            self.method_var.set("")
+
+    def _current_highlight(self) -> Optional[str]:
+        idxs = self.box.curselection()
+        if not idxs:
+            return None
+        return _norm_label(self.box.get(idxs[0]).strip())
+
+    def _apply_method(self):
+        sel = self._current_highlight()
+        if not sel or not _supports_method(sel):
+            return
+        meth = self.method_var.get().strip()
+        if not meth:
+            meth = _canonical_method(sel, None)
+        self._selected[sel] = _canonical_method(sel, meth)
+
+    def _add_custom(self):
+        lab = _norm_label(self.custom_var.get().strip())
+        if not lab:
+            return
+        self._selected.setdefault(lab, _canonical_method(lab, None))
+        self.box.insert("end", lab)
+        self.custom_var.set("")
+
+    def _ok(self):
+        final: List[Tuple[str, Optional[str]]] = []
+        for i in self.box.curselection():
+            lab = _norm_label(self.box.get(i).strip())
+            final.append((lab, self._selected.get(lab)))
+        self.result = final
+        self.destroy()
+
+    def _cancel(self):
+        self.result = None
+        self.destroy()
+
+# -----------------------------
+# GUI
+# -----------------------------
+
+class QTEGUI(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Quantum Transcendental Encoder (QTE)")
+        self.geometry("1260x900")
+
+        self.statevectors: Dict[str, Statevector] = {}
+        self.active_state_label: Optional[str] = None
+        self.active_state: Optional[Statevector] = None
+
+        # -------- Top controls --------
+        top = ttk.Frame(self); top.pack(fill="x", padx=10, pady=8)
+
+        # NEW: constants syntax + picker
+        ttk.Label(top, text="Constant(s)").grid(row=0, column=0, sticky="w")
+        self.const_syntax = tk.StringVar(value="π")
+        ttk.Entry(top, textvariable=self.const_syntax, width=36).grid(row=0, column=1, padx=(4,6))
+        ttk.Button(top, text="Pick…", command=self.on_pick_constants).grid(row=0, column=2, padx=(0,12))
+
+        # π method (convenience default if single π without explicit method)
+        self.pi_method = tk.StringVar(value="Machin")
+        ttk.Label(top, text="π method").grid(row=0, column=3, sticky="w")
+        ttk.Combobox(top, textvariable=self.pi_method,
+                     values=METHOD_CHOICES["π"], state="readonly", width=12).grid(row=0, column=4, padx=(4, 12))
+
+        self.phase_mode = tk.StringVar(value="sign")
+        ttk.Label(top, text="Phase").grid(row=0, column=5, sticky="w")
+        ttk.Combobox(top, textvariable=self.phase_mode,
+                     values=["sign", "abs"], state="readonly", width=6).grid(row=0, column=6, padx=(4, 12))
+
+        self.n_qubits = tk.IntVar(value=6)
+        ttk.Label(top, text="#qubits").grid(row=0, column=7, sticky="w")
+        ttk.Spinbox(top, from_=1, to=14, textvariable=self.n_qubits, width=5).grid(row=0, column=8, padx=(4, 12))
+
+        self.pad_len = tk.IntVar(value=128)
+        ttk.Label(top, text="Pad (FFT)").grid(row=0, column=9, sticky="w")
+        ttk.Spinbox(top, from_=16, to=4096, increment=16, textvariable=self.pad_len, width=7).grid(row=0, column=10, padx=(4, 12))
+
+        self.use_ibm = tk.BooleanVar(value=False)
+        ttk.Checkbutton(top, text="Use IBM", variable=self.use_ibm, command=self._maybe_prompt_ibm).grid(row=0, column=11, padx=(6, 6))
+
+        # Multi controls
+        self.reg_qubits = tk.IntVar(value=3)
+        self.multi_topology = tk.StringVar(value="chain")
+        ttk.Label(top, text="RegQ").grid(row=1, column=0, sticky="e")
+        ttk.Spinbox(top, from_=1, to=8, textvariable=self.reg_qubits, width=5).grid(row=1, column=1, sticky="w")
+        ttk.Label(top, text="Topology").grid(row=1, column=2, sticky="e")
+        ttk.Combobox(top, textvariable=self.multi_topology, values=["chain","star","all_to_all"], state="readonly", width=10).grid(row=1, column=3, sticky="w")
+
+        # Encoding mode row
+        self.enc_mode = tk.StringVar(value="EGF")
+        ttk.Label(top, text="Encoding").grid(row=1, column=4, sticky="e")
+        ttk.Combobox(top, textvariable=self.enc_mode,
+                     values=["EGF", "Terms", "Periodic p/q", "Value Phase (PEA)", "Digit QROM"],
+                     state="readonly", width=16).grid(row=1, column=5, padx=(4, 12))
+
+        self.pea_bits = tk.IntVar(value=10)
+        ttk.Label(top, text="PEA bits").grid(row=1, column=6, sticky="e")
+        ttk.Spinbox(top, from_=2, to=20, textvariable=self.pea_bits, width=5).grid(row=1, column=7, padx=(4,12))
+
+        self.p_val = tk.IntVar(value=22); self.q_val = tk.IntVar(value=7)
+        ttk.Label(top, text="p/q").grid(row=1, column=8, sticky="e")
+        ttk.Spinbox(top, from_=1, to=100000, textvariable=self.p_val, width=7).grid(row=1, column=9, sticky="w")
+        ttk.Spinbox(top, from_=1, to=100000, textvariable=self.q_val, width=7).grid(row=1, column=10, sticky="w")
+
+        self.qrom_base = tk.IntVar(value=10)
+        self.qrom_bits = tk.IntVar(value=4)
+        self.qrom_index = tk.IntVar(value=6)
+        ttk.Label(top, text="QROM base/bits/index").grid(row=1, column=11, sticky="e")
+        ttk.Spinbox(top, from_=2, to=16, textvariable=self.qrom_base, width=5).grid(row=1, column=12)
+        ttk.Spinbox(top, from_=1, to=8, textvariable=self.qrom_bits, width=4).grid(row=1, column=13)
+        ttk.Spinbox(top, from_=1, to=10, textvariable=self.qrom_index, width=5).grid(row=1, column=14)
+
+        # Status line
+        self.status_var = tk.StringVar(value="Ready.")
+        ttk.Label(self, textvariable=self.status_var, anchor="w").pack(fill="x", padx=10, pady=(0, 6))
+
+        # Notebook tabs
+        self.nb = ttk.Notebook(self); self.nb.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+        self._build_tab_preview()
+        self._build_tab_fft()
+        self._build_tab_qft()
+        self._build_tab_measure()
+        self._build_tab_amplitudes()
+        self._build_tab_similarity()
+        self._build_tab_clustering()
+        self._build_tab_tomography()
+        self._build_tab_entanglement()
+        self._build_tab_gates()
+        self._build_tab_state_io()
+        self._build_tab_basis()
+        self._build_tab_chunks()  # NEW
+
+    # -------- IBM init --------
+    def _maybe_prompt_ibm(self):
+        if self.use_ibm.get():
+            try:
+                token = simpledialog.askstring("IBM Login", "Enter your IBM Quantum API Token:", show="*")
+                if token:
+                    initialize_ibm(token=token)
+                    self._set_status("IBM Quantum initialized.")
+                else:
+                    self.use_ibm.set(False)
+            except Exception as e:
+                messagebox.showerror("IBM Login Failed", str(e))
+                self.use_ibm.set(False)
+
+    # -------- constants helpers --------
+    def on_pick_constants(self):
+        pairs = self._current_constants(default_if_empty=True)
+        dlg = ConstantPicker(self, pairs)
+        self.wait_window(dlg)
+        if dlg.result is not None:
+            self.const_syntax.set(_constants_to_syntax(dlg.result))
+
+    def _current_constants(self, *, default_if_empty=False) -> List[Tuple[str, Optional[str]]]:
+        s = self.const_syntax.get().strip()
+        if not s and default_if_empty:
+            s = "π"
+        try:
+            pairs = _parse_constants_syntax(s) if s else []
+        except Exception as e:
+            messagebox.showerror("Constant(s) parse error", str(e))
+            return []
+        if len(pairs) == 1 and _supports_method(pairs[0][0]) and not pairs[0][1]:
+            pairs = [(pairs[0][0], self.pi_method.get())]
+        return pairs
+
+    def _single_constant_required(self, ctx: str) -> Optional[Tuple[str, Optional[str]]]:
+        pairs = self._current_constants(default_if_empty=True)
+        if len(pairs) != 1:
+            messagebox.showinfo(ctx, f"{ctx} requires a single constant. Current selection: {len(pairs)}.\n"
+                                     f"Use Prepare/Run to build a multi-register Active state, then run {ctx} with 'Use Active'.")
+            return None
+        return pairs[0]
+
+    # -------- format/helpers --------
+    def _fmt_amp(self, a: complex) -> str:
+        return f"{a.real:+.6e}{'+' if a.imag>=0 else ''}{a.imag:.6e}j"
+
+    def _preview_multi_registers(self, pairs: List[Tuple[str, Optional[str]]], mode: str, n_each: int):
+        """Print per-register preview for multi selections."""
+        self.preview_text.insert("end", f"Multi-constant preview ({mode}). Each register: {n_each} qubits.\n\n")
+        dim_each = 2 ** n_each
+        for (lab, meth) in pairs:
+            try:
+                # Terms-only labels (e.g., J0) force terms mode for that register
+                amp_mode = "terms" if _is_terms_only(lab) else ("egf" if mode == "EGF" else "terms")
+                amps = get_series_amplitudes(
+                    lab, dim_each,
+                    method=meth,
+                    phase_mode=self.phase_mode.get(),
+                    normalize=True,
+                    amp_mode=amp_mode
+                )
+                self.preview_text.insert("end", f"{lab}{f'[{meth}]' if meth else ''} → first {min(8, dim_each)} amps:\n")
+                for i, a in enumerate(amps[:8]):
+                    self.preview_text.insert("end", f"  {i:02d}: {self._fmt_amp(a)}\n")
+                if _is_terms_only(lab) and mode != "Terms":
+                    self.preview_text.insert("end", "  (auto-used Terms for this register)\n")
+                self.preview_text.insert("end", "\n")
+            except Exception as ex:
+                self.preview_text.insert("end", f"{lab}: preview error: {ex}\n\n")
+
+    # --- Multi label parsing / entanglement helpers ---
+    def _parse_multi_label(self, label: str):
+        """Parse labels like: multi[π,e,ln(2)|chain|3] → (['π','e','ln(2)'], 'chain', 3)."""
+        if not isinstance(label, str) or not label.startswith("multi["):
+            return None
+        try:
+            inside = label.split("multi[", 1)[1]
+            regs_part, topo, tail = inside.split("|", 2)
+            regq = int(tail.split("]", 1)[0])
+            regs = [s.strip() for s in regs_part.split(",") if s.strip()]
+            return regs, topo, regq
+        except Exception:
+            return None
+
+    def _schmidt_entropy_bits(self, sv: Statevector, cut: int) -> float:
+        """Von Neumann entropy (bits) of left block of 'cut' qubits vs the rest (pure state)."""
+        try:
+            S = perform_schmidt_decomposition(sv, cut=cut)
+            p = (S ** 2)
+            p = p[p > 1e-15]
+            return float(-np.sum(p * np.log2(p)))
+        except Exception:
+            return float("nan")
+
+    def _register_marginals(self, sv: Statevector, regq: int, reg_labels: List[str]) -> List[Tuple[str, np.ndarray]]:
+        """Return per-register marginal probability vectors [2**regq] for a multi state."""
+        n = int(np.log2(len(sv.data)))
+        R = len(reg_labels)
+        probs = (np.abs(sv.data) ** 2).reshape(*([2 ** regq] * R))
+        out = []
+        for i, name in enumerate(reg_labels):
+            axes_i = tuple(j for j in range(R) if j != i)
+            m = probs.sum(axis=axes_i).reshape(-1)
+            out.append((name, m))
+        return out
+
+    def _pad_stack(self, arrays: List[np.ndarray]) -> np.ndarray:
+        """Zero-pad 1D arrays to max length and stack -> (k, m)."""
+        if not arrays:
+            return np.zeros((0, 1), dtype=float)
+        m = max(len(a) for a in arrays)
+        X = np.zeros((len(arrays), m), dtype=float)
+        for i, a in enumerate(arrays):
+            a = np.asarray(a, dtype=float).reshape(-1)
+            X[i, :len(a)] = a
+        return X
+
+    # -------- Active state helpers --------
+    def _set_active(self, label: str, sv: Statevector, also_save: bool = True):
+        self.active_state_label = label
+        self.active_state = sv
+        if also_save:
+            self.statevectors[label] = sv
+        self._refresh_all_combos()
+        self._set_status(f"Active: {label} (len={len(sv.data)})")
+
+    def _get_active_or_selected(self, combo: ttk.Combobox) -> Tuple[str, Optional[Statevector]]:
+        lbl = combo.get()
+        if lbl in self.statevectors:
+            return lbl, self.statevectors[lbl]
+        if self.active_state is not None:
+            return self.active_state_label or "[active]", self.active_state
+        return "", None
+
+    def _refresh_all_combos(self):
+        keys = list(self.statevectors.keys())
+        for cb in getattr(self, "_all_combos", []):
+            cb.config(values=keys)
+
+    def _register_combo(self, cb: ttk.Combobox):
+        if not hasattr(self, "_all_combos"):
+            self._all_combos: List[ttk.Combobox] = []
+        self._all_combos.append(cb)
+
+    def _set_status(self, msg: str):
+        if self.active_state_label:
+            self.status_var.set(f"{msg}   |   Active: {self.active_state_label}")
+        else:
+            self.status_var.set(msg)
+
+    # ================== Tab 1: Encoding Preview ==================
+    def _build_tab_preview(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Encoding Preview")
+
+        btns = ttk.Frame(tab); btns.pack(fill="x", pady=6)
+        ttk.Button(btns, text="Preview Amplitudes / Digits", command=self.on_preview_amplitudes).pack(side="left", padx=4)
+        ttk.Button(btns, text="Prepare / Run (sets Active)", command=self.on_prepare_state).pack(side="left", padx=4)
+
+        self.preview_text = tk.Text(tab, height=20)
+        self.preview_text.pack(fill="both", expand=True, padx=6, pady=6)
+
+    def on_preview_amplitudes(self):
+        try:
+            mode = self.enc_mode.get()
+            pairs = self._current_constants(default_if_empty=True)
+            n = int(self.n_qubits.get()); dim = 2 ** n
+
+            self.preview_text.delete("1.0", "end")
+
+            if len(pairs) > 1 and mode in {"EGF", "Terms"}:
+                n_each = int(self.reg_qubits.get())
+                self._preview_multi_registers(pairs, mode, n_each)
+                self.preview_text.insert("end", "Use 'Prepare / Run' to create the entangled multi-register Active state.\n")
+                return
+
+            if mode in {"EGF", "Terms"}:
+                label, method = pairs[0]
+                # Auto-switch to Terms for Terms-only labels (e.g., J0)
+                if _is_terms_only(label) and mode != "Terms":
+                    self.enc_mode.set("Terms")
+                    mode = "Terms"
+                    self._set_status(f"{label}: Terms-only — switched encoding to Terms.")
+
+                amps = get_series_amplitudes((label + "[rail]") if (rail and "[rail]" not in label.lower()) else label, dim, method=method, phase_mode=self.phase_mode.get(),
+                    normalize=True, amp_mode=("egf" if mode == "EGF" else "terms")
+                )
+                self.preview_text.insert("end", f"{label} {mode} amplitudes (first {min(64, dim)} of {dim}):\n\n")
+                for i, a in enumerate(amps[:64]):
+                    self.preview_text.insert("end", f"{i:02d}: {self._fmt_amp(a)}\n")
+                self._set_status(f"Previewed {mode} amplitudes.")
+
+            elif mode == "Digit QROM":
+                label, method = pairs[0]
+                base = int(self.qrom_base.get()); bpd = int(self.qrom_bits.get()); nidx = int(self.qrom_index.get())
+                x = compute_series_value(label, terms=2048, method=method)
+                frac = abs(x) % 1.0
+                L = 2 ** nidx
+                digits, tmp = [], frac
+                for _ in range(L):
+                    tmp *= base
+                    d = int(tmp); digits.append(d); tmp -= d
+                self.preview_text.insert("end", f"{label} digits (base {base}, first {L}):\n\n")
+                self.preview_text.insert("end", " ".join(str(d) for d in digits) + "\n")
+                self._set_status("Previewed digits for Digit QROM.")
+
+            elif mode == "Periodic p/q":
+                p, q = int(self.p_val.get()), int(self.q_val.get())
+                self.preview_text.insert("end", f"Periodic phase e^(2πi p n / q) with p={p}, q={q}, N=2^{n}.\n")
+                self.preview_text.insert("end", f"Expected QFT peaks near multiples of N/q = {2**n}/{q}.\n")
+                self._set_status("Previewed periodic parameters.")
+
+            elif mode == "Value Phase (PEA)":
+                label, method = pairs[0]
+                K = int(self.pea_bits.get())
+                x = compute_series_value(label, terms=512, method=method) % 1.0
+                self.preview_text.insert("end", f"PEA will estimate frac({label}) ≈ {x:.12f} with ~{K} bits.\n")
+                self._set_status("Previewed PEA parameters.")
+
+        except Exception as e:
+            messagebox.showerror("Preview Error", str(e))
+
+    def on_prepare_state(self):
+        try:
+            mode = self.enc_mode.get()
+            pairs = self._current_constants(default_if_empty=True)
+            n = int(self.n_qubits.get())
+
+            if len(pairs) == 1:
+                label, method = pairs[0]
+                if mode in {"EGF", "Terms"}:
+                    if _is_terms_only(label) and mode != "Terms":
+                        self.enc_mode.set("Terms")
+                        mode = "Terms"
+                        self._set_status(f"{label}: Terms-only — switched encoding to Terms.")
+
+                    sv = generate_series_encoding(
+                        label, n_qubits=n, method=method,
+                        phase_mode=self.phase_mode.get(),
+                        amp_mode=("egf" if mode == "EGF" else "terms")
+                    )
+                    key = f"{label}[{mode},{self.phase_mode.get()},{method or '-'}]({n})"
+                    self._set_active(key, sv, also_save=True)
+                    self.preview_text.delete("1.0", "end")
+                    self.preview_text.insert("end", f"Prepared Active: {key}\nlen={len(sv.data)}\n")
+
+                elif mode == "Digit QROM":
+                    base = int(self.qrom_base.get()); bpd = int(self.qrom_bits.get()); nidx = int(self.qrom_index.get())
+                    qc = digit_qrom_circuit(label, base=base, n_index=nidx, bits_per_digit=bpd, method=method, do_measure=False)
+                    sv = simulate_statevector(qc)
+                    key = f"{label}[QROM,b{base},d{bpd},L={2**nidx}]"
+                    self._set_active(key, sv, also_save=True)
+                    self.preview_text.delete("1.0", "end")
+                    self.preview_text.insert("end", f"Prepared Active: {key}\nlen={len(sv.data)}\n")
+
+                elif mode == "Periodic p/q":
+                    p, q = int(self.p_val.get()), int(self.q_val.get())
+                    qc = periodic_phase_state(p, q, n_qubits=n, do_measure=False, apply_qft=False)
+                    sv = simulate_statevector(qc)
+                    key = f"phase(p={p},q={q})[{n}]"
+                    self._set_active(key, sv, also_save=True)
+                    self.preview_text.delete("1.0", "end")
+                    self.preview_text.insert("end", f"Prepared Active: {key}\nlen={len(sv.data)}\n")
+
+                elif mode == "Value Phase (PEA)":
+                    K = int(self.pea_bits.get())
+                    qc = value_phase_estimation_circuit(label, K=K, method=method, do_measure=True)
+                    _, counts = run_circuit(qc, use_ibm=bool(self.use_ibm.get()), measure=True)
+                    self.preview_text.insert("end", "\nPEA counts (top 10):\n")
+                    if counts:
+                        for k, v in sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[:10]:
+                            self.preview_text.insert("end", f"{k}: {v}\n")
+                    else:
+                        self.preview_text.insert("end", "(no counts)\n")
+                    self._set_status("Ran PEA (results shown).")
+
+            else:
+                labels = [lab for lab, _ in pairs]
+                methods = [meth for _, meth in pairs]
+                n_each = int(self.reg_qubits.get())
+                topo = self.multi_topology.get()
+                qc = entangle_series_multi(
+                    labels, n_qubits_each=n_each, methods=methods,
+                    phase_mode=self.phase_mode.get(), topology=topo,
+                    use_stateprep=True, do_measure=False
+                )
+                sv = simulate_statevector(qc)
+                key = f"multi[{','.join(labels)}|{topo}|{n_each}]"
+                self._set_active(key, sv, also_save=True)
+                # Multi summary
+                self.preview_text.delete("1.0", "end")
+                total_qubits = n_each * len(labels)
+                self.preview_text.insert("end",
+                    f"Prepared entangled multi-register Active:\n"
+                    f"  Labels: {', '.join(labels)}\n"
+                    f"  Topology: {topo}\n"
+                    f"  Qubits per register: {n_each}  |  Total qubits: {total_qubits}\n"
+                    f"  State length: {len(sv.data)}\n"
+                )
+
+        except Exception as e:
+            messagebox.showerror("Prepare/Run Error", str(e))
+
+    # ================== Tab 2: FFT Spectrum ==================
+    def _build_tab_fft(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="FFT Spectrum")
+        panel = ttk.Frame(tab); panel.pack(fill="x", pady=6)
+        self.fft_use_active = tk.BooleanVar(value=True)
+        ttk.Checkbutton(panel, text="Use Active", variable=self.fft_use_active).pack(side="left", padx=6)
+        ttk.Button(panel, text="Compute FFT Spectrum", command=self.on_compute_fft).pack(side="left", padx=6)
+        self.fft_canvas_holder = ttk.Frame(tab); self.fft_canvas_holder.pack(fill="both", expand=True, padx=6, pady=6)
+
+    def on_compute_fft(self):
+        try:
+            mode = self.enc_mode.get()
+            n = int(self.n_qubits.get()); dim = 2 ** n
+
+            if self.fft_use_active.get():
+                if self.active_state is None:
+                    messagebox.showinfo("FFT", "No Active state. Prepare one first.")
+                    return
+                amps = self.active_state.data
+                label = self.active_state_label or "[active]"
+                subtitle = "Active"
+            else:
+                single = self._single_constant_required("FFT")
+                if not single:
+                    return
+                label, method = single
+                if mode not in {"EGF", "Terms"}:
+                    messagebox.showinfo("FFT", "Use EGF or Terms mode for Series-based FFT.")
+                    return
+                # Auto-switch for Terms-only labels when building from series
+                if _is_terms_only(label) and mode != "Terms":
+                    self.enc_mode.set("Terms")
+                    mode = "Terms"
+                    self._set_status(f"{label}: Terms-only — switched encoding to Terms.")
+                amps = get_series_amplitudes(
+                    label, dim, method=method, phase_mode=self.phase_mode.get(),
+                    normalize=True, amp_mode=("egf" if mode == "EGF" else "terms")
+                )
+                subtitle = f"{mode}"
+
+            power, freqs, mets = compute_fft_spectrum_from_amplitudes(
+                amps, remove_dc=True, window="hann", pad_len=int(self.pad_len.get())
+            )
+            for w in self.fft_canvas_holder.winfo_children(): w.destroy()
+            fig = plt.Figure(figsize=(9.5, 3.6)); ax = fig.add_subplot(111)
+            ax.plot(freqs, power, marker="o")
+            ax.set_title(f"{label} {subtitle} FFT (DC={mets['dc_frac']:.3f}, H={mets['entropy_bits']:.3f} bits)")
+            ax.set_xlabel("Frequency Index"); ax.set_ylabel("Power"); ax.grid(True)
+            canvas = FigureCanvasTkAgg(fig, master=self.fft_canvas_holder); canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+            self._set_status(f"FFT done. Peak@{int(np.argmax(power))}.")
+        except Exception as e:
+            messagebox.showerror("FFT Error", str(e))
+
+    # ================== Tab 3: QFT Spectrum ==================
+    def _build_tab_qft(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="QFT Spectrum")
+        grid = ttk.Frame(tab); grid.pack(fill="x", pady=6)
+
+        self.qft_use_active = tk.BooleanVar(value=True)
+        ttk.Checkbutton(grid, text="Use Active", variable=self.qft_use_active).grid(row=0, column=0, padx=6, pady=4, sticky="w")
+
+        self.qft_do_measure = tk.BooleanVar(value=True)
+        ttk.Checkbutton(grid, text="Measure?", variable=self.qft_do_measure).grid(row=0, column=1, padx=6, pady=4, sticky="w")
+
+        ttk.Button(grid, text="Build QFT Circuit", command=self.on_build_qft_spectrum).grid(row=0, column=2, padx=6, pady=4, sticky="w")
+        ttk.Button(grid, text="Run (Backend/Sim)", command=self.on_run_qft_circuit).grid(row=0, column=3, padx=6, pady=4, sticky="w")
+        ttk.Button(grid, text="Simulate Statevector", command=self.on_simulate_qft_statevector).grid(row=0, column=4, padx=6, pady=4, sticky="w")
+
+        self.qft_counts_text = tk.Text(tab, height=18)
+        self.qft_counts_text.pack(fill="both", expand=True, padx=6, pady=6)
+
+        self.current_qft_circuit = None
+
+    def on_build_qft_spectrum(self):
+        try:
+            do_meas = bool(self.qft_do_measure.get())
+            if self.qft_use_active.get():
+                if self.active_state is None:
+                    self._set_status("No Active state. Prepare one first.")
+                    return
+                vec = self.active_state.data
+                vec = self._center_hann(vec=vec)
+                qc = index_qft_spectrum_circuit(vec, use_stateprep=True, do_measure=do_meas)
+                mets = self._spectrum_metrics(vec)
+                self.current_qft_circuit = qc
+                self.qft_counts_text.delete("1.0", "end")
+                self.qft_counts_text.insert("end", f"QFT (Active) built. len={len(vec)}, DC={mets['dc_frac']:.3f}, H={mets['entropy_bits']:.3f} bits\n")
+                self._set_status("QFT spectrum circuit (Active) ready.")
+            else:
+                single = self._single_constant_required("QFT")
+                if not single:
+                    return
+                label, method = single
+                n = int(self.n_qubits.get())
+                mode = self.enc_mode.get()
+                if mode not in {"EGF", "Terms"}:
+                    messagebox.showinfo("QFT", "Use EGF or Terms mode for Series-based QFT.")
+                    return
+                # Auto-switch for Terms-only label
+                if _is_terms_only(label) and mode != "Terms":
+                    self.enc_mode.set("Terms")
+                    mode = "Terms"
+                    self._set_status(f"{label}: Terms-only — switched encoding to Terms.")
+                qc, proc_vec, mets = qft_spectrum_from_series(
+                    label, n_qubits=n, method=method, phase_mode=self.phase_mode.get(),
+                    amp_mode=("egf" if mode == "EGF" else "terms"),
+                    preprocess=True, use_stateprep=True, do_measure=do_meas, pad_len=None
+                )
+                self.current_qft_circuit = qc
+                self.qft_counts_text.delete("1.0", "end")
+                self.qft_counts_text.insert("end", f"QFT (Series) built. len={mets['len']}, DC={mets['dc_frac']:.3f}, H={mets['entropy_bits']:.3f} bits\n")
+                self._set_status("QFT spectrum circuit (Series) ready.")
+        except Exception as e:
+            messagebox.showerror("QFT Build Error", str(e))
+
+    def on_run_qft_circuit(self):
+        try:
+            if not self.current_qft_circuit:
+                self._set_status("Build QFT spectrum circuit first.")
+                return
+            _, counts = run_circuit(self.current_qft_circuit, use_ibm=bool(self.use_ibm.get()), measure=True)
+            self.qft_counts_text.delete("1.0", "end")
+            if counts:
+                items = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+                self.qft_counts_text.insert("end", f"Counts ({'IBM' if self.use_ibm.get() else 'Sim'}): top {min(32, len(items))}\n\n")
+                for k, v in items[:32]:
+                    self.qft_counts_text.insert("end", f"{k}: {v}\n")
+                self._set_status(f"Run complete. {len(counts)} bitstrings.")
+            else:
+                self.qft_counts_text.insert("end", "No counts available.\n")
+                self._set_status("Run complete (no counts).")
+        except Exception as e:
+            messagebox.showerror("QFT Run Error", str(e))
+
+    def on_simulate_qft_statevector(self):
+        try:
+            if not self.current_qft_circuit:
+                self._set_status("Build QFT spectrum circuit first.")
+                return
+            sv = simulate_statevector(self.current_qft_circuit)
+            self.qft_counts_text.insert("end", f"\nStatevector simulated:\nlen={len(sv)}\n")
+            self._set_status("Statevector simulated.")
+        except Exception:
+            self.qft_counts_text.insert("end", "\nCircuit has measurement — statevector not available.\n")
+            self._set_status("Statevector sim not available (measured circuit).")
+
+    # ================== Tab 4: Measurement ==================
+    def _build_tab_measure(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Measure")
+        ttk.Label(tab, text="Select saved state (or leave blank for Active):").pack(pady=5)
+        self.measure_combo = ttk.Combobox(tab, values=list(self.statevectors.keys())); self._register_combo(self.measure_combo); self.measure_combo.pack()
+        ttk.Button(tab, text="Simulate Measurements", command=self.on_measure_state).pack(pady=6)
+
+        # register helpers + deterministic controls
+        optrow = ttk.Frame(tab); optrow.pack(pady=(0,6))
+        self.show_reg_grid = tk.BooleanVar(value=True)
+        ttk.Checkbutton(optrow, text="Show register grid", variable=self.show_reg_grid).pack(side="left", padx=6)
+
+        self.meas_shots = tk.IntVar(value=1024)
+        ttk.Label(optrow, text="Shots").pack(side="left")
+        ttk.Spinbox(optrow, from_=1, to=131072, textvariable=self.meas_shots, width=7).pack(side="left", padx=4)
+
+        self.fix_seed = tk.BooleanVar(value=True)
+        ttk.Checkbutton(optrow, text="Fix RNG", variable=self.fix_seed).pack(side="left", padx=6)
+        self.meas_seed = tk.IntVar(value=12345)
+        ttk.Label(optrow, text="Seed").pack(side="left")
+        ttk.Spinbox(optrow, from_=0, to=2**31-1, textvariable=self.meas_seed, width=10).pack(side="left", padx=4)
+
+        self.exact_counts = tk.BooleanVar(value=False)
+        ttk.Checkbutton(optrow, text="Exact (shots×|amp|²)", variable=self.exact_counts).pack(side="left", padx=6)
+
+        ttk.Button(optrow, text="Show Register Marginals", command=self.on_show_marginals).pack(side="left", padx=12)
+
+        self.measure_canvas = ttk.Frame(tab); self.measure_canvas.pack(fill="both", expand=True)
+
+    def on_measure_state(self):
+        try:
+            lbl, sv = self._get_active_or_selected(self.measure_combo)
+            if sv is None:
+                messagebox.showinfo("Missing", "No active or selected state."); return
+
+            n = int(np.log2(len(sv.data)))
+            shots = int(self.meas_shots.get())
+
+            # Build counts
+            if self.exact_counts.get():
+                probs = np.abs(sv.data) ** 2
+                counts = {format(i, f'0{n}b'): int(round(shots * p)) for i, p in enumerate(probs)}
+            else:
+                qc = QuantumCircuit(n); qc.initialize(sv.data, range(n)); qc.measure_all()
+                if self.use_ibm.get():
+                    backend = get_backend(use_ibm=True)
+                else:
+                    backend = Aer.get_backend("qasm_simulator")
+                    if self.fix_seed.get():
+                        seed = int(self.meas_seed.get())
+                        try:
+                            backend.set_options(seed_simulator=seed, seed_transpiler=seed)
+                        except Exception:
+                            pass
+                counts = backend.run(qc, shots=shots).result().get_counts()
+
+            # sorted counts for plotting
+            items = sorted(((int(k, 2), v) for k, v in counts.items()), key=lambda t: t[0])
+            xs_counts = [x for x, _ in items]
+            ys_counts = [y for _, y in items]
+            labels = [format(x, f'0{n}b') for x in xs_counts]
+
+            probs = np.abs(sv.data) ** 2
+            xs_all = list(range(len(probs)))
+            ys_theory = [shots * p for p in probs]
+
+            # Try to parse multi-register layout
+            parsed = self._parse_multi_label(lbl)
+            regs, regq = ([], None)
+            if parsed:
+                regs, _topo, regq = parsed
+            else:
+                maybe = int(self.reg_qubits.get())
+                if n % max(1, maybe) == 0:
+                    regq = maybe
+                    R = n // regq
+                    regs = [f"R{i}" for i in range(R)]
+
+            for w in self.measure_canvas.winfo_children():
+                w.destroy()
+            fig, ax = plt.subplots(figsize=(10, 4))
+            ax.bar(xs_counts, ys_counts, label="Measured")
+            ax.plot(xs_all, ys_theory, marker="o", linestyle="-", label="Shots × |amp|²")
+
+            # thin tick labels if too dense
+            if len(xs_counts) > 64:
+                step = max(1, len(xs_counts) // 64)
+                take = list(range(0, len(xs_counts), step))
+                ax.set_xticks([xs_counts[i] for i in take])
+                ax.set_xticklabels([labels[i] for i in take], rotation=90, fontsize=8)
+            else:
+                ax.set_xticks(xs_counts)
+                ax.set_xticklabels(labels, rotation=90, fontsize=8)
+
+            title = f"Measurement Outcomes for {lbl}"
+            if regs and regq:
+                layout = " | ".join(f"{r}[{regq}]" for r in regs)
+                title += f"\nBit layout (MSB→LSB): {layout}"
+            ax.set_title(title)
+            ax.set_xlabel("Basis"); ax.set_ylabel("Counts")
+            if len(xs_counts) <= 256:
+                ax.legend(loc="upper right", fontsize=8)
+            fig.tight_layout()
+
+            # Register grid + Schmidt entropies
+            if self.show_reg_grid.get() and regs and regq:
+                R = len(regs)
+                N = 1 << n
+                major = 1 << (regq * (R - 1))     # leftmost register boundary
+                minor = (1 << (regq * (R - 2))) if R >= 2 else None
+                for x in range(0, N + 1, major):
+                    ax.axvline(x - 0.5, linewidth=1.2, alpha=0.25)
+                if minor:
+                    for x in range(0, N + 1, minor):
+                        ax.axvline(x - 0.5, linewidth=0.6, alpha=0.08, linestyle="--")
+
+                try:
+                    e_cuts = []
+                    for k in range(1, len(regs)):
+                        e_cuts.append(self._schmidt_entropy_bits(sv, cut=regq * k))
+                    if e_cuts:
+                        ax.text(0.02, 0.98,
+                                "Schmidt entropies (bits):  " +
+                                " | ".join([f"{'|'.join(regs[:k])} ‖ {'|'.join(regs[k:])}: {e:.3f}"
+                                            for k, e in enumerate(e_cuts, start=1)]),
+                                transform=ax.transAxes, va="top", ha="left", fontsize=9)
+                except Exception:
+                    pass
+
+            canvas = FigureCanvasTkAgg(fig, master=self.measure_canvas)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+        except Exception as e:
+            messagebox.showerror("Measurement Error", str(e))
+
+    def on_show_marginals(self):
+        try:
+            lbl, sv = self._get_active_or_selected(self.measure_combo)
+            if sv is None:
+                messagebox.showinfo("Marginals", "No active or selected state."); return
+
+            n = int(np.log2(len(sv.data)))
+            parsed = self._parse_multi_label(lbl)
+            if parsed:
+                regs, _topo, regq = parsed
+            else:
+                regq = int(self.reg_qubits.get())
+                if n % regq != 0:
+                    messagebox.showinfo("Marginals", "Can't infer register structure."); return
+                R = n // regq
+                regs = [f"R{i}" for i in range(R)]
+
+            R = len(regs)
+            probs = (np.abs(sv.data) ** 2).reshape(*([2 ** regq] * R))
+
+            for w in self.measure_canvas.winfo_children():
+                w.destroy()
+            fig, axes = plt.subplots(1, R, figsize=(4 * R, 3))
+            if R == 1:
+                axes = [axes]
+            for i in range(R):
+                axes_i = tuple(j for j in range(R) if j != i)
+                m = probs.sum(axis=axes_i)
+                xs = np.arange(2 ** regq)
+                axes[i].bar(xs, m)
+                axes[i].set_title(f"Marginal: {regs[i]}  ({regq} qubits)")
+                axes[i].set_xticks(xs)
+                axes[i].set_xticklabels([format(x, f'0{regq}b') for x in xs], fontsize=8, rotation=0)
+                axes[i].set_xlabel("Local basis"); axes[i].set_ylabel("Prob.")
+            fig.tight_layout()
+            canvas = FigureCanvasTkAgg(fig, master=self.measure_canvas); canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+        except Exception as e:
+            messagebox.showerror("Marginals Error", str(e))
+
+    # ================== Tab 5: Amplitudes (improved) ==================
+    def _build_tab_amplitudes(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Amplitudes")
+        row = ttk.Frame(tab); row.pack(fill="x", pady=4)
+        ttk.Label(row, text="Select saved state (or leave blank for Active):").pack(side="left")
+        self.amp_combo = ttk.Combobox(row, values=list(self.statevectors.keys())); self._register_combo(self.amp_combo); self.amp_combo.pack(side="left", padx=6)
+        ttk.Button(row, text="Set Active from Selected", command=self.on_set_active_from_amp).pack(side="left")
+        self.amp_log = tk.BooleanVar(value=False)
+        ttk.Checkbutton(row, text="Log scale", variable=self.amp_log).pack(side="left", padx=8)
+        ttk.Button(tab, text="Show |amp|^2", command=self.on_plot_amplitudes).pack(pady=6)
+        self.amp_canvas = ttk.Frame(tab); self.amp_canvas.pack(fill="both", expand=True)
+
+    def on_set_active_from_amp(self):
+        key = self.amp_combo.get()
+        if key in self.statevectors:
+            self._set_active(key, self.statevectors[key], also_save=False)
+
+    def on_plot_amplitudes(self):
+        try:
+            lbl, sv = self._get_active_or_selected(self.amp_combo)
+            if sv is None:
+                messagebox.showerror("Error", "No active or selected state."); return
+            probs = np.abs(sv.data) ** 2
+            n = len(probs)
+            xs = list(range(n))
+            if bool(self.amp_log.get()):
+                vals = np.log10(np.maximum(probs, 1e-12))
+                ylab = "log10 Probability"; suffix = " (log10)"
+            else:
+                vals = probs
+                ylab = "Probability"; suffix = ""
+            for w in self.amp_canvas.winfo_children(): w.destroy()
+            fig, ax = plt.subplots(figsize=(9, 4)); ax.bar(xs, vals)
+            ax.set_title(f"|amp|^2 for {lbl}{suffix}"); ax.set_xlabel("Basis Index"); ax.set_ylabel(ylab)
+            if n > 64:
+                step = max(1, n // 64)
+                ax.set_xticks(xs[::step]); ax.set_xticklabels(xs[::step], rotation=90, fontsize=8)
+            else:
+                ax.set_xticks(xs); ax.set_xticklabels(xs, rotation=90, fontsize=8)
+            fig.tight_layout()
+            canvas = FigureCanvasTkAgg(fig, master=self.amp_canvas); canvas.draw(); canvas.get_tk_widget().pack(fill="both", expand=True)
+        except Exception as e:
+            messagebox.showerror("Amplitude Plot Error", str(e))
+
+    # ================== Tab 6: Similarity ==================
+    def _build_tab_similarity(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Similarity")
+
+        opts = ttk.Frame(tab); opts.pack(fill="x", pady=6)
+        self.sim_include_active = tk.BooleanVar(value=True)
+        ttk.Checkbutton(opts, text="Include Active", variable=self.sim_include_active).pack(side="left", padx=6)
+        self.sim_split_multi = tk.BooleanVar(value=True)
+        ttk.Checkbutton(opts, text="Split multi into registers", variable=self.sim_split_multi).pack(side="left", padx=6)
+        ttk.Button(opts, text="Compute Cosine Similarity", command=self.on_similarity).pack(side="left", padx=8)
+
+        self.sim_text = tk.Text(tab, height=18); self.sim_text.pack(fill="both", expand=True, padx=6, pady=6)
+
+    def _collect_vectors_for_stats(self, split_multi: bool, include_active: bool):
+        """
+        Build comparable feature matrix for stats.
+        - Whole states → probability vector |amp|^2 (length N).
+        - Multi states with split → per-register marginals (length 2**RegQ).
+        Returns (labels, X) where X is zero-padded to a common width.
+        """
+        labels: List[str] = []
+        vecs: List[np.ndarray] = []
+
+        def add_state(name: str, sv: Statevector):
+            parsed = self._parse_multi_label(name)
+            if split_multi and parsed:
+                regs, _topo, regq = parsed
+                for rname, marg in self._register_marginals(sv, regq, regs):
+                    labels.append(f"{name}:{rname}")
+                    vecs.append(np.asarray(marg, dtype=float))
+            else:
+                p = np.abs(sv.data) ** 2
+                labels.append(name)
+                vecs.append(np.asarray(p, dtype=float))
+
+        for k, sv in self.statevectors.items():
+            add_state(k, sv)
+
+        if include_active and self.active_state is not None and (self.active_state_label not in self.statevectors):
+            add_state(self.active_state_label or "[active]", self.active_state)
+
+        X = self._pad_stack(vecs)
+        return labels, X
+
+    def on_similarity(self):
+        try:
+            from sklearn.metrics.pairwise import cosine_similarity
+            labels, X = self._collect_vectors_for_stats(self.sim_split_multi.get(), self.sim_include_active.get())
+            if X.shape[0] < 2:
+                self.sim_text.delete("1.0", "end"); self.sim_text.insert("end", "Need at least 2 states (or registers).\n"); return
+            sim = cosine_similarity(X)
+            self.sim_text.delete("1.0", "end")
+            header = "         " + " ".join(f"{k[:14]:>14}" for k in labels) + "\n"; self.sim_text.insert("end", header)
+            for i, row in enumerate(sim):
+                self.sim_text.insert("end", f"{labels[i][:14]:>14}: " + " ".join(f"{v:>14.3f}" for v in row) + "\n")
+        except Exception as e:
+            messagebox.showerror("Similarity Error", str(e))
+
+    # ================== Tab 7: Clustering ==================
+    def _build_tab_clustering(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Clustering")
+
+        opts = ttk.Frame(tab); opts.pack(fill="x", pady=6)
+        self.pca_include_active = tk.BooleanVar(value=True)
+        ttk.Checkbutton(opts, text="Include Active", variable=self.pca_include_active).pack(side="left", padx=6)
+        self.pca_split_multi = tk.BooleanVar(value=True)
+        ttk.Checkbutton(opts, text="Split multi into registers", variable=self.pca_split_multi).pack(side="left", padx=6)
+        ttk.Button(opts, text="Run PCA", command=self.on_clustering).pack(side="left", padx=8)
+
+        self.cluster_canvas = ttk.Frame(tab); self.cluster_canvas.pack(fill="both", expand=True)
+        self.cluster_listbox = tk.Listbox(tab, selectmode=MULTIPLE, height=5, exportselection=False)
+        self.cluster_listbox.pack(fill="x", padx=10, pady=6)
+
+    def on_clustering(self):
+        try:
+            from sklearn.decomposition import PCA
+            labels, X = self._collect_vectors_for_stats(self.pca_split_multi.get(), self.pca_include_active.get())
+            if X.shape[0] < 2:
+                messagebox.showinfo("Clustering", "Need at least 2 items."); return
+            proj = PCA(n_components=2).fit_transform(X)
+            for w in self.cluster_canvas.winfo_children(): w.destroy()
+            fig, ax = plt.subplots(figsize=(7, 5))
+            for i, lbl in enumerate(labels):
+                ax.scatter(proj[i, 0], proj[i, 1])
+                ax.text(proj[i, 0], proj[i, 1], lbl, fontsize=8, ha="left", va="bottom")
+            ax.set_title("PCA Projection"); ax.grid(True)
+            canvas = FigureCanvasTkAgg(fig, master=self.cluster_canvas); canvas.draw(); canvas.get_tk_widget().pack(fill="both", expand=True)
+        except Exception as e:
+            messagebox.showerror("Clustering Error", str(e))
+
+    # ================== Tab 8: Tomography ==================
+    def _build_tab_tomography(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Tomography")
+        if not TOMO_OK:
+            ttk.Label(tab, text="qiskit-experiments not available.").pack(pady=8); return
+        ttk.Label(tab, text="Select saved state (or leave blank for Active):").pack(pady=5)
+        self.tomo_combo = ttk.Combobox(tab, values=list(self.statevectors.keys())); self._register_combo(self.tomo_combo); self.tomo_combo.pack()
+        ttk.Button(tab, text="Run Tomography", command=self.on_run_tomography).pack(pady=6)
+        self.tomo_canvas = ttk.Frame(tab); self.tomo_canvas.pack(fill="both", expand=True)
+
+    def on_run_tomography(self):
+        try:
+            if not TOMO_OK: return
+            lbl, sv = self._get_active_or_selected(self.tomo_combo)
+            if sv is None:
+                messagebox.showinfo("Tomography", "No active or selected state."); return
+
+            n = int(np.log2(len(sv.data)))
+            qc = QuantumCircuit(n); qc.initialize(sv.data, range(n))
+
+            # Prefer AerSimulator if available
+            if self.use_ibm.get():
+                backend = get_backend(use_ibm=True)
+            else:
+                backend = AerSimulator() if AerSimulator is not None else Aer.get_backend("qasm_simulator")
+
+            tomo = StateTomography(qc)
+            try:
+                expdata = tomo.run(backend, shots=2048)
+                expdata.block_for_results()
+                rho_fit = None
+                for ar in expdata.analysis_results():
+                    try:
+                        nm = getattr(ar, "name", "")
+                        if nm in ("state", "state_fit", "DensityMatrix", "rho"):
+                            rho_fit = ar.value
+                            break
+                    except Exception:
+                        pass
+                if rho_fit is None:
+                    ars = expdata.analysis_results()
+                    if ars:
+                        rho_fit = ars[0].value
+                if rho_fit is None:
+                    raise RuntimeError("Tomography produced no state.")
+                fid = float(state_fidelity(DensityMatrix(sv), rho_fit))
+                warn = None
+            except Exception as e:
+                # Graceful fallback when Aer can't handle certain instructions
+                fid = 1.0
+                warn = f"Tomography fallback used: {e}"
+
+            for w in self.tomo_canvas.winfo_children(): w.destroy()
+            fig, ax = plt.subplots(figsize=(6, 4))
+            title = f"Fidelity: {fid:.6f}  ({lbl})"
+            if warn:
+                title += "\n(Fallback: ideal self-fidelity)"
+            ax.set_title(title)
+            ax.text(0.5, 0.5, f"{fid:.6f}", fontsize=20, ha="center", va="center")
+            fig.tight_layout()
+            canvas = FigureCanvasTkAgg(fig, master=self.tomo_canvas); canvas.draw(); canvas.get_tk_widget().pack(fill="both", expand=True)
+        except Exception as e:
+            messagebox.showerror("Tomography Error", str(e))
+
+    # ================== Tab 9: Entanglement ==================
+    def _build_tab_entanglement(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Entanglement")
+
+        self.ent_mode = tk.StringVar(value="series")
+        ttk.Radiobutton(tab, text="Simple (2-qubit fractional)", variable=self.ent_mode, value="simple").grid(row=0, column=0, sticky="w", padx=4)
+        ttk.Radiobutton(tab, text="Series registers", variable=self.ent_mode, value="series").grid(row=0, column=1, sticky="w", padx=4)
+        ttk.Radiobutton(tab, text="Multi (CSV)", variable=self.ent_mode, value="multi").grid(row=0, column=2, sticky="w", padx=4)
+
+        self.ent1 = tk.StringVar(value="π"); self.ent2 = tk.StringVar(value="ζ(3)")
+        ttk.Label(tab, text="Const 1:").grid(row=1, column=0, sticky="e"); ttk.Combobox(tab, textvariable=self.ent1, values=SUGGESTED_LABELS, state="normal", width=24).grid(row=1, column=1, sticky="w")
+        ttk.Label(tab, text="Const 2:").grid(row=2, column=0, sticky="e"); ttk.Combobox(tab, textvariable=self.ent2, values=SUGGESTED_LABELS, state="normal", width=24).grid(row=2, column=1, sticky="w")
+
+        self.series_qubits_each = tk.IntVar(value=3)
+        self.series_pattern = tk.StringVar(value="cx_all")
+        ttk.Label(tab, text="Series qubits each:").grid(row=3, column=0, sticky="e"); ttk.Spinbox(tab, from_=1, to=8, textvariable=self.series_qubits_each, width=5).grid(row=3, column=1, sticky="w")
+        ttk.Label(tab, text="Pattern:").grid(row=3, column=2, sticky="e"); ttk.Combobox(tab, textvariable=self.series_pattern, values=["cx_all","bell_on_0"], state="readonly", width=10).grid(row=3, column=3, sticky="w")
+
+        ttk.Label(tab, text="Multi CSV (e.g. π,ζ(3),e)").grid(row=4, column=0, sticky="e")
+        self.multi_csv = tk.Entry(tab, width=40); self.multi_csv.insert(0, "π,ζ(3),e"); self.multi_csv.grid(row=4, column=1, columnspan=2, sticky="w")
+
+        self.multi_topology_tab = tk.StringVar(value="chain")
+        ttk.Label(tab, text="Topology:").grid(row=4, column=3, sticky="e"); ttk.Combobox(tab, textvariable=self.multi_topology_tab, values=["chain","star","all_to_all"], state="readonly", width=10).grid(row=4, column=4, sticky="w")
+
+        ttk.Button(tab, text="Build & Analyze", command=self.on_ent_analyze).grid(row=5, column=0, columnspan=5, pady=6)
+        self.ent_canvas = ttk.Frame(tab); self.ent_canvas.grid(row=6, column=0, columnspan=5, sticky="nsew")
+
+    def on_ent_analyze(self):
+        try:
+            for w in self.ent_canvas.winfo_children(): w.destroy()
+            mode = self.ent_mode.get()
+
+            if mode == "simple":
+                c1 = compute_series(self.ent1.get(), 100)
+                c2 = compute_series(self.ent2.get(), 100)
+                qc = encode_entangled_constants(c1, c2)
+                sv = simulate_statevector(qc); cut = 1
+
+            elif mode == "series":
+                n_each = int(self.series_qubits_each.get())
+                c1, c2 = self.ent1.get(), self.ent2.get()
+                m1 = self.pi_method.get() if _supports_method(c1) else None
+                m2 = self.pi_method.get() if _supports_method(c2) else None
+                qc = entangle_series_registers(
+                    c1, c2, n_qubits_each=n_each, method1=m1, method2=m2,
+                    phase_mode1=self.phase_mode.get(), phase_mode2=self.phase_mode.get(),
+                    pattern=self.series_pattern.get(), use_stateprep=True, do_measure=False
+                )
+                sv = simulate_statevector(qc); cut = n_each
+
+            else:
+                labels = [s.strip() for s in self.multi_csv.get().split(",") if s.strip()]
+                if len(labels) < 2:
+                    messagebox.showinfo("Multi", "Provide at least 2 labels."); return
+                n_each = int(self.series_qubits_each.get())
+                topo = self.multi_topology_tab.get()
+                qc = entangle_series_multi(
+                    labels, n_qubits_each=n_each, methods=None,
+                    phase_mode=self.phase_mode.get(), topology=topo,
+                    use_stateprep=True, do_measure=False
+                )
+                sv = simulate_statevector(qc); cut = n_each * (len(labels)//2)
+
+            rhoA, rhoB, rhoAB = analyze_tensor_structure(sv)
+            S = perform_schmidt_decomposition(sv, cut=cut)
+            fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+            probs = np.abs(sv.data) ** 2
+            axs[0].bar(range(len(probs)), probs); axs[0].set_title("Entangled State Spectrum")
+            axs[1].imshow(np.outer(S, S), cmap="magma"); axs[1].set_title("Schmidt (outer product)")
+            fig.tight_layout()
+            canvas = FigureCanvasTkAgg(fig, master=self.ent_canvas); canvas.draw(); canvas.get_tk_widget().pack(fill="both", expand=True)
+            self._set_active(f"ent[{mode}]", sv, also_save=False)
+        except Exception as e:
+            messagebox.showerror("Entanglement Error", str(e))
+
+    # ================== Tab 10: Gates ==================
+    def _build_tab_gates(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Gates")
+
+        row = ttk.Frame(tab); row.pack(fill="x", pady=6)
+        self.gate_decompose = tk.BooleanVar(value=False)
+        ttk.Checkbutton(row, text="Decompose initialize", variable=self.gate_decompose).pack(side="left", padx=6)
+
+        self.gate_hide_init = tk.BooleanVar(value=True)
+        ttk.Checkbutton(row, text="Hide initialize box", variable=self.gate_hide_init).pack(side="left", padx=6)
+
+        self.gate_barrier_split = tk.BooleanVar(value=True)
+        ttk.Checkbutton(row, text="Barrier after prep", variable=self.gate_barrier_split).pack(side="left", padx=6)
+
+        self.gate_reverse = tk.BooleanVar(value=False)
+        ttk.Checkbutton(row, text="Reverse bits", variable=self.gate_reverse).pack(side="left", padx=6)
+
+        ttk.Label(row, text="Wrap width (fold)").pack(side="left")
+        self.gate_fold = tk.IntVar(value=120)
+        ttk.Spinbox(row, from_=40, to=240, textvariable=self.gate_fold, width=6).pack(side="left", padx=4)
+
+        ttk.Label(row, text="Figure width").pack(side="left")
+        self.gate_figw = tk.DoubleVar(value=10.0)
+        ttk.Spinbox(row, from_=6.0, to=18.0, increment=0.5, textvariable=self.gate_figw, width=6).pack(side="left", padx=4)
+
+        btns = ttk.Frame(tab); btns.pack(fill="x", pady=(0,6))
+        ttk.Button(btns, text="Draw Current QFT Circuit (if any)", command=self.on_draw_qft).pack(side="left", padx=6)
+        ttk.Button(btns, text="Draw Prep for Active/Last Saved", command=self.on_draw_prep_for_last).pack(side="left", padx=6)
+        ttk.Button(btns, text="Draw (ASCII / Text)", command=self.on_draw_text).pack(side="left", padx=6)
+        ttk.Button(btns, text="Show Summary", command=self.on_draw_summary).pack(side="left", padx=6)
+
+        self.gate_canvas = ttk.Frame(tab); self.gate_canvas.pack(fill="both", expand=True)
+        self.gate_text = tk.Text(tab, height=12, font=("Courier", 10))
+        self.gate_text.pack(fill="both", expand=False, padx=6, pady=(6,8))
+
+    def _make_drawable_circuit(self, qc: QuantumCircuit) -> Tuple[QuantumCircuit, bool]:
+        """Return a circuit ready for drawing and whether we saw initialize."""
+        draw_circ = QuantumCircuit(*qc.qregs, *qc.cregs)
+        saw_init = False
+
+        for inst, qargs, cargs in qc.data:
+            name = getattr(inst, "name", "")
+            if name in ("initialize", "state_preparation", "initialize_"):
+                saw_init = True
+                if self.gate_decompose.get():
+                    # keep the real initialize so decompose() can expand it
+                    draw_circ.append(inst, qargs, cargs)
+                else:
+                    if self.gate_hide_init.get():
+                        # replace with a compact placeholder
+                        dummy = Instruction(name="Init |ψ⟩", num_qubits=len(qargs), num_clbits=len(cargs), params=[])
+                        draw_circ.append(dummy, qargs, cargs)
+                    else:
+                        # show as-is (may be verbose)
+                        draw_circ.append(inst, qargs, cargs)
+                if self.gate_barrier_split.get() and draw_circ.num_qubits:
+                    draw_circ.barrier(*draw_circ.qubits)
+            else:
+                draw_circ.append(inst, qargs, cargs)
+
+        return draw_circ, saw_init
+
+    def _draw_circuit_on_canvas(self, qc: QuantumCircuit):
+        for w in self.gate_canvas.winfo_children(): w.destroy()
+        try:
+            draw_circ, saw_init = self._make_drawable_circuit(qc)
+            if self.gate_decompose.get():
+                draw_circ = draw_circ.decompose(reps=4)
+            fig = draw_circ.draw(
+                output="mpl",
+                fold=int(self.gate_fold.get()),
+                reverse_bits=bool(self.gate_reverse.get()),
+                idle_wires=False,
+                style={"figwidth": float(self.gate_figw.get())}
+            )
+            canvas = FigureCanvasTkAgg(fig, master=self.gate_canvas)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill="both", expand=True)
+
+            # Brief hint in text area so the tab always conveys something.
+            self.gate_text.delete("1.0", "end")
+            hint = "initialize hidden" if (saw_init and self.gate_hide_init.get() and not self.gate_decompose.get()) else \
+                   ("initialize decomposed" if (saw_init and self.gate_decompose.get()) else "no initialize found")
+            self.gate_text.insert("end", f"[Gates] Drew circuit ({hint}). Toggle options above to change view.\n")
+        except Exception as e:
+            messagebox.showerror("Gate Draw Error", str(e))
+
+    def on_draw_qft(self):
+        if not getattr(self, "current_qft_circuit", None):
+            self._set_status("No QFT circuit yet."); return
+        self._draw_circuit_on_canvas(self.current_qft_circuit)
+
+    def on_draw_prep_for_last(self):
+        try:
+            if self.active_state is not None:
+                sv = self.active_state; label = self.active_state_label or "[active]"
+            else:
+                keys = list(self.statevectors.keys())
+                if not keys: self._set_status("No states available."); return
+                label = keys[-1]; sv = self.statevectors[label]
+            n = int(np.log2(len(sv.data)))
+            qc = QuantumCircuit(n); qc.initialize(sv.data, range(n))
+            self._draw_circuit_on_canvas(qc)
+            self._set_status(f"Drew prep circuit for {label}")
+        except Exception as e:
+            messagebox.showerror("Gate Draw Error", str(e))
+
+    def on_draw_text(self):
+        """ASCII/text drawer—always readable, never ellipses."""
+        try:
+            qc = None
+            if getattr(self, "current_qft_circuit", None):
+                qc = self.current_qft_circuit
+            elif self.active_state is not None:
+                n = int(np.log2(len(self.active_state.data)))
+                qc = QuantumCircuit(n); qc.initialize(self.active_state.data, range(n))
+            else:
+                messagebox.showinfo("Text Draw", "Nothing to draw yet."); return
+
+            draw_circ, _ = self._make_drawable_circuit(qc)
+            if self.gate_decompose.get():
+                draw_circ = draw_circ.decompose(reps=4)
+            txt = str(draw_circ.draw(output="text", fold=int(self.gate_fold.get())))
+            self.gate_text.delete("1.0", "end")
+            self.gate_text.insert("end", txt + "\n")
+        except Exception as e:
+            messagebox.showerror("Text Draw Error", str(e))
+
+    def on_draw_summary(self):
+        """Quick numeric summary of the circuit so the tab always conveys info."""
+        try:
+            qc = None
+            if getattr(self, "current_qft_circuit", None):
+                qc = self.current_qft_circuit
+            elif self.active_state is not None:
+                n = int(np.log2(len(self.active_state.data)))
+                qc = QuantumCircuit(n); qc.initialize(self.active_state.data, range(n))
+            else:
+                messagebox.showinfo("Summary", "Nothing to summarize yet."); return
+
+        # Avoid AttributeError variations across Qiskit versions:
+            try:
+                counts = qc.count_ops()
+            except Exception:
+                counts = {}
+            try:
+                depth = qc.depth()
+            except Exception:
+                depth = -1
+            try:
+                size = qc.size()
+            except Exception:
+                size = len(qc.data)
+
+            summary = [
+                f"Qubits: {qc.num_qubits}   Clbits: {qc.num_clbits}",
+                f"Depth: {depth}   Size (ops): {size}",
+                "Ops:",
+            ] + [f"  {k}: {v}" for k, v in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))]
+
+            self.gate_text.delete("1.0", "end")
+            self.gate_text.insert("end", "\n".join(summary) + "\n")
+        except Exception as e:
+            messagebox.showerror("Summary Error", str(e))
+
+    # ================== Tab 11: State I/O ==================
+    def _build_tab_state_io(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="State I/O")
+        ttk.Button(tab, text="Save Active", command=self.on_save_active).pack(pady=6)
+        ttk.Button(tab, text="Load State (becomes Active)", command=self.on_load_state).pack(pady=6)
+
+    def on_save_active(self):
+        """Save the Active state using a native Save dialog (macOS-safe)."""
+        try:
+            if self.active_state is None:
+                messagebox.showinfo("Save", "No active state.")
+                return
+            label = self.active_state_label or "active_state"
+            saved_path = save_statevector_dialog(self, self.active_state, label)
+            if saved_path:
+                self.statevectors[label] = self.active_state
+                self._refresh_all_combos()
+                self._set_status(f"Saved: {saved_path}")
+        except Exception as e:
+            messagebox.showerror("Save Error", str(e))
+
+    def on_load_state(self):
+        """Load a state from disk via native Open dialog (macOS-safe)."""
+        try:
+            res = load_statevector_dialog(self)
+            if not res:
+                return  # user cancelled
+            label, sv = res
+            self._set_active(label, sv, also_save=True)
+        except Exception as e:
+            messagebox.showerror("Load Error", str(e))
+
+    # ================== Tab 12: Basis States ==================
+    def _build_tab_basis(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Basis States")
+        row = ttk.Frame(tab); row.pack(fill="x", pady=4)
+        ttk.Label(row, text="Select saved state (or leave blank for Active):").pack(side="left")
+        self.basis_combo = ttk.Combobox(row, values=list(self.statevectors.keys())); self._register_combo(self.basis_combo); self.basis_combo.pack(side="left", padx=6)
+        ttk.Button(row, text="Set Active from Selected", command=self.on_set_active_from_basis).pack(side="left")
+        ttk.Button(tab, text="Show Basis Amplitudes", command=self.on_show_basis).pack(pady=6)
+        self.basis_text = tk.Text(tab, height=22, font=("Courier", 10)); self.basis_text.pack(fill="both", expand=True, padx=6, pady=6)
+
+    def on_set_active_from_basis(self):
+        key = self.basis_combo.get()
+        if key in self.statevectors:
+            self._set_active(key, self.statevectors[key], also_save=False)
+
+    def on_show_basis(self):
+        try:
+            lbl, sv = self._get_active_or_selected(self.basis_combo)
+            if sv is None:
+                messagebox.showinfo("Basis", "No active or selected state."); return
+            n = int(np.log2(len(sv.data)))
+            self.basis_text.delete("1.0", "end")
+            for i, a in enumerate(sv.data):
+                self.basis_text.insert("end", f"|{i:0{n}b}⟩  →  {a.real:+.6f}{'+' if a.imag>=0 else ''}{a.imag:.6f}j\n")
+        except Exception as e:
+            messagebox.showerror("Basis Error", str(e))
+
+    # ================== Tab 13: Chunks (Hierarchical) — NEW ==================
+    def _build_tab_chunks(self):
+        self._build_tab_reference()
+        self._build_tab_export()
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Chunks (Hierarchical)")
+
+        controls = ttk.Frame(tab); controls.pack(fill="x", pady=6)
+        self.chunks_use_active = tk.BooleanVar(value=True)
+        ttk.Checkbutton(controls, text="Use Active", variable=self.chunks_use_active).pack(side="left", padx=6)
+
+        ttk.Label(controls, text="Chunk qubits k").pack(side="left")
+        self.chunk_k = tk.IntVar(value=2)
+        ttk.Spinbox(controls, from_=1, to=10, textvariable=self.chunk_k, width=5).pack(side="left", padx=4)
+
+        ttk.Label(controls, text="Merge rule").pack(side="left", padx=(8,0))
+        self.merge_rule = tk.StringVar(value="norm-weighted")
+        ttk.Combobox(controls, textvariable=self.merge_rule,
+                     values=["sum", "mean", "norm-weighted"], state="readonly", width=14).pack(side="left", padx=4)
+
+        self.chunks_plot = tk.BooleanVar(value=True)
+        ttk.Checkbutton(controls, text="Plot first pair (level 0)", variable=self.chunks_plot).pack(side="left", padx=8)
+
+        ttk.Button(controls, text="Run Chunk Merge", command=self.on_run_chunks).pack(side="left", padx=12)
+
+        self.chunks_canvas = ttk.Frame(tab); self.chunks_canvas.pack(fill="both", expand=True, padx=6, pady=6)
+        self.chunks_text = tk.Text(tab, height=14); self.chunks_text.pack(fill="both", expand=False, padx=6, pady=(0,8))
+
+    @staticmethod
+    def _cos_sim(u: np.ndarray, v: np.ndarray, eps: float = 1e-15) -> float:
+        u = np.asarray(u, dtype=np.complex128).reshape(-1)
+        v = np.asarray(v, dtype=np.complex128).reshape(-1)
+        num = np.vdot(u, v)  # conjugate dot
+        den = np.linalg.norm(u) * np.linalg.norm(v) + eps
+        return float(np.abs(num) / den)
+
+    def on_run_chunks(self):
+        try:
+            # 1) Get amplitude vector
+            if self.chunks_use_active.get():
+                if self.active_state is None:
+                    messagebox.showinfo("Chunks", "No Active state — prepare one or uncheck 'Use Active'.")
+                    return
+                vec = np.asarray(self.active_state.data, dtype=np.complex128)
+                label = self.active_state_label or "[active]"
+            else:
+                single = self._single_constant_required("Chunks")
+                if not single:
+                    return
+                label, method = single
+                n = int(self.n_qubits.get()); dim = 2 ** n
+                mode = self.enc_mode.get()
+                if mode not in {"EGF", "Terms"}:
+                    messagebox.showinfo("Chunks", "Use EGF or Terms to build a series amplitude vector.")
+                    return
+                if _is_terms_only(label) and mode != "Terms":
+                    self.enc_mode.set("Terms")
+                    mode = "Terms"
+                    self._set_status(f"{label}: Terms-only — switched encoding to Terms.")
+                vec = np.asarray(
+                    get_series_amplitudes(label, dim, method=method, phase_mode=self.phase_mode.get(),
+                                          normalize=True, amp_mode=("egf" if mode == "EGF" else "terms")),
+                    dtype=np.complex128
+                )
+
+            N = vec.size
+            k = int(self.chunk_k.get())
+            M = 1 << k  # chunk size
+            if M <= 0 or N % M != 0:
+                messagebox.showinfo("Chunks", f"Chunk size 2^{k} must divide state length N={N}."); return
+
+            # 2) Build initial chunks
+            L0 = N // M
+            chunks = [vec[i*M:(i+1)*M].copy() for i in range(L0)]
+
+            # 3) Iteratively pair-merge
+            rule = self.merge_rule.get()
+            levels = []
+            level_id = 0
+            eps = 1e-15
+
+            while len(chunks) > 1:
+                pairs = []
+                stats = []
+                next_chunks = []
+                for i in range(0, len(chunks), 2):
+                    if i + 1 >= len(chunks):
+                        # odd tail — carry forward
+                        next_chunks.append(chunks[i])
+                        continue
+                    c0, c1 = chunks[i], chunks[i+1]
+                    # stats
+                    n0 = float(np.linalg.norm(c0))
+                    n1 = float(np.linalg.norm(c1))
+                    p0 = n0**2; p1 = n1**2
+                    frac0 = p0 / max(p0 + p1, eps)
+                    cos01 = self._cos_sim(c0, c1, eps=eps)
+                    stats.append((i//2, frac0, 1.0 - frac0, cos01))
+
+                    # merge
+                    if rule == "sum":
+                        v = c0 + c1
+                    elif rule == "mean":
+                        v = 0.5 * (c0 + c1)
+                    else:  # norm-weighted
+                        w0 = n0; w1 = n1
+                        denom = max(w0 + w1, eps)
+                        v = (w0 * c0 + w1 * c1) / denom
+
+                    # normalize merged chunk to unit norm to keep comparisons robust
+                    nv = np.linalg.norm(v)
+                    if nv > 0:
+                        v = v / nv
+                    next_chunks.append(v)
+                    pairs.append((c0, c1, v))
+
+                levels.append({"level": level_id, "pairs": pairs, "stats": stats})
+                chunks = next_chunks
+                level_id += 1
+                if len(chunks) == 1:
+                    break
+
+            # 4) Report
+            self.chunks_text.delete("1.0", "end")
+            self.chunks_text.insert("end", f"Chunks Hierarchy for {label}\n")
+            self.chunks_text.insert("end", f"N={N}, chunk_size=2^{k}={M}, initial_chunks={L0}, merge_rule={rule}\n\n")
+            for L in levels:
+                stats = L["stats"]
+                if not stats:
+                    continue
+                idxs = [s[0] for s in stats]
+                frac0s = [s[1] for s in stats]
+                frac1s = [s[2] for s in stats]
+                coss = [s[3] for s in stats]
+                self.chunks_text.insert("end",
+                    f"Level {L['level']}: pairs={len(stats)} | "
+                    f"mean frac(left)={np.mean(frac0s):.3f} ± {np.std(frac0s):.3f} | "
+                    f"mean cos={np.mean(coss):.3f} (min={np.min(coss):.3f}, max={np.max(coss):.3f})\n"
+                )
+            self.chunks_text.insert("end", "\nDone.\n")
+
+            # 5) Optional plot: first pair at level 0
+            for w in self.chunks_canvas.winfo_children(): w.destroy()
+            if levels and bool(self.chunks_plot.get()):
+                first = levels[0]["pairs"]
+                if first:
+                    c0, c1, v = first[0]
+                    xs = np.arange(M)
+                    fig, ax = plt.subplots(figsize=(10, 4))
+                    ax.bar(xs - 0.25, np.abs(c0)**2, width=0.25, label="Chunk 0 |amp|^2")
+                    ax.bar(xs,        np.abs(c1)**2, width=0.25, label="Chunk 1 |amp|^2")
+                    ax.plot(xs,       np.abs(v)**2,  marker="o", linestyle="-", label="Merged |amp|^2")
+                    ax.set_title(f"Level 0, Pair 0 — chunk size {M}")
+                    ax.set_xlabel("Local basis index within chunk")
+                    ax.set_ylabel("Probability")
+                    if M > 64:
+                        step = max(1, M // 64)
+                        ax.set_xticks(xs[::step])
+                        ax.set_xticklabels(xs[::step], rotation=90, fontsize=8)
+                    else:
+                        ax.set_xticks(xs)
+                        ax.set_xticklabels(xs, rotation=90, fontsize=8)
+                    ax.legend(fontsize=8)
+                    fig.tight_layout()
+                    canvas = FigureCanvasTkAgg(fig, master=self.chunks_canvas)
+                    canvas.draw()
+                    canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        except Exception as e:
+            messagebox.showerror("Chunks Error", str(e))
+
+    # ---------- helpers for QFT metrics ----------
+    def _center_hann(self, vec: np.ndarray) -> np.ndarray:
+        x = vec.astype(np.complex128); m = np.mean(x); x = x - m
+        if x.size > 1: x = x * np.hanning(x.size)
+        return x
+
+    def _spectrum_metrics(self, vec: np.ndarray) -> dict:
+        X = np.fft.fft(vec); P = np.abs(X) ** 2; S = P.sum() or 1.0
+        dc = float(P[0] / S); p = P / S; p = p[p > 0]
+        H = float(-np.sum(p * np.log2(p)))
+        return {"dc_frac": dc, "entropy_bits": H}
+
+
+    def _build_tab_reference(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Reference")
+        txt = tk.Text(tab, height=28, wrap="word"); txt.pack(fill="both", expand=True, padx=6, pady=6)
+        content = (
+            "QTE Reference\n"
+            "————————————\n\n"
+            "J0(x) series:\n"
+            "  J0(x) = sum_{k≥0} (-1)^k (x/2)^{2k} / (k!)^2\n\n"
+            "Zeta, polylog identities:\n"
+            "  ζ(2) = π^2 / 6\n"
+            "  Li₂(1/2) = π^2/12 − (ln 2)^2/2\n"
+            "  Li₃(1/2) = (7/8)ζ(3) − (π^2/12)ln 2 + (ln 2)^3/6\n\n"
+            "Modes used here:\n"
+            "  Terms: direct Maclaurin coefficients as amplitudes (with chosen phase mode).\n"
+            "  EGF:   exponential generating function sampling.\n\n"
+            "Spectra:\n"
+            "  FFT: classical FFT of amplitudes (windowed, DC-removed).\n"
+            "  QFT: apply QFT to index register; measure or simulate.\n"
+        )
+        try:
+            txt.insert("end", content)
+        except Exception:
+            pass
+
+    def _build_tab_export(self):
+        tab = ttk.Frame(self.nb); self.nb.add(tab, text="Paper Export")
+        ttk.Button(tab, text="Generate plots for Active", command=self._export_plots_active).pack(pady=8)
+        self.export_text = tk.Text(tab, height=18); self.export_text.pack(fill="both", expand=True, padx=6, pady=6)
+
+    def _export_plots_active(self):
+        try:
+            import os, time
+            if self.active_state is None:
+                messagebox.showinfo("Export", "No Active state."); return
+            label = self.active_state_label or "active"
+            vec = self.active_state.data
+            probs = (np.abs(vec)**2)
+            outdir = "paper_outputs"; os.makedirs(outdir, exist_ok=True)
+            ts = time.strftime("%Y%m%d-%H%M%S")
+            safe_label = str(label).replace("/", "_").replace(" ", "_")
+            f1 = os.path.join(outdir, f"{safe_label}_amps_{ts}.png")
+            fig, ax = plt.subplots(figsize=(9,3.2)); ax.bar(range(len(probs)), probs)
+            ax.set_title(f"{label} |amp|^2"); ax.set_xlabel("index"); ax.set_ylabel("prob"); fig.tight_layout(); fig.savefig(f1); plt.close(fig)
+            power, freqs, mets = compute_fft_spectrum_from_amplitudes(vec, remove_dc=True, window="hann", pad_len=int(self.pad_len.get()))
+            f2 = os.path.join(outdir, f"{safe_label}_fft_{ts}.png")
+            fig2, ax2 = plt.subplots(figsize=(9,3.2)); ax2.plot(freqs, power, marker="o")
+            ax2.set_title(f"{label} FFT (DC={mets['dc_frac']:.3f}, H={mets['entropy_bits']:.3f} bits)")
+            ax2.set_xlabel("freq index"); ax2.set_ylabel("power"); ax2.grid(True); fig2.tight_layout(); fig2.savefig(f2); plt.close(fig2)
+            self.export_text.insert("end", f"Saved:\n  {f1}\n  {f2}\n")
+            self._set_status("Paper plots saved.")
+        except Exception as e:
+            messagebox.showerror("Export Error", str(e))
+
+if __name__ == "__main__":
+    app = QTEGUI()
+    app.mainloop()
+
+
+
+# _QTE_REF_EXTRA
+# • [rail]: split positive/negative magnitudes into an extra sign rail.
+# • EGF mode: weights 1/k! using lgamma (stable).
+# • QFT[f(x); N=..; a=..; b=..; ifft]: sample f on [a,b), optional IFFT of samples, then normalize.
+# • Polylog Li(s,z): Euler transform auto-accelerates when z in (-1,0) real.
