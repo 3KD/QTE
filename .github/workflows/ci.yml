@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ '3.9', '3.12' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
+      - name: Run smoke/tests
+        run: |
+          set -e
+          python -u tests_qte.py
+          python - <<'PY'
+import series_encoding as se, math
+assert math.isfinite(se.value_from_label("J2(1.0)"))
+PY
+
+  docs:
+    name: Build & Deploy Docs
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # allow pushing to gh-pages with GITHUB_TOKEN
+    concurrency:
+      group: docs-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install mkdocs
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install mkdocs mkdocs-material
+      - name: Build site
+        run: mkdocs build --strict
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          force_orphan: true

@@ -1,3 +1,5 @@
+[![CI](https://github.com/3KD/QTE/actions/workflows/ci.yml/badge.svg)](https://github.com/3KD/QTE/actions/workflows/ci.yml)
+
 # QTE (Quantum Series Encoder)
 
 Preprint-batch code: polylog analytic continuation (mp/series/auto backends),
