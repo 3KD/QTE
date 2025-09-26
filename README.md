@@ -1,4 +1,4 @@
-[![CI](https://github.com/3KD/QTE/actions/workflows/ci.yml/badge.svg)](https://github.com/3KD/QTE/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-pages-blue)](https://3KD.github.io/QTE/) [![CI](https://github.com/3KD/QTE/actions/workflows/ci.yml/badge.svg)](https://github.com/3KD/QTE/actions/workflows/ci.yml)
 
 # QTE (Quantum Series Encoder)
 
