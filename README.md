@@ -10,4 +10,3 @@ Bessel J_n values + vectors, QFT labels with [rail], Maclaurin helpers, cache, C
 pip install -r requirements.txt
 ./qte_cli.py --nq 6 --mode terms --label 'QFT[sin(2*pi*x); N=64; a=0; b=1; ifft][rail]'
 ./qte_cli.py --value --label 'polylog(2, 1.1)'
-

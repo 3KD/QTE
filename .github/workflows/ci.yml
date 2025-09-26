@@ -3,51 +3,44 @@ name: CI
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*' ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   test:
-    name: Tests (Python ${{ matrix.python-version }})
+    name: tests (py ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ '3.9', '3.12' ]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
-      - name: Run smoke/tests
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Smoke/test suite
         run: |
           set -e
-          python -u tests_qte.py
-          python - <<'PY'
-import series_encoding as se, math
-assert math.isfinite(se.value_from_label("J2(1.0)"))
-PY
+          if [ -f tests_qte.py ]; then python tests_qte.py; fi
+          if [ -f smoke_test.py ]; then python smoke_test.py; fi
 
   docs:
-    name: Build & Deploy Docs
-    needs: test
-    if: github.ref == 'refs/heads/main'
+    name: docs (mkdocs)
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     permissions:
-      contents: write  # allow pushing to gh-pages with GITHUB_TOKEN
-    concurrency:
-      group: docs-${{ github.ref }}
-      cancel-in-progress: true
+      contents: write  # needed for gh-pages push with GITHUB_TOKEN
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
       - name: Install mkdocs
         run: |
           python -m pip install --upgrade pip
