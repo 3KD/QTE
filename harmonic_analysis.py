@@ -96,3 +96,26 @@ def plot_spectrum(power: np.ndarray, freqs: np.ndarray, title: str = "Spectrum")
     plt.tight_layout()
     plt.show()
 
+
+# === QTE override (amplitude-FFT) ===
+def compute_fft_spectrum_from_amplitudes(amps, *, remove_dc=False, window=None, pad_len=None):
+    import numpy as _np
+    x = _np.asarray(amps, dtype=_np.complex128).reshape(-1)
+    N = x.size
+    if N == 0:
+        return _np.zeros(0), _np.zeros(0), {'len': 0, 'dc_frac': 0.0, 'entropy_bits': 0.0}
+
+    if remove_dc:
+        x = x - _np.mean(x)
+    if window == "hann":
+        x = x * _np.hanning(N)
+
+    M = int(pad_len) if (pad_len and int(pad_len) > 0) else N
+    X = _np.fft.fft(x, n=M)
+    P = _np.abs(X)**2
+    S = float(P.sum()) if P.size else 1.0
+    dc = float(P[0]/S) if S > 0 else 0.0
+    p = P/S if S > 0 else P
+    p = p[p > 0]
+    H = float(-_np.sum(p * _np.log2(p))) if p.size else 0.0
+    return P, _np.arange(M), {'len': N, 'dc_frac': dc, 'entropy_bits': H}
