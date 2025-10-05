@@ -1,22 +1,16 @@
-# OS / editor
 .DS_Store
-*.swp
-*.swo
-
-# Python
 __pycache__/
-*.py[cod]
-*.pyo
-*.egg-info/
+*.pyc
+.coverage
+.vscode/
 .venv/
-venv/
-.env
+*.ipynb_checkpoints
 
-# Build / dist
-build/
-dist/
+# generated assets (keep curated summaries in repo)
+paper_outputs/*RAW*.json
+paper_outputs/**/*.aux
+paper_outputs/**/*.log
+paper_outputs/**/*.pdf
 
-# Project outputs (keep CSVs, ignore heavy arrays)
-paper_outputs/*.npy
-# If you also want to ignore generated CSVs, uncomment:
-# paper_outputs/*.csv
+# built site (use gh-pages branch instead)
+site/
