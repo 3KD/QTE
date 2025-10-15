@@ -7,6 +7,10 @@ try:
 except Exception:
     Aer = None
 
+try:
+except Exception:
+    Aer = None
+
 # quantum_embedding.py — drop-in backend for QTEGUI
 # Implements:
 #   qft_spectrum_from_series, index_qft_spectrum_circuit,
