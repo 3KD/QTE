@@ -3,21 +3,23 @@ try:
 except Exception:
     Aer = None
 
+try:
+    from qiskit_aer.backends import AerSimulator  # optional
+except Exception:
+    AerSimulator = None
+
 # quantum_embedding.py — drop-in backend for QTEGUI
-# Implements:
-#   qft_spectrum_from_series, index_qft_spectrum_circuit,
-#   run_circuit, simulate_statevector, generate_series_encoding,
-#   encode_entangled_constants, entangle_series_registers, entangle_series_multi,
-#   analyze_tensor_structure, perform_schmidt_decomposition,
-#   value_phase_estimation_circuit, periodic_phase_state, digit_qrom_circuit
+# Implements: qft_spectrum_from_series, index_qft_spectrum_circuit, run_circuit,
+# simulate_statevector, generate_series_encoding, encode_entangled_constants,
+# entangle_series_registers, entangle_series_multi, analyze_tensor_structure,
+# perform_schmidt_decomposition, value_phase_estimation_circuit,
+# periodic_phase_state, digit_qrom_circuit
 
 from typing import Optional, List, Tuple, Dict
 import numpy as np
-
 from qiskit import QuantumCircuit, ClassicalRegister, transpile
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector, DensityMatrix
-    AerSimulator = None
 
 # App module for series
 from series_encoding import get_series_amplitudes, compute_series_value
@@ -64,9 +66,7 @@ def simulate_statevector(qc: QuantumCircuit) -> Statevector:
 def run_circuit(qc: QuantumCircuit, *, use_ibm: bool = False, measure: bool = True, shots: int = 2048):
     if not measure:
         return qc, {}
-    try:
         backend = Aer.get_backend("qasm_simulator")
-    except Exception:
         # fallback
         backend = AerSimulator() if AerSimulator is not None else None
         if backend is None:
