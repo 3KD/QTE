@@ -18,6 +18,13 @@ from qiskit import QuantumCircuit, ClassicalRegister, transpile
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector, DensityMatrix
 try:
+<<<<<<< HEAD
+=======
+except Exception:
+    Aer = None
+
+try:
+>>>>>>> a2dfe71 (tests: restrict discovery; make qiskit_aer optional for import-time)
 except Exception:
     AerSimulator = None
 
