@@ -3,18 +3,6 @@ try:
 except Exception:
     Aer = None
 
-try:
-except Exception:
-    Aer = None
-
-try:
-except Exception:
-    Aer = None
-
-try:
-except Exception:
-    Aer = None
-
 # quantum_embedding.py — drop-in backend for QTEGUI
 # Implements:
 #   qft_spectrum_from_series, index_qft_spectrum_circuit,
@@ -29,12 +17,6 @@ import numpy as np
 from qiskit import QuantumCircuit, ClassicalRegister, transpile
 from qiskit.circuit.library import QFT
 from qiskit.quantum_info import Statevector, DensityMatrix
-try:
-except Exception:
-    Aer = None
-
-try:
-except Exception:
     AerSimulator = None
 
 # App module for series
