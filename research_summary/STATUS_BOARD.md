@@ -21,3 +21,11 @@
 - [ ] CHSH runner (`scripts/chsh_run.py`) with angles file + CSV logging
 - [ ] Unified “repro pack” CLI (artifact + plots + metrics + gate counts)
 - [ ] Hardware reruns: Ramsey sweep (4096 shots), CHSH (8192 shots), QPSK (2048 shots)
+
+### 2025-10-15 updates
+- GUI: QTEGUI import wired; FFT module exposed via `qtegui_adapter`.
+- Metrics: `metrics_extra.schmidt_entropy` returns bits; Bell pair test = 1.0.
+- Series: `_qte_maclaurin_coeffs` sets Fourier constant term `a0/2` robustly.
+- Physics: `preserves_minkowski` now accepts `beta=` keyword (compat shim).
+- CI: GitHub Actions workflow `CI` runs pytest on 3.9 & 3.12.
+- Safety: `tools/smoke_all.py` added for quick end-to-end sanity checks.
