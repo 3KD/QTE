@@ -324,3 +324,32 @@ def digit_qrom_circuit(
         qc.measure(range(n_tot), range(n_tot))
     return qc
 
+
+def perform_schmidt_decomposition(psi, cut: int = 1):
+    """Return (rhoA, rhoB, rhoAB) for a pure state |psi> across a cut of 'cut' qubits.
+
+    rhoA = Tr_B(|psi><psi|),  rhoB = Tr_A(|psi><psi|),  rhoAB = |psi><psi|.
+    If Qiskit is available, returns DensityMatrix objects; otherwise NumPy arrays.
+    """
+    import numpy as _np
+    psi = _np.asarray(psi, dtype=complex).reshape(-1)
+    n = int(round(_np.log2(psi.size)))
+    if psi.size != (1 << n):
+        raise ValueError("state vector length must be a power of 2")
+    if cut < 0 or cut > n:
+        raise ValueError("cut must be between 0 and n_qubits")
+    dimA, dimB = (1 << cut), (1 << (n - cut))
+    A = psi.reshape(dimA, dimB)
+    rhoA = A @ A.conj().T
+    rhoB = A.conj().T @ A
+    rhoAB = _np.outer(psi, psi.conj())
+    # normalize numeric drift
+    for R in (rhoA, rhoB, rhoAB):
+        t = float(_np.trace(R).real)
+        if t != 0.0 and abs(t - 1.0) > 1e-12:
+            R /= t
+    try:
+        from qiskit.quantum_info import DensityMatrix
+        return DensityMatrix(rhoA), DensityMatrix(rhoB), DensityMatrix(rhoAB)
+    except Exception:
+        return rhoA, rhoB, rhoAB
