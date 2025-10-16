@@ -71,3 +71,22 @@ def spectral_entropy_hankel(x: np.ndarray, nu: int = 0) -> float:
     with np.errstate(divide='ignore', invalid='ignore'):
         return float(-(p * np.log(p + 1e-15)).sum())
 
+
+def schmidt_entropy(psi, n_qubits, cut):
+    """Von Neumann entropy (bits) of the left block of size `cut` in a pure state.
+
+    Returns S(ρ_A) = -Tr[ρ_A log2 ρ_A]. For a Bell pair with cut=1, this is 1.0.
+    """
+    import numpy as _np
+    psi = _np.asarray(psi, dtype=complex).reshape(-1)
+    if cut < 0 or cut > n_qubits:
+        raise ValueError("cut must be between 0 and n_qubits")
+    dimA = 2**cut
+    dimB = 2**(n_qubits - cut)
+    if psi.size != dimA * dimB:
+        raise ValueError(f"state dimension {psi.size} != 2**{n_qubits}")
+    psi_ab = psi.reshape(dimA, dimB)
+    rhoA = psi_ab @ psi_ab.conj().T
+    w = _np.linalg.eigvalsh(rhoA).real
+    w = w[(w > 0)]
+    return float(-_np.sum(w * _np.log2(w))) if w.size else 0.0
