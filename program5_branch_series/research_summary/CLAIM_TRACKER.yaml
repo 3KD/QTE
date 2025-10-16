@@ -1,0 +1,51 @@
+# Claim Tracker (edit by hand as you progress)
+updated: "$(date -u +%FT%TZ)"
+claims:
+  - id: hidden_period
+    title: Exponential query advantage via phase/IQFT
+    status: planned   # planned | running | verified | published
+    rigor: proven
+    assumptions: [oracle_access]
+    artifacts: []
+  - id: iqp_sampling
+    title: IQP-style diagonal-phase sandwich sampling hardness
+    status: planned
+    rigor: average-case
+    assumptions: [anticoncentration, hardness_conjectures]
+    artifacts: []
+  - id: qpe_scale
+    title: QPE on scale operator U = exp(i α N)
+    status: planned
+    rigor: proven
+    assumptions: [eigenstate_prep]
+    artifacts: []
+  - id: hhl_toy
+    title: Sparse linear system toy (observable readout)
+    status: planned
+    rigor: conditional
+    assumptions: [block_encoding, sparsity]
+    artifacts: []
+  - id: pde_linear
+    title: Linear PDE evolution (local generator)
+    status: backlog
+    rigor: conditional
+    assumptions: [block_encoding, locality]
+    artifacts: []
+  - id: koopman_qpe
+    title: Koopman spectral estimation (U given)
+    status: backlog
+    rigor: conditional
+    assumptions: [learned_U]
+    artifacts: []
+  - id: amplitude_est
+    title: Amplitude/integral estimation (quadratic)
+    status: planned
+    rigor: proven
+    assumptions: [state_prep]
+    artifacts: []
+  - id: bessel_basis
+    title: Special-function bases (Bessel/Chebyshev) for diagonal ops
+    status: backlog
+    rigor: exploratory
+    assumptions: []
+    artifacts: []

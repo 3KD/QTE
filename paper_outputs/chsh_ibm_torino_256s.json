@@ -1,0 +1,17 @@
+{
+  "backend": "ibm_torino",
+  "shots": 256,
+  "S": -0.109375,
+  "terms": {
+    "Eab": -0.5390625,
+    "Eabp": -0.421875,
+    "Eapb": 0.4140625,
+    "Eapbp": -0.4375
+  },
+  "jobs": {
+    "Eab": "d3l9vr34kkus739ch9o0",
+    "Eabp": "d3l9vs9fk6qs73e6og2g",
+    "Eapb": "d3l9vt34kkus739ch9r0",
+    "Eapbp": "d3l9vu0dd19c7396q9ug"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "type": "topo",
+  "timestamp": "2025-10-14T04:13:14",
+  "backend": "ibm_torino",
+  "shots": 1024,
+  "job_id": "d3y...",
+  "params": {
+    "family": "split_step_walk",
+    "phi_sweep": [
+      0,
+      6.283
+    ],
+    "disorder": 0.2
+  },
+  "circuit": {
+    "depth": 210,
+    "twoq": 68,
+    "width": 7
+  },
+  "metrics": {
+    "winding": 1,
+    "gap_min": 0.35,
+    "edge_mode_overlap": 0.82
+  },
+  "artifacts": {}
+}

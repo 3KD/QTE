@@ -1,0 +1,3 @@
+file,backend,M,K,sym,shots,ideal,argmax,ok_pm1,ok_pm2,top_freq,p_pm1,p_pm2,p_ideal,tvd_delta,lift,job_id
+qpsk_ibm_torino_M32_sym10_5b_128s_d3kkod03qtks738bh030.json,ibm_torino,32,5,10,128,10,10,True,True,0.8125,0.84375,0.890625,0.8125,0.1875,26.0,d3kkod03qtks738bh030
+qpsk_ibm_torino_M256_sym145_8b_512s_d3kkohodd19c739654rg.json,ibm_torino,256,8,145,512,145,145,True,True,0.615234,0.669922,0.693359,0.615234,0.384766,157.5,d3kkohodd19c739654rg

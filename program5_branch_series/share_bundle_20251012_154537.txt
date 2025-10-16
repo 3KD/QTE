@@ -1,0 +1,199 @@
+=== PROJECT: program5_branch_series ===
+git branch:  results-20251005-0226
+git commit:  a645a98
+
+===== research_summary/RESULTS_SUMMARY.md =====
+# Results Summary
+_Generated: 2025-10-12T15:35:48_
+
+## Inventory
+- **chsh**: 2 files
+- **other**: 6 files
+- **qpsk**: 11 files
+- **ramsey**: 1 files
+- Additional figures: 8 PNG(s)
+
+## Ramsey (single-qubit)
+| file | backend | shots | points | visibility | R² | amp |
+|---|---:|---:|---:|---:|---:|---:|
+| `ramsey_ibm_torino_256s.json` | ibm_torino | 256 | 17 | 0.752 | 0.990 | 0.766 |
+
+## CHSH (Bell test)
+| file | backend | shots | S |
+|---|---:|---:|---:|
+| `chsh2_ibm_torino_256s.json` | ibm_torino | 256 | -0.016 |
+| `chsh_ibm_torino_256s.json` | ibm_torino | 256 | -0.109 |
+
+## QPSK / Indexer
+| file | backend | K | M | shots | p* | depth | twoq |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `qpsk_ibm_torino_M1024_sym145_10b_512s_d3k9ri9fk6qs73emaj5g.json` | ibm_torino | 10 | 1024 | 512 | - |  |  |
+| `qpsk_ibm_torino_M256_sym145_8b_512s_d3ksg203qtks738borl0.json` | ibm_torino | 8 | 256 | 512 | 0.2461 |  |  |
+| `qpsk_ibm_torino_M256_sym145_8b_512s_d3k9gohfk6qs73ema9eg.json` | ibm_torino | 8 | 256 | 512 | - |  |  |
+| `qpsk_ibm_torino_M256_sym145_8b_512s_d3kkohodd19c739654rg.json` | ibm_torino | 8 | 256 | 512 | - |  |  |
+| `qpsk_ibm_torino_M256_sym145_8b_512s_d3kquthfk6qs73e69g10.json` | ibm_torino | 8 | 256 | 512 | - |  |  |
+| `qpsk_ibm_torino_M256_sym145_8b_512s_d3kr09odd19c7396bcng.json` | ibm_torino | 8 | 256 | 512 | - |  |  |
+| `qpsk_ibm_torino_M128_sym73_7b_512s_d3libb03qtks738cedmg.json` | ibm_torino | 7 | 128 | 512 | 0.0195 | 232 | 82 |
+| `qpsk_ibm_torino_M128_sym73_7b_256s_d3lf0dodd19c7396v5eg.json` | ibm_torino | 7 | 128 | 256 | - |  |  |
+| `qpsk_ibm_torino_M64_sym19_6b_256s_d3lf0b83qtks738cb73g.json` | ibm_torino | 6 | 64 | 256 | - |  |  |
+| `qpsk_ibm_torino_M32_sym10_5b_128s_d3k9giodd19c738g12og.json` | ibm_torino | 5 | 32 | 128 | - |  |  |
+| `qpsk_ibm_torino_M32_sym10_5b_128s_d3kkod03qtks738bh030.json` | ibm_torino | 5 | 32 | 128 | - |  |  |
+
+## Other
+- `ramsey_ibm_torino_256s_fit.json` — backend=ibm_torino shots=256
+- `entangle_pi_zeta_ibm_torino_n4_sh512_d3ksg5g3qtks738borp0.json` — backend=ibm_torino shots=512
+- `entangle_pi_zeta_ibm_torino_n4_sh512_d3ksbrpfk6qs73e6athg.json` — backend=ibm_torino shots=512
+- `entanglement_smoke.json` — backend= shots=
+- `pi_ramanujan_terms_n8_sh4096_ibm_torino.json` — backend=ibm_torino shots=4096
+- `pi_ramanujan_terms_n8_sh4096_aer_local_fallback.json` — backend=aer_local_fallback shots=4096
+
+===== research_summary/latest.json =====
+{
+  "ramsey": [
+    {
+      "type": "ramsey",
+      "file": "paper_outputs/ramsey_ibm_torino_256s.json",
+      "timestamp": "2025-10-11T14:19:42",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": "",
+      "ramsey_points": 17,
+      "ramsey_amp": 0.765625,
+      "visibility": 0.7520274770100415,
+      "R2": 0.9900501219320302,
+      "psi": -3.1066860685499065
+    }
+  ],
+  "chsh": [
+    {
+      "type": "chsh",
+      "file": "paper_outputs/chsh2_ibm_torino_256s.json",
+      "timestamp": "2025-10-11T19:59:00",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": {
+        "Eab": "d3leuc8dd19c7396v3eg",
+        "Eabp": "d3leudr4kkus739cm740",
+        "Eapb": "d3leuehfk6qs73e6tc1g",
+        "Eapbp": "d3leug1fk6qs73e6tc30"
+      },
+      "S": -0.015625,
+      "terms": {
+        "Eab": 0.2265625,
+        "Eabp": 0.640625,
+        "Eapb": -0.5,
+        "Eapbp": 0.3828125
+      },
+      "angles_rad": {
+        "Eab": {
+          "A": 0.0,
+          "B": 0.7853981633974483
+        },
+        "Eabp": {
+          "A": 0.0,
+          "B": -0.7853981633974483
+        },
+        "Eapb": {
+          "A": 1.5707963267948966,
+          "B": 0.7853981633974483
+        },
+        "Eapbp": {
+          "A": 1.5707963267948966,
+          "B": -0.7853981633974483
+        }
+      }
+    },
+    {
+      "type": "chsh",
+      "file": "paper_outputs/chsh_ibm_torino_256s.json",
+      "timestamp": "2025-10-11T14:20:44",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": {
+        "Eab": "d3l9vr34kkus739ch9o0",
+        "Eabp": "d3l9vs9fk6qs73e6og2g",
+        "Eapb": "d3l9vt34kkus739ch9r0",
+        "Eapbp": "d3l9vu0dd19c7396q9ug"
+      },
+      "S": -0.109375,
+      "terms": {
+        "Eab": -0.5390625,
+        "Eabp": -0.421875,
+        "Eapb": 0.4140625,
+        "Eapbp": -0.4375
+      },
+      "angles_rad": null
+    }
+  ],
+  "qpsk": [
+    {
+      "type": "qpsk",
+      "file": "paper_outputs/qpsk_ibm_torino_M128_sym73_7b_512s_d3libb03qtks738cedmg.json",
+      "timestamp": "2025-10-11T23:51:12",
+      "backend": "ibm_torino",
+      "shots": 512,
+      "job_id": "",
+      "M": 128,
+      "K": 7,
+      "symbol": 73,
+      "p_star": 0.01953125,
+      "depth": 232,
+      "twoq": 82
+    },
+    {
+      "type": "qpsk",
+      "file": "paper_outputs/qpsk_ibm_torino_M128_sym73_7b_256s_d3lf0dodd19c7396v5eg.json",
+      "timestamp": "2025-10-11T20:03:06",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": "d3lf0dodd19c7396v5eg",
+      "M": 128,
+      "K": 7,
+      "symbol": 73,
+      "p_star": null,
+      "depth": null,
+      "twoq": null
+    },
+    {
+      "type": "qpsk",
+      "file": "paper_outputs/qpsk_ibm_torino_M64_sym19_6b_256s_d3lf0b83qtks738cb73g.json",
+      "timestamp": "2025-10-11T20:02:59",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": "d3lf0b83qtks738cb73g",
+      "M": 64,
+      "K": 6,
+      "symbol": 19,
+      "p_star": null,
+      "depth": null,
+      "twoq": null
+    }
+  ]
+}
+===== research_summary/results_index.csv (first 60 lines) =====
+     1	type,timestamp,backend,shots,file,job_id,ramsey_points,ramsey_amp,visibility,R2,psi,S,terms,angles_rad,M,K,symbol,p_star,depth,twoq
+     2	chsh,2025-10-11T19:59:00,ibm_torino,256,paper_outputs/chsh2_ibm_torino_256s.json,"{""Eab"": ""d3leuc8dd19c7396v3eg"", ""Eabp"": ""d3leudr4kkus739cm740"", ""Eapb"": ""d3leuehfk6qs73e6tc1g"", ""Eapbp"": ""d3leug1fk6qs73e6tc30""}",,,,,,-0.015625,"{""Eab"": 0.2265625, ""Eabp"": 0.640625, ""Eapb"": -0.5, ""Eapbp"": 0.3828125}","{""Eab"": {""A"": 0.0, ""B"": 0.7853981633974483}, ""Eabp"": {""A"": 0.0, ""B"": -0.7853981633974483}, ""Eapb"": {""A"": 1.5707963267948966, ""B"": 0.7853981633974483}, ""Eapbp"": {""A"": 1.5707963267948966, ""B"": -0.7853981633974483}}",,,,,,
+     3	chsh,2025-10-11T14:20:44,ibm_torino,256,paper_outputs/chsh_ibm_torino_256s.json,"{""Eab"": ""d3l9vr34kkus739ch9o0"", ""Eabp"": ""d3l9vs9fk6qs73e6og2g"", ""Eapb"": ""d3l9vt34kkus739ch9r0"", ""Eapbp"": ""d3l9vu0dd19c7396q9ug""}",,,,,,-0.109375,"{""Eab"": -0.5390625, ""Eabp"": -0.421875, ""Eapb"": 0.4140625, ""Eapbp"": -0.4375}",,,,,,,
+     4	other,2025-10-10T22:50:27,ibm_torino,512,paper_outputs/entangle_pi_zeta_ibm_torino_n4_sh512_d3ksbrpfk6qs73e6athg.json,d3ksbrpfk6qs73e6athg,,,,,,,,,,,,,,
+     5	other,2025-10-10T22:59:38,ibm_torino,512,paper_outputs/entangle_pi_zeta_ibm_torino_n4_sh512_d3ksg5g3qtks738borp0.json,d3ksg5g3qtks738borp0,,,,,,,,,,,,,,
+     6	other,2025-10-10T21:37:09,,,paper_outputs/entanglement_smoke.json,,,,,,,,,,,,,,,
+     7	other,2025-10-09T22:05:17,aer_local_fallback,4096,paper_outputs/pi_ramanujan_terms_n8_sh4096_aer_local_fallback.json,,,,,,,,,,,,,,,
+     8	other,2025-10-09T22:16:55,ibm_torino,4096,paper_outputs/pi_ramanujan_terms_n8_sh4096_ibm_torino.json,,,,,,,,,,,,,,,
+     9	qpsk,2025-10-10T01:46:54,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M1024_sym145_10b_512s_d3k9ri9fk6qs73emaj5g.json,d3k9ri9fk6qs73emaj5g,,,,,,,,,1024,10,145,,,
+    10	qpsk,2025-10-11T20:03:06,ibm_torino,256,paper_outputs/qpsk_ibm_torino_M128_sym73_7b_256s_d3lf0dodd19c7396v5eg.json,d3lf0dodd19c7396v5eg,,,,,,,,,128,7,73,,,
+    11	qpsk,2025-10-11T23:51:12,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M128_sym73_7b_512s_d3libb03qtks738cedmg.json,,,,,,,,,,128,7,73,0.01953125,232,82
+    12	qpsk,2025-10-10T01:23:52,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M256_sym145_8b_512s_d3k9gohfk6qs73ema9eg.json,d3k9gohfk6qs73ema9eg,,,,,,,,,256,8,145,,,
+    13	qpsk,2025-10-10T14:11:37,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M256_sym145_8b_512s_d3kkohodd19c739654rg.json,d3kkohodd19c739654rg,,,,,,,,,256,8,145,,,
+    14	qpsk,2025-10-10T21:14:34,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M256_sym145_8b_512s_d3kquthfk6qs73e69g10.json,d3kquthfk6qs73e69g10,,,,,,,,,256,8,145,,,
+    15	qpsk,2025-10-10T21:17:31,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M256_sym145_8b_512s_d3kr09odd19c7396bcng.json,d3kr09odd19c7396bcng,,,,,,,,,256,8,145,,,
+    16	qpsk,2025-10-10T22:59:24,ibm_torino,512,paper_outputs/qpsk_ibm_torino_M256_sym145_8b_512s_d3ksg203qtks738borl0.json,d3ksg203qtks738borl0,,,,,,,,,256,8,145,0.24609375,,
+    17	qpsk,2025-10-10T01:23:28,ibm_torino,128,paper_outputs/qpsk_ibm_torino_M32_sym10_5b_128s_d3k9giodd19c738g12og.json,d3k9giodd19c738g12og,,,,,,,,,32,5,10,,,
+    18	qpsk,2025-10-10T14:11:15,ibm_torino,128,paper_outputs/qpsk_ibm_torino_M32_sym10_5b_128s_d3kkod03qtks738bh030.json,d3kkod03qtks738bh030,,,,,,,,,32,5,10,,,
+    19	qpsk,2025-10-11T20:02:59,ibm_torino,256,paper_outputs/qpsk_ibm_torino_M64_sym19_6b_256s_d3lf0b83qtks738cb73g.json,d3lf0b83qtks738cb73g,,,,,,,,,64,6,19,,,
+    20	ramsey,2025-10-11T14:19:42,ibm_torino,256,paper_outputs/ramsey_ibm_torino_256s.json,,17,0.765625,0.7520274770100415,0.9900501219320302,-3.1066860685499065,,,,,,,,,
+    21	other,2025-10-11T19:59:03,ibm_torino,256,paper_outputs/ramsey_ibm_torino_256s_fit.json,,,,,,,,,,,,,,,
+
+===== QUICK METRICS (parsed from results_index.csv) =====
+BEST_RAMSEY_VIS,0.752027,R2=0.990050,paper_outputs/ramsey_ibm_torino_256s.json
+BEST_QPSK_PSTAR,0.246094,K=8,M=256,paper_outputs/qpsk_ibm_torino_M256_sym145_8b_512s_d3ksg203qtks738borl0.json
+

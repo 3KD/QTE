@@ -1,0 +1,42 @@
+{
+  "N": 8,
+  "method": "series",
+  "spectrum": [
+    {
+      "re": 610.3515625,
+      "im": 0.0
+    },
+    {
+      "re": 244.140625,
+      "im": 0.0
+    },
+    {
+      "re": 97.65625,
+      "im": 0.0
+    },
+    {
+      "re": 39.0625,
+      "im": 0.0
+    },
+    {
+      "re": 15.625,
+      "im": 0.0
+    },
+    {
+      "re": 6.25,
+      "im": 0.0
+    },
+    {
+      "re": 1.0,
+      "im": 0.0
+    },
+    {
+      "re": 2.5,
+      "im": 0.0
+    }
+  ],
+  "spectral_radius": 610.3515625,
+  "residual_frob": 0.0,
+  "cond": null,
+  "comment": "Analytic K from truncated power series of F."
+}

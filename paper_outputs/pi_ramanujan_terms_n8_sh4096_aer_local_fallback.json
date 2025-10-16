@@ -1,0 +1,17 @@
+{
+  "experiment": "pi_ramanujan_qft_index",
+  "label": "\u03c0",
+  "method": "Ramanujan",
+  "amp_mode": "terms",
+  "n_qubits": 8,
+  "shots": 4096,
+  "backend": "aer_local_fallback",
+  "mode": "aer_local_fallback",
+  "timestamp": "2025-10-09T22:05:17",
+  "top_counts": {
+    "00000000": 2693,
+    "00000001": 734,
+    "11111111": 669
+  },
+  "note": "IBM run failed or not permitted: ValueError: A backend or session must be specified."
+}

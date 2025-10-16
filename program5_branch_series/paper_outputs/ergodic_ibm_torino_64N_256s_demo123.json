@@ -1,0 +1,31 @@
+{
+  "type": "ergodic",
+  "timestamp": "2025-10-14T04:19:25",
+  "backend": "ibm_torino",
+  "shots": 256,
+  "job_id": "demo123",
+  "params": {
+    "map": "logistic",
+    "mu": 3.9,
+    "basis": "maclaurin",
+    "N": 64,
+    "steps": 200
+  },
+  "circuit": {
+    "depth": 180,
+    "twoq": 54,
+    "seed": 3,
+    "width": 6
+  },
+  "metrics": {
+    "ks_entropy": 0.62,
+    "corr_decay_tau": 7.4,
+    "spectral_gap": 0.11,
+    "spectral_radius": 0.997,
+    "ipr_mean": 0.045,
+    "ipr_var": 0.008
+  },
+  "artifacts": {
+    "extra_png": "paper_outputs/my_plot.png"
+  }
+}

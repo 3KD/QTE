@@ -1,0 +1,595 @@
+# series_encoding.py  — QTE single-file build
+# One-stop: series terms/EGF, constants, PolyLog, Bessel J0 terms,
+# SRD (sign-split) encodings, SBRV precision stacking, and diagnostics metrics.
+
+from __future__ import annotations
+import math, re
+from typing import Callable, Optional, Dict, List, Tuple
+import numpy as np
+
+# ---------------------------------------------------------------------------
+# small numerics helpers
+# ---------------------------------------------------------------------------
+def _l2_normalize(v: np.ndarray) -> np.ndarray:
+    n = np.linalg.norm(v)
+    return v if n == 0 else (v / n)
+
+def _safe_complex(vec: np.ndarray) -> np.ndarray:
+    return vec.astype(np.complex128, copy=False)
+
+def _realize(out: np.ndarray) -> np.ndarray:
+    # Silence ComplexWarning when imag ~ 0; keeps real dtype when applicable.
+    return np.real_if_close(out, tol=1000)
+
+# ---------------------------------------------------------------------------
+# Polylog parsing & partial sums
+# ---------------------------------------------------------------------------
+_POLY_PATTERNS = [
+    re.compile(r'^\s*(?:polylog|li)\s*\(\s*([+-]?\d+(?:\.\d+)?)\s*,\s*([^)]+?)\s*\)\s*$', re.I),
+    re.compile(r'^\s*li[_\s]*([+-]?\d+(?:\.\d+)?)\s*\(\s*([^)]+?)\s*\)\s*$', re.I),
+]
+
+def _parse_complex_token(zstr: str) -> complex:
+    s = zstr.strip().lower().replace('i', 'j')
+    if '/' in s:
+        try:
+            num, den = s.split('/', 1)
+            return complex(float(num) / float(den))
+        except Exception:
+            pass
+    return complex(s)
+
+def _parse_polylog(label: str) -> Optional[Tuple[float, complex]]:
+    for pat in _POLY_PATTERNS:
+        m = pat.match(label)
+        if m:
+            return float(m.group(1)), _parse_complex_token(m.group(2))
+    return None
+
+def _polylog_series(s: float, z: complex, terms: int = 4096, tol: float = 1e-16) -> complex:
+    zabs = abs(z)
+    # z = 1 => zeta(s) (s>1)
+    if zabs == 1.0 and (z.real == 1.0 and z.imag == 0.0):
+        if s <= 1:
+            raise ValueError("Li_s(1) diverges for s ≤ 1.")
+        n = np.arange(1, terms + 1, dtype=np.float64)
+        return np.sum(1.0 / np.power(n, s), dtype=np.complex128)
+    # z = -1 => -η(s)
+    if zabs == 1.0 and (z.real == -1.0 and z.imag == 0.0):
+        n = np.arange(1, terms + 1, dtype=np.float64)
+        alt = ((-1.0) ** (n - 1)) / np.power(n, s)
+        return -np.sum(alt, dtype=np.complex128)
+    # |z| < 1 => nice convergence
+    s_complex = complex(s)
+    if zabs < 1.0:
+        total = 0.0 + 0.0j
+        term = z
+        n = 1
+        while n <= terms:
+            add = term / (n ** s_complex)
+            total += add
+            if abs(add) < tol:
+                break
+            n += 1
+            term *= z
+        return complex(total)
+    # fallback partial sum
+    n = np.arange(1, terms + 1, dtype=np.float64)
+    return np.sum(np.power(z, n) / np.power(n, s_complex), dtype=np.complex128)
+
+# ---------------------------------------------------------------------------
+# constants / values used by EGF mode
+# ---------------------------------------------------------------------------
+def _pi_value(terms: int = 2000, method: Optional[str] = None) -> float:
+    m = (method or "Machin").lower()
+    if m == "leibniz":
+        s, sign = 0.0, 1.0
+        for n in range(terms):
+            s += sign / (2*n + 1)
+            sign = -sign
+        return 4.0 * s
+    if m == "nilakantha":
+        s, sign = 0.0, 1.0
+        for n in range(1, terms+1):
+            a = 2.0*n
+            s += sign / (a*(a+1.0)*(a+2.0))
+            sign = -sign
+        return 3.0 + 4.0*s
+    if m == "machin":
+        def arctan_inv(a: float) -> float:
+            x, x2 = 1.0/a, (1.0/a)**2
+            s, term, n, sign = 0.0, 1.0/a, 0, 1.0
+            while n < terms and abs(term) > 1e-20:
+                s += sign * term / (2*n + 1)
+                term *= x2; sign = -sign; n += 1
+            return s
+        return 16.0*arctan_inv(5.0) - 4.0*arctan_inv(239.0)
+    if m == "ramanujan":
+        inv_pi, term = 0.0, 1103.0
+        inv396_4 = 396.0**-4.0
+        pref = 2.0*math.sqrt(2.0)/9801.0
+        for n in range(terms):
+            inv_pi += term
+            a = 4*n
+            num = (a+1.0)*(a+2.0)*(a+3.0)*(a+4.0)
+            den = (n+1.0)**4
+            poly = (1103.0 + 26390.0*(n+1.0))/(1103.0 + 26390.0*n) if n+1 < terms else 1.0
+            term *= (num/den) * poly * inv396_4
+            if abs(term) < 1e-30: break
+        return 1.0/(pref*inv_pi)
+    if m == "chudnovsky":
+        inv_pi, term = 0.0, 13591409.0
+        C3 = 640320.0**3
+        for n in range(terms):
+            inv_pi += term
+            k = n + 1.0
+            num = -((6.0*n+1.0)*(6.0*n+2.0)*(6.0*n+3.0)*(6.0*n+4.0)*(6.0*n+5.0)*(6.0*n+6.0))
+            den = ((3.0*n+1.0)*(3.0*n+2.0)*(3.0*n+3.0)) * (k*k*k)
+            term *= (num/den) * (545140134.0*k + 13591409.0) / (545140134.0*n + 13591409.0) / C3
+            if abs(term) < 1e-30: break
+        return 1.0/(12.0*inv_pi)
+    return _pi_value(terms=terms, method="Machin")
+
+def _e_value(terms: int = 4096) -> float:
+    s, t = 0.0, 1.0
+    for n in range(terms):
+        if n > 0: t *= 1.0/n
+        s += t
+    return s
+
+def _ln2_value(terms: int = 200000) -> float:
+    s, sign = 0.0, 1.0
+    for n in range(1, terms+1):
+        s += sign / n; sign = -sign
+    return s
+
+def _zeta2_value(terms: int = 200000) -> float:
+    return sum(1.0/((n+1)*(n+1)) for n in range(terms))
+
+def _zeta3_value(terms: int = 200000) -> float:
+    return sum(1.0/((n+1)**3) for n in range(terms))
+
+def _gamma_value(terms: int = 100000) -> float:
+    N = max(2, terms)
+    return sum(1.0/k for k in range(1, N+1)) - math.log(N)
+
+def _phi_value(_: int = 0) -> float:
+    return (1.0 + 5.0**0.5)/2.0
+
+def _catalan_value(terms: int = 200000) -> float:
+    s, sign = 0.0, 1.0
+    for n in range(terms):
+        s += sign / ((2*n+1.0)**2); sign = -sign
+    return s
+
+def _exp_pi_value(_: int = 0) -> float:
+    return math.exp(math.pi)
+
+def _gelfond_value(_: int = 0) -> float:
+    return 2.0 ** math.sqrt(2.0)
+
+def _liouville_value(terms: int = 12) -> float:
+    s, fact = 0.0, 1
+    for n in range(1, terms+1):
+        fact *= n; s += 10.0 ** (-fact)
+    return s
+
+def _champernowne10_value(digits: int = 200000) -> float:
+    buf, k, ln = [], 1, 0
+    while ln < digits:
+        s = str(k); buf.append(s); ln += len(s); k += 1
+    s = "0." + "".join(buf)
+    return float(s[:digits+2])
+
+_VALUE_FUNCS: Dict[str, Callable[..., float]] = {
+    "π": _pi_value, "pi": _pi_value,
+    "e": _e_value, "ln(2)": _ln2_value,
+    "ζ(2)": _zeta2_value, "ζ(3)": _zeta3_value,
+    "gamma": _gamma_value, "γ": _gamma_value,
+    "phi": _phi_value, "φ": _phi_value,
+    "Catalan": _catalan_value,
+    "exp(π)": _exp_pi_value, "exp(pi)": _exp_pi_value,
+    "2^√2": _gelfond_value, "2^sqrt(2)": _gelfond_value,
+    "Liouville": _liouville_value, "Champernowne10": _champernowne10_value,
+}
+
+def compute_series_value(label: str, terms: int = 4096, method: Optional[str] = None) -> complex:
+    poly = _parse_polylog(label)
+    if poly is not None:
+        s, z = poly
+        return _polylog_series(s, z, terms=terms)
+    f = _VALUE_FUNCS.get(label)
+    if f is _pi_value:
+        return f(terms=terms, method=method)
+    if f is not None:
+        try: return f(terms)
+        except TypeError: return f()
+    L = label.lower().strip()
+    if L in ("exp(pi)", "exp(π)"): return _exp_pi_value()
+    if L in ("2^sqrt(2)", "2^√2"): return _gelfond_value()
+    raise ValueError(f"compute_series_value not defined for: {label}")
+
+# ---------------------------------------------------------------------------
+# TERMS generators (raw sequences) — longdouble for stability
+# ---------------------------------------------------------------------------
+def _terms_pi(dim: int, method: Optional[str]) -> np.ndarray:
+    md = (method or "Leibniz").lower()
+    a = np.empty(dim, dtype=np.longdouble)
+    if md == "leibniz":
+        sign = 1.0
+        for n in range(dim):
+            a[n] = sign * (4.0/np.longdouble(2*n+1)); sign = -sign
+        return a
+    if md == "nilakantha":
+        sign = 1.0
+        for n in range(1, dim+1):
+            t = np.longdouble(2*n)
+            a[n-1] = sign * (4.0/(t*(t+1.0)*(t+2.0))); sign = -sign
+        return a
+    if md == "machin":
+        a1, a2 = 1/np.longdouble(5), 1/np.longdouble(239)
+        p1, p2, sign = a1, a2, 1.0
+        for n in range(dim):
+            denom = (2*n+1)
+            a[n] = 16*sign*p1/denom - 4*sign*p2/denom
+            p1 *= (a1*a1); p2 *= (a2*a2); sign = -sign
+        return a
+    if md == "ramanujan":
+        a = np.empty(dim, dtype=np.longdouble)
+        term = np.longdouble(1103.0)
+        inv396_4 = np.longdouble(396.0)**-4
+        for n in range(dim):
+            a[n] = term
+            k = n + 1
+            num = (4*n+1)*(4*n+2)*(4*n+3)*(4*n+4)
+            den = (k*k*k*k)
+            poly = (1103 + 26390*k)/(1103 + 26390*n) if n+1 < dim else 1
+            term = term * (np.longdouble(num)/np.longdouble(den)) * np.longdouble(poly) * inv396_4
+        return a
+    if md == "chudnovsky":
+        a = np.empty(dim, dtype=np.longdouble)
+        term = np.longdouble(13591409.0)
+        C3 = np.longdouble(640320.0)**3
+        for n in range(dim):
+            a[n] = term
+            k = n + 1
+            num = -((6*n+1)*(6*n+2)*(6*n+3)*(6*n+4)*(6*n+5)*(6*n+6))
+            den = ((3*n+1)*(3*n+2)*(3*n+3)) * (k*k*k)
+            term = term * (np.longdouble(num)/np.longdouble(den)) * \
+                   np.longdouble(545140134*k + 13591409)/np.longdouble(545140134*n + 13591409) / C3
+        return a
+    return _terms_pi(dim, "Leibniz")
+
+def _terms_e(dim: int) -> np.ndarray:
+    a = np.empty(dim, dtype=np.longdouble)
+    t = np.longdouble(1.0); a[0] = t
+    for n in range(1, dim):
+        t = t / n; a[n] = t
+    return a
+
+def _terms_ln2(dim: int) -> np.ndarray:
+    a = np.empty(dim, dtype=np.longdouble)
+    sign = 1.0
+    for n in range(1, dim+1):
+        a[n-1] = sign/np.longdouble(n); sign = -sign
+    return a
+
+def _terms_zeta2(dim: int) -> np.ndarray:
+    return np.array([1.0/np.longdouble((n+1)*(n+1)) for n in range(dim)], dtype=np.longdouble)
+
+def _terms_zeta3(dim: int) -> np.ndarray:
+    return np.array([1.0/np.longdouble((n+1)**3) for n in range(dim)], dtype=np.longdouble)
+
+def _terms_gamma(dim: int) -> np.ndarray:
+    return np.array([1.0/np.longdouble(n+1) for n in range(dim)], dtype=np.longdouble)
+
+def _terms_phi(dim: int) -> np.ndarray:
+    phi = (1+np.sqrt(5.0))/2.0
+    a = np.empty(dim, dtype=np.longdouble)
+    t = np.longdouble(1.0)
+    for n in range(dim):
+        a[n] = t; t /= np.longdouble(phi)
+    return a
+
+def _terms_catalan(dim: int) -> np.ndarray:
+    a = np.empty(dim, dtype=np.longdouble)
+    sign = 1.0
+    for n in range(dim):
+        a[n] = sign/np.longdouble((2*n+1)**2); sign = -sign
+        return a
+
+def _terms_J0(dim: int) -> np.ndarray:
+    # Bessel J0 Maclaurin: a_{2m} = (-1)^m / (4^m (m!)^2), odd terms zero.
+    out = np.zeros(dim, dtype=np.longdouble)
+    m = 0
+    while 2*m < dim:
+        out[2*m] = ((-1.0)**m) / (np.longdouble(4.0)**m * (np.longdouble(math.factorial(m))**2))
+        m += 1
+    return out
+
+_TERMS_GENERATORS: Dict[str, Callable[..., np.ndarray]] = {
+    "π": _terms_pi, "pi": _terms_pi,
+    "e": lambda dim: _terms_e(dim),
+    "ln(2)": lambda dim: _terms_ln2(dim),
+    "ζ(2)": lambda dim: _terms_zeta2(dim),
+    "ζ(3)": lambda dim: _terms_zeta3(dim),
+    "gamma": lambda dim: _terms_gamma(dim), "γ": lambda dim: _terms_gamma(dim),
+    "phi": lambda dim: _terms_phi(dim), "φ": lambda dim: _terms_phi(dim),
+    "Catalan": lambda dim: _terms_catalan(dim),
+    # Bessel J0 (labels you might use)
+    "J0": lambda dim: _terms_J0(dim),
+    "J_0": lambda dim: _terms_J0(dim),
+    "J0(x)": lambda dim: _terms_J0(dim),
+}
+
+# ---------------------------------------------------------------------------
+# Public API: get_series_amplitudes (TERMS + EGF), compute_series
+# ---------------------------------------------------------------------------
+def get_series_amplitudes(
+    label: str,
+    dim: int,
+    *,
+    method: Optional[str] = None,
+    phase_mode: str = "sign",    # "sign" | "abs"
+    normalize: bool = True,
+    amp_mode: str = "egf",       # "egf" | "terms"
+) -> List[complex]:
+    """
+    Returns exactly 'dim' amplitudes.
+    - EGF:     t_{n+1} = t_n * x / (n+1), complex-safe (x = compute_series_value(label))
+    - TERMS:   if generator exists -> raw terms; else EGF-like fallback (complex-safe)
+    Both modes return complex128 and can be L2-normalized.
+    """
+    amp_mode = amp_mode.lower()
+
+    # Polylog true terms in TERMS mode
+    pl = _parse_polylog(label)
+    if pl is not None and amp_mode == "terms":
+        s, z = pl
+        n = np.arange(1, dim + 1, dtype=np.float64)
+        vec = (np.power(complex(z), n) / np.power(n, float(s))).astype(np.complex128)
+        if phase_mode == "abs": vec = np.abs(vec)
+        out = vec
+        out = _realize(out)
+        return _l2_normalize(out) if normalize else out
+
+    if amp_mode == "terms":
+        gen = _TERMS_GENERATORS.get(label)
+        if gen is not None:
+            vec_r = gen(dim) if gen is not _terms_pi else gen(dim, method)
+            vec = _safe_complex(vec_r)
+            if phase_mode == "abs":
+                vec = np.abs(vec)
+            m = np.max(np.abs(vec));  m = 1.0 if (not np.isfinite(m) or m == 0) else m
+            out = vec / m
+            out = _realize(out)
+            return _l2_normalize(out) if normalize else out
+        # fallback via EGF-like (complex-safe)
+        x = complex(compute_series_value(label, terms=max(1024, 4*dim), method=method))
+        vec = np.empty(dim, dtype=np.complex128)
+        t = 1.0 + 0j; vec[0] = t
+        for n in range(1, dim):
+            t = t * x / n; vec[n] = t
+        if phase_mode == "abs": vec = np.abs(vec)
+        out = vec
+        out = _realize(out)
+        return _l2_normalize(out) if normalize else out
+
+    # EGF (complex-safe)
+    x = complex(compute_series_value(label, terms=max(1024, 4*dim), method=method))
+    vec = np.empty(dim, dtype=np.complex128)
+    t = 1.0 + 0j; vec[0] = t
+    for n in range(1, dim):
+        t = t * x / n; vec[n] = t
+    if phase_mode == "abs": vec = np.abs(vec)
+    out = vec
+    out = _realize(out)
+    return _l2_normalize(out) if normalize else out
+
+def compute_series(label: str, terms: int = 4096, method: Optional[str] = None) -> complex:
+    return compute_series_value(label, terms=terms, method=method)
+
+# ---------------------------------------------------------------------------
+# SRD (Sign-Split) encodings — ancilla-tag spec + I/Q packing
+# ---------------------------------------------------------------------------
+def _sign_split(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    a = np.asarray(a, dtype=float)
+    p = np.maximum(a, 0.0); n = np.maximum(-a, 0.0)
+    return p, n
+
+def _norm_or_zero(v: np.ndarray) -> np.ndarray:
+    n = float(np.linalg.norm(v))
+    return v / n if n > 0 else v
+
+def encode_srd_ancilla(a: np.ndarray,
+                       alpha: complex = 1/np.sqrt(2),
+                       beta:  complex = 1/np.sqrt(2)
+                       ) -> tuple[np.ndarray, np.ndarray, complex, complex]:
+    """
+    Phase-insensitive SRD (ancilla) spec:
+      |Ψ⟩ = α|0⟩⊗|ψ+⟩ + β|1⟩⊗|ψ-⟩
+    Returns (psi_plus, psi_minus) rails (L2-normed) and (alpha, beta).
+    """
+    p, n = _sign_split(a)
+    return _norm_or_zero(p), _norm_or_zero(n), complex(alpha), complex(beta)
+
+def encode_srd_iq(a: np.ndarray) -> np.ndarray:
+    """
+    Phase-aware SRD packing:
+      c = p + i n with a = p - n. Returns L2-normalized complex amplitudes.
+    """
+    p, n = _sign_split(a)
+    c = p + 1j*n
+    return _norm_or_zero(c)
+
+def decode_srd_iq(real_part: np.ndarray, imag_part: np.ndarray) -> np.ndarray:
+    return np.asarray(real_part, dtype=float) - np.asarray(imag_part, dtype=float)
+
+# ---------------------------------------------------------------------------
+# SBRV (Stacked Binary Residual Vectors) + bound
+# ---------------------------------------------------------------------------
+def quantize_msb(a: np.ndarray, step: float = 1.0) -> np.ndarray:
+    a = np.asarray(a, dtype=float)
+    return np.round(a / step) * step
+
+def build_sbrv(a: np.ndarray, L: int, step: float = 1.0):
+    """
+    a = a0 + Σ_{ℓ=1..L} 2^{-ℓ} r^(ℓ),  r^(ℓ) ∈ {-1,0,1}^d
+    Returns (a0, stack, meta).
+    """
+    a = np.asarray(a, dtype=float)
+    a0 = quantize_msb(a, step=step)
+    res = a - a0
+    stack: List[np.ndarray] = []
+    meta = {"levels": []}
+    for ell in range(1, L + 1):
+        r = np.clip(np.round(res * (2**ell)), -1, 1).astype(int)
+        stack.append(r)
+        res = res - (r / (2**ell))
+        meta["levels"].append({"level": ell, "scale": float(2**(-ell)), "l2": float(np.linalg.norm(r))})
+    return a0, stack, meta
+
+def reconstruct_sbrv(a0: np.ndarray, stack: List[np.ndarray], L: int) -> np.ndarray:
+    aL = np.asarray(a0, dtype=float).copy()
+    for ell, r in enumerate(stack[:L], 1):
+        aL = aL + (r / (2**ell))
+    n = float(np.linalg.norm(aL))
+    return aL / n if n > 0 else aL
+
+def fidelity_upper_bound(d: int, L: int) -> float:
+    # ||Δ||_2 ≤ 2^{-(L+1)} sqrt(d) ⇒ 1 - F ≲ O(2^{-2L} d).
+    return min(1.0, (2.0 ** (-(2 * (L + 1)))) * float(d))
+
+# ---------------------------------------------------------------------------
+# Base SC-A mapping and holistic encode helper
+# ---------------------------------------------------------------------------
+def _sc_a_from_coeffs(a: np.ndarray) -> np.ndarray:
+    """
+    Canonical amplitude map: magnitude = |a|, phase = 0 if a>=0 else pi. L2-normalized.
+    """
+    a = np.asarray(a, dtype=float)
+    mags = np.abs(a)
+    phases = np.where(a >= 0.0, 0.0, np.pi)
+    c = mags * np.exp(1j * phases)
+    n = np.linalg.norm(c)
+    return c / n if n else c
+
+def qte_extras_encode(coeffs: np.ndarray,
+                      n_qubits: int,
+                      srd_mode: str = "none",   # "none" | "ancilla" | "iq"
+                      sbrv_levels: int = 0,
+                      sbrv_step: float = 1.0) -> dict:
+    """
+    1) Build base SC-A state from coeffs
+    2) Apply SRD packing if requested
+    3) Prepare SBRV stack (classical) if requested
+    Returns dict with 'state' or 'rails', and sidecar metadata.
+    """
+    d = 2 ** n_qubits
+    a = np.asarray(coeffs, dtype=float)[:d]
+    base_state = _sc_a_from_coeffs(a)
+    out = {"n_qubits": n_qubits, "d": d}
+
+    if srd_mode == "ancilla":
+        psi_plus, psi_minus, alpha, beta = encode_srd_ancilla(a)
+        out["rails"] = {
+            "mode": "ancilla",
+            "alpha": complex(alpha), "beta": complex(beta),
+            "psi_plus": _sc_a_from_coeffs(psi_plus),
+            "psi_minus": _sc_a_from_coeffs(psi_minus),
+        }
+    elif srd_mode == "iq":
+        c = encode_srd_iq(a)
+        out["state"] = c / (np.linalg.norm(c) or 1.0)
+        out["rails"] = {"mode": "iq"}
+    else:
+        out["state"] = base_state
+        out["rails"] = {"mode": "none"}
+
+    if sbrv_levels and sbrv_levels > 0:
+        a0, stack, meta = build_sbrv(a, L=int(sbrv_levels), step=float(sbrv_step))
+        out["sbrv"] = {"a0": a0, "stack": stack, "meta": meta}
+        out["coeffs_L"] = reconstruct_sbrv(a0, stack, int(sbrv_levels))
+        if out["rails"]["mode"] == "none":
+            out["state_L"] = _sc_a_from_coeffs(out["coeffs_L"])
+        elif out["rails"]["mode"] == "iq":
+            out["state_L"] = encode_srd_iq(out["coeffs_L"])
+        else:
+            pL, nL, _, _ = encode_srd_ancilla(out["coeffs_L"])
+            out["rails"]["psi_plus_L"]  = _sc_a_from_coeffs(pL)
+            out["rails"]["psi_minus_L"] = _sc_a_from_coeffs(nL)
+    return out
+
+# ---------------------------------------------------------------------------
+# Diagnostics metrics
+# ---------------------------------------------------------------------------
+def spectral_entropy_fft(x: np.ndarray) -> float:
+    X = np.fft.fft(np.asarray(x))
+    p = np.abs(X) ** 2
+    p = p / (float(p.sum()) or 1.0)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return float(-(p * np.log(p + 1e-15)).sum())
+
+def spectral_flatness_fft(x: np.ndarray) -> float:
+    X = np.fft.fft(np.asarray(x))
+    p = np.abs(X) ** 2 + 1e-15
+    gm = float(np.exp(np.mean(np.log(p))))
+    am = float(np.mean(p))
+    return gm / am
+
+def phase_coherence(c: np.ndarray) -> float:
+    c = np.asarray(c, dtype=complex)
+    mags = np.abs(c); nz = mags > 0
+    phases = np.zeros_like(c, dtype=complex)
+    phases[nz] = c[nz] / mags[nz]
+    return float(np.abs(phases.mean()))
+
+def schmidt_entropy(psi: np.ndarray, n_qubits: int, cut: int) -> float:
+    A = np.asarray(psi, dtype=complex).reshape((2**cut, 2**(n_qubits - cut)))
+    s = np.linalg.svd(A, compute_uv=False)
+    lam2 = (s ** 2); lam2 = lam2 / (float(lam2.sum()) or 1.0)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return float(-(lam2 * np.log(lam2 + 1e-15)).sum())
+
+def qfi_pure_state(psi: np.ndarray, H: np.ndarray) -> float:
+    psi = np.asarray(psi, dtype=complex); H = np.asarray(H, dtype=complex)
+    bra = psi.conj()
+    expH  = float(bra @ (H @ psi))
+    expH2 = float(bra @ (H @ (H @ psi)))
+    return 4.0 * (expH2 - expH**2)
+
+def spectral_entropy_hankel(x: np.ndarray, nu: int = 0) -> float:
+    try:
+        from scipy.special import jv, jn_zeros  # optional
+    except Exception as e:
+        raise ImportError("SciPy required for Hankel-domain entropy") from e
+    x = np.asarray(x, dtype=float); d = len(x)
+    zeros = jn_zeros(nu, d)
+    r = np.linspace(0.0, 1.0, d, endpoint=True)
+    H = np.zeros((d, d), dtype=float)
+    for k in range(d):
+        J = jv(nu, zeros[k] * r)
+        H[:, k] = r * J
+    H = H / (np.linalg.norm(H, axis=0, keepdims=True) + 1e-15)
+    X = H.T @ x
+    p = np.abs(X) ** 2
+    p = p / (float(p.sum()) or 1.0)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return float(-(p * np.log(p + 1e-15)).sum())
+
+def qte_extras_metrics(state: np.ndarray,
+                       n_qubits: int,
+                       cut: int | None = None,
+                       H: np.ndarray | None = None) -> dict:
+    st = np.asarray(state, dtype=complex)
+    out = {
+        "spectral_entropy_fft": float(spectral_entropy_fft(st)),
+        "spectral_flatness_fft": float(spectral_flatness_fft(st)),
+        "phase_coherence": float(phase_coherence(st)),
+    }
+    if cut is not None:
+        out[f"schmidt_entropy_cut{cut}"] = float(schmidt_entropy(st, n_qubits, cut))
+    if H is not None:
+        out["qfi"] = float(qfi_pure_state(st, H))
+    return out
+

@@ -1,0 +1,13 @@
+labels,topology,regq,total_qubits,cut,schmidt_entropy_bits
+"π,e,ζ(3)",chain,3,9,1,0.23321339830885296
+"π,e,ζ(3)",chain,3,9,2,0.29875239785291946
+"π,e,ζ(3)",star,3,9,1,0.23321268578769944
+"π,e,ζ(3)",star,3,9,2,0.4261980690484432
+"π,J0,e",chain,3,9,1,0.2987523978529183
+"π,J0,e",chain,3,9,2,0.9999972152197606
+"π,J0,e",star,3,9,1,0.2987523978529183
+"π,J0,e",star,3,9,2,0.9999972152197606
+"Maclaurin[sin(x)],Maclaurin[log(1+x)],ζ(3)",chain,3,9,1,0.17503840045254898
+"Maclaurin[sin(x)],Maclaurin[log(1+x)],ζ(3)",chain,3,9,2,1.9220559022889496e-15
+"Maclaurin[sin(x)],Maclaurin[log(1+x)],ζ(3)",star,3,9,1,-0.0
+"Maclaurin[sin(x)],Maclaurin[log(1+x)],ζ(3)",star,3,9,2,-6.406853007629837e-16

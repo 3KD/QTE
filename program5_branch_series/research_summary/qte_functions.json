@@ -1,0 +1,3109 @@
+[
+  {
+    "file": "QTEGUI.py",
+    "syntax_error": "invalid syntax (line 150)"
+  },
+  {
+    "file": "_archive/GTEGUI.py",
+    "functions": [
+      {
+        "qualname": "QTEGUI::__init__",
+        "signature": "__init__(self)",
+        "lineno": 50,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_maybe_prompt_ibm",
+        "signature": "_maybe_prompt_ibm(self)",
+        "lineno": 140,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_set_active",
+        "signature": "_set_active(self, label, sv, also_save)",
+        "lineno": 154,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_get_active_or_selected",
+        "signature": "_get_active_or_selected(self, combo)",
+        "lineno": 162,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_refresh_all_combos",
+        "signature": "_refresh_all_combos(self)",
+        "lineno": 170,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_register_combo",
+        "signature": "_register_combo(self, cb)",
+        "lineno": 175,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_set_status",
+        "signature": "_set_status(self, msg)",
+        "lineno": 180,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_preview",
+        "signature": "_build_tab_preview(self)",
+        "lineno": 187,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_preview_amplitudes",
+        "signature": "on_preview_amplitudes(self)",
+        "lineno": 199,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_prepare_state",
+        "signature": "on_prepare_state(self)",
+        "lineno": 248,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_fft",
+        "signature": "_build_tab_fft(self)",
+        "lineno": 291,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_compute_fft",
+        "signature": "on_compute_fft(self)",
+        "lineno": 302,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_qft",
+        "signature": "_build_tab_qft(self)",
+        "lineno": 346,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_build_qft_spectrum",
+        "signature": "on_build_qft_spectrum(self)",
+        "lineno": 366,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_run_qft_circuit",
+        "signature": "on_run_qft_circuit(self)",
+        "lineno": 401,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_simulate_qft_statevector",
+        "signature": "on_simulate_qft_statevector(self)",
+        "lineno": 420,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_measure",
+        "signature": "_build_tab_measure(self)",
+        "lineno": 434,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_measure_state",
+        "signature": "on_measure_state(self)",
+        "lineno": 441,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_amplitudes",
+        "signature": "_build_tab_amplitudes(self)",
+        "lineno": 458,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_set_active_from_amp",
+        "signature": "on_set_active_from_amp(self)",
+        "lineno": 467,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_plot_amplitudes",
+        "signature": "on_plot_amplitudes(self)",
+        "lineno": 472,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_similarity",
+        "signature": "_build_tab_similarity(self)",
+        "lineno": 486,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_similarity",
+        "signature": "on_similarity(self)",
+        "lineno": 491,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_clustering",
+        "signature": "_build_tab_clustering(self)",
+        "lineno": 507,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_clustering",
+        "signature": "on_clustering(self)",
+        "lineno": 514,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_tomography",
+        "signature": "_build_tab_tomography(self)",
+        "lineno": 540,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_run_tomography",
+        "signature": "on_run_tomography(self)",
+        "lineno": 549,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_entanglement",
+        "signature": "_build_tab_entanglement(self)",
+        "lineno": 574,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_ent_analyze",
+        "signature": "on_ent_analyze(self)",
+        "lineno": 601,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_gates",
+        "signature": "_build_tab_gates(self)",
+        "lineno": 654,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_draw_qft",
+        "signature": "on_draw_qft(self)",
+        "lineno": 660,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_draw_prep_for_last",
+        "signature": "on_draw_prep_for_last(self)",
+        "lineno": 670,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_state_io",
+        "signature": "_build_tab_state_io(self)",
+        "lineno": 688,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_save_active",
+        "signature": "on_save_active(self)",
+        "lineno": 693,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_load_state",
+        "signature": "on_load_state(self)",
+        "lineno": 707,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_basis",
+        "signature": "_build_tab_basis(self)",
+        "lineno": 719,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_set_active_from_basis",
+        "signature": "on_set_active_from_basis(self)",
+        "lineno": 728,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_show_basis",
+        "signature": "on_show_basis(self)",
+        "lineno": 733,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_center_hann",
+        "signature": "_center_hann(self, vec)",
+        "lineno": 746,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_spectrum_metrics",
+        "signature": "_spectrum_metrics(self, vec)",
+        "lineno": 754,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "_archive/QTEGUI1.py",
+    "functions": [
+      {
+        "qualname": "_norm_label",
+        "signature": "_norm_label(label)",
+        "lineno": 58,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_supports_method",
+        "signature": "_supports_method(label)",
+        "lineno": 62,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_canonical_method",
+        "signature": "_canonical_method(label, method)",
+        "lineno": 66,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_split_top_level",
+        "signature": "_split_top_level(s)",
+        "lineno": 75,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_parse_constants_syntax",
+        "signature": "_parse_constants_syntax(s)",
+        "lineno": 94,
+        "doc": "Grammar (informal):",
+        "flags": []
+      },
+      {
+        "qualname": "_constants_to_syntax",
+        "signature": "_constants_to_syntax(pairs)",
+        "lineno": 145,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::__init__",
+        "signature": "__init__(self, master, initial)",
+        "lineno": 156,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_on_select",
+        "signature": "_on_select(self, _evt)",
+        "lineno": 203,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_current_highlight",
+        "signature": "_current_highlight(self)",
+        "lineno": 212,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_apply_method",
+        "signature": "_apply_method(self)",
+        "lineno": 218,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_add_custom",
+        "signature": "_add_custom(self)",
+        "lineno": 227,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_ok",
+        "signature": "_ok(self)",
+        "lineno": 235,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_cancel",
+        "signature": "_cancel(self)",
+        "lineno": 243,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::__init__",
+        "signature": "__init__(self)",
+        "lineno": 252,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_maybe_prompt_ibm",
+        "signature": "_maybe_prompt_ibm(self)",
+        "lineno": 344,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_pick_constants",
+        "signature": "on_pick_constants(self)",
+        "lineno": 358,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_current_constants",
+        "signature": "_current_constants(self, default_if_empty)",
+        "lineno": 365,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_single_constant_required",
+        "signature": "_single_constant_required(self, ctx)",
+        "lineno": 378,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_fmt_amp",
+        "signature": "_fmt_amp(self, a)",
+        "lineno": 387,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_preview_multi_registers",
+        "signature": "_preview_multi_registers(self, pairs, mode, n_each)",
+        "lineno": 390,
+        "doc": "Print per-register preview for multi selections.",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_parse_multi_label",
+        "signature": "_parse_multi_label(self, label)",
+        "lineno": 411,
+        "doc": "Parse labels like: multi[\u03c0,e,ln(2)|chain|3] \u2192 (['\u03c0','e','ln(2)'], 'chain', 3).",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_schmidt_entropy_bits",
+        "signature": "_schmidt_entropy_bits(self, sv, cut)",
+        "lineno": 424,
+        "doc": "Von Neumann entropy (bits) of left block of 'cut' qubits vs the rest (pure state).",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_set_active",
+        "signature": "_set_active(self, label, sv, also_save)",
+        "lineno": 435,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_get_active_or_selected",
+        "signature": "_get_active_or_selected(self, combo)",
+        "lineno": 443,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_refresh_all_combos",
+        "signature": "_refresh_all_combos(self)",
+        "lineno": 451,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_register_combo",
+        "signature": "_register_combo(self, cb)",
+        "lineno": 456,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_set_status",
+        "signature": "_set_status(self, msg)",
+        "lineno": 461,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_preview",
+        "signature": "_build_tab_preview(self)",
+        "lineno": 468,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_preview_amplitudes",
+        "signature": "on_preview_amplitudes(self)",
+        "lineno": 478,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_prepare_state",
+        "signature": "on_prepare_state(self)",
+        "lineno": 533,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_fft",
+        "signature": "_build_tab_fft(self)",
+        "lineno": 610,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_compute_fft",
+        "signature": "on_compute_fft(self)",
+        "lineno": 618,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_qft",
+        "signature": "_build_tab_qft(self)",
+        "lineno": 659,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_build_qft_spectrum",
+        "signature": "on_build_qft_spectrum(self)",
+        "lineno": 678,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_run_qft_circuit",
+        "signature": "on_run_qft_circuit(self)",
+        "lineno": 715,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_simulate_qft_statevector",
+        "signature": "on_simulate_qft_statevector(self)",
+        "lineno": 734,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_measure",
+        "signature": "_build_tab_measure(self)",
+        "lineno": 747,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_measure_state",
+        "signature": "on_measure_state(self)",
+        "lineno": 761,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_show_marginals",
+        "signature": "on_show_marginals(self)",
+        "lineno": 851,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_amplitudes",
+        "signature": "_build_tab_amplitudes(self)",
+        "lineno": 893,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_set_active_from_amp",
+        "signature": "on_set_active_from_amp(self)",
+        "lineno": 902,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_plot_amplitudes",
+        "signature": "on_plot_amplitudes(self)",
+        "lineno": 907,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_similarity",
+        "signature": "_build_tab_similarity(self)",
+        "lineno": 921,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_similarity",
+        "signature": "on_similarity(self)",
+        "lineno": 926,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_clustering",
+        "signature": "_build_tab_clustering(self)",
+        "lineno": 942,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_clustering",
+        "signature": "on_clustering(self)",
+        "lineno": 949,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_tomography",
+        "signature": "_build_tab_tomography(self)",
+        "lineno": 975,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_run_tomography",
+        "signature": "on_run_tomography(self)",
+        "lineno": 984,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_entanglement",
+        "signature": "_build_tab_entanglement(self)",
+        "lineno": 1009,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_ent_analyze",
+        "signature": "on_ent_analyze(self)",
+        "lineno": 1035,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_gates",
+        "signature": "_build_tab_gates(self)",
+        "lineno": 1084,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_draw_qft",
+        "signature": "on_draw_qft(self)",
+        "lineno": 1090,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_draw_prep_for_last",
+        "signature": "on_draw_prep_for_last(self)",
+        "lineno": 1100,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_state_io",
+        "signature": "_build_tab_state_io(self)",
+        "lineno": 1118,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_save_active",
+        "signature": "on_save_active(self)",
+        "lineno": 1123,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_load_state",
+        "signature": "on_load_state(self)",
+        "lineno": 1141,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_basis",
+        "signature": "_build_tab_basis(self)",
+        "lineno": 1156,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_set_active_from_basis",
+        "signature": "on_set_active_from_basis(self)",
+        "lineno": 1165,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_show_basis",
+        "signature": "on_show_basis(self)",
+        "lineno": 1170,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_center_hann",
+        "signature": "_center_hann(self, vec)",
+        "lineno": 1183,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_spectrum_metrics",
+        "signature": "_spectrum_metrics(self, vec)",
+        "lineno": 1188,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "_archive/QTEGUI2.py",
+    "functions": [
+      {
+        "qualname": "_norm_label",
+        "signature": "_norm_label(label)",
+        "lineno": 58,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_supports_method",
+        "signature": "_supports_method(label)",
+        "lineno": 62,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_canonical_method",
+        "signature": "_canonical_method(label, method)",
+        "lineno": 66,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_split_top_level",
+        "signature": "_split_top_level(s)",
+        "lineno": 75,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_parse_constants_syntax",
+        "signature": "_parse_constants_syntax(s)",
+        "lineno": 94,
+        "doc": "Grammar (informal):",
+        "flags": []
+      },
+      {
+        "qualname": "_constants_to_syntax",
+        "signature": "_constants_to_syntax(pairs)",
+        "lineno": 145,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::__init__",
+        "signature": "__init__(self, master, initial)",
+        "lineno": 156,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_on_select",
+        "signature": "_on_select(self, _evt)",
+        "lineno": 203,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_current_highlight",
+        "signature": "_current_highlight(self)",
+        "lineno": 212,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_apply_method",
+        "signature": "_apply_method(self)",
+        "lineno": 218,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_add_custom",
+        "signature": "_add_custom(self)",
+        "lineno": 227,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_ok",
+        "signature": "_ok(self)",
+        "lineno": 235,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "ConstantPicker::_cancel",
+        "signature": "_cancel(self)",
+        "lineno": 243,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::__init__",
+        "signature": "__init__(self)",
+        "lineno": 252,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_maybe_prompt_ibm",
+        "signature": "_maybe_prompt_ibm(self)",
+        "lineno": 344,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_pick_constants",
+        "signature": "on_pick_constants(self)",
+        "lineno": 358,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_current_constants",
+        "signature": "_current_constants(self, default_if_empty)",
+        "lineno": 365,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_single_constant_required",
+        "signature": "_single_constant_required(self, ctx)",
+        "lineno": 378,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_fmt_amp",
+        "signature": "_fmt_amp(self, a)",
+        "lineno": 387,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_preview_multi_registers",
+        "signature": "_preview_multi_registers(self, pairs, mode, n_each)",
+        "lineno": 390,
+        "doc": "Print per-register preview for multi selections.",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_parse_multi_label",
+        "signature": "_parse_multi_label(self, label)",
+        "lineno": 411,
+        "doc": "Parse labels like: multi[\u03c0,e,ln(2)|chain|3] \u2192 (['\u03c0','e','ln(2)'], 'chain', 3).",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_schmidt_entropy_bits",
+        "signature": "_schmidt_entropy_bits(self, sv, cut)",
+        "lineno": 424,
+        "doc": "Von Neumann entropy (bits) of left block of 'cut' qubits vs the rest (pure state).",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_set_active",
+        "signature": "_set_active(self, label, sv, also_save)",
+        "lineno": 435,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_get_active_or_selected",
+        "signature": "_get_active_or_selected(self, combo)",
+        "lineno": 443,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_refresh_all_combos",
+        "signature": "_refresh_all_combos(self)",
+        "lineno": 451,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_register_combo",
+        "signature": "_register_combo(self, cb)",
+        "lineno": 456,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_set_status",
+        "signature": "_set_status(self, msg)",
+        "lineno": 461,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_preview",
+        "signature": "_build_tab_preview(self)",
+        "lineno": 468,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_preview_amplitudes",
+        "signature": "on_preview_amplitudes(self)",
+        "lineno": 478,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_prepare_state",
+        "signature": "on_prepare_state(self)",
+        "lineno": 533,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_fft",
+        "signature": "_build_tab_fft(self)",
+        "lineno": 610,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_compute_fft",
+        "signature": "on_compute_fft(self)",
+        "lineno": 618,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_qft",
+        "signature": "_build_tab_qft(self)",
+        "lineno": 659,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_build_qft_spectrum",
+        "signature": "on_build_qft_spectrum(self)",
+        "lineno": 678,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_run_qft_circuit",
+        "signature": "on_run_qft_circuit(self)",
+        "lineno": 715,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_simulate_qft_statevector",
+        "signature": "on_simulate_qft_statevector(self)",
+        "lineno": 734,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_measure",
+        "signature": "_build_tab_measure(self)",
+        "lineno": 747,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_measure_state",
+        "signature": "on_measure_state(self)",
+        "lineno": 775,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_show_marginals",
+        "signature": "on_show_marginals(self)",
+        "lineno": 883,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_amplitudes",
+        "signature": "_build_tab_amplitudes(self)",
+        "lineno": 925,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_set_active_from_amp",
+        "signature": "on_set_active_from_amp(self)",
+        "lineno": 934,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_plot_amplitudes",
+        "signature": "on_plot_amplitudes(self)",
+        "lineno": 939,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_similarity",
+        "signature": "_build_tab_similarity(self)",
+        "lineno": 953,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_similarity",
+        "signature": "on_similarity(self)",
+        "lineno": 961,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_clustering",
+        "signature": "_build_tab_clustering(self)",
+        "lineno": 997,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_clustering",
+        "signature": "on_clustering(self)",
+        "lineno": 1007,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_tomography",
+        "signature": "_build_tab_tomography(self)",
+        "lineno": 1046,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_run_tomography",
+        "signature": "on_run_tomography(self)",
+        "lineno": 1055,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_entanglement",
+        "signature": "_build_tab_entanglement(self)",
+        "lineno": 1097,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_ent_analyze",
+        "signature": "on_ent_analyze(self)",
+        "lineno": 1123,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_gates",
+        "signature": "_build_tab_gates(self)",
+        "lineno": 1172,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_draw_qft",
+        "signature": "on_draw_qft(self)",
+        "lineno": 1178,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_draw_prep_for_last",
+        "signature": "on_draw_prep_for_last(self)",
+        "lineno": 1192,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_state_io",
+        "signature": "_build_tab_state_io(self)",
+        "lineno": 1212,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_save_active",
+        "signature": "on_save_active(self)",
+        "lineno": 1217,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_load_state",
+        "signature": "on_load_state(self)",
+        "lineno": 1235,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_build_tab_basis",
+        "signature": "_build_tab_basis(self)",
+        "lineno": 1250,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_set_active_from_basis",
+        "signature": "on_set_active_from_basis(self)",
+        "lineno": 1259,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::on_show_basis",
+        "signature": "on_show_basis(self)",
+        "lineno": 1264,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_center_hann",
+        "signature": "_center_hann(self, vec)",
+        "lineno": 1277,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "QTEGUI::_spectrum_metrics",
+        "signature": "_spectrum_metrics(self, vec)",
+        "lineno": 1282,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "catalog_fixes.py",
+    "functions": [
+      {
+        "qualname": "erf_coefficient",
+        "signature": "erf_coefficient(n)",
+        "lineno": 5,
+        "doc": "erf(x) = (2/\u221a\u03c0) \u03a3_{m\u22650} (-1)^m x^{2m+1} / (m!(2m+1))",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "cli_runner.py",
+    "functions": [
+      {
+        "qualname": "print_top_basis_states",
+        "signature": "print_top_basis_states(statevector, label, k)",
+        "lineno": 16,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 24,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "dual_rail_composition.py",
+    "functions": [
+      {
+        "qualname": "compose_dual_rail",
+        "signature": "compose_dual_rail(psiA, psiB, U, alpha, beta)",
+        "lineno": 6,
+        "doc": "Return a minimal, backend-agnostic spec for an ancilla-tagged superposition:",
+        "flags": []
+      },
+      {
+        "qualname": "decompose_dual_rail",
+        "signature": "decompose_dual_rail(spec)",
+        "lineno": 24,
+        "doc": "Inverse helper: (psiA, psiB, U, alpha, beta).",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "experiments/ramsey_pi_sweep.py",
+    "functions": [
+      {
+        "qualname": "build",
+        "signature": "build(phi_param)",
+        "lineno": 9,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "run",
+        "signature": "run(backend_name, shots, npts, span)",
+        "lineno": 16,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "file_naming.py",
+    "functions": [
+      {
+        "qualname": "_ascii_safe",
+        "signature": "_ascii_safe(s)",
+        "lineno": 19,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "format_constant_token",
+        "signature": "format_constant_token(label, method)",
+        "lineno": 29,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "format_constant_list",
+        "signature": "format_constant_list(pairs)",
+        "lineno": 35,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "parse_multi_label",
+        "signature": "parse_multi_label(label)",
+        "lineno": 40,
+        "doc": "multi[\u03c0,e,ln(2)|chain|3] -> (['\u03c0','e','ln(2)'], 'chain', 3) or None.",
+        "flags": []
+      },
+      {
+        "qualname": "schmidt_entropies_all_cuts",
+        "signature": "schmidt_entropies_all_cuts(sv, regq, n_regs, tol)",
+        "lineno": 55,
+        "doc": "Von Neumann entropy (bits) across every register boundary cut.",
+        "flags": []
+      },
+      {
+        "qualname": "ent_tag_from_entropies",
+        "signature": "ent_tag_from_entropies(ents, millis)",
+        "lineno": 71,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "build_qte_filename",
+        "signature": "build_qte_filename(constants, mode, n_qubits, phase_mode, regq, topology, pattern, entropies_bits, extra, suffix)",
+        "lineno": 81,
+        "doc": "Canonical pattern:",
+        "flags": []
+      },
+      {
+        "qualname": "parse_qte_filename",
+        "signature": "parse_qte_filename(name)",
+        "lineno": 123,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "harmonic_analysis.py",
+    "functions": [
+      {
+        "qualname": "power_spectrum",
+        "signature": "power_spectrum(x)",
+        "lineno": 8,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "spectral_entropy",
+        "signature": "spectral_entropy(power)",
+        "lineno": 15,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "spectrum_metrics",
+        "signature": "spectrum_metrics(power)",
+        "lineno": 20,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "kl_divergence",
+        "signature": "kl_divergence(p, q, eps)",
+        "lineno": 33,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_hann_window",
+        "signature": "_hann_window(n)",
+        "lineno": 42,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "preprocess_amplitudes",
+        "signature": "preprocess_amplitudes(amplitudes, remove_dc, window, pad_len, use_magnitude_if_complex)",
+        "lineno": 47,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_fft_spectrum_from_amplitudes",
+        "signature": "compute_fft_spectrum_from_amplitudes(amplitudes, remove_dc, window, pad_len)",
+        "lineno": 75,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "plot_spectrum",
+        "signature": "plot_spectrum(power, freqs, title)",
+        "lineno": 89,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_fft_spectrum_from_amplitudes",
+        "signature": "compute_fft_spectrum_from_amplitudes(amps, remove_dc, window, pad_len)",
+        "lineno": 101,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "ibm_backend.py",
+    "functions": [
+      {
+        "qualname": "initialize_ibm",
+        "signature": "initialize_ibm(api_token, instance)",
+        "lineno": 10,
+        "doc": "Initialize IBM access. Tries qiskit-ibm-provider first, then qiskit-ibm-runtime.",
+        "flags": []
+      },
+      {
+        "qualname": "_pick_provider_backend",
+        "signature": "_pick_provider_backend(min_qubits, name)",
+        "lineno": 46,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_pick_runtime_backend",
+        "signature": "_pick_runtime_backend(min_qubits, name)",
+        "lineno": 72,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_backend",
+        "signature": "get_backend(use_ibm, fallback, min_qubits, name)",
+        "lineno": 105,
+        "doc": "Returns a backend-like object with .run(...).",
+        "flags": []
+      },
+      {
+        "qualname": "list_ibm_backends",
+        "signature": "list_ibm_backends()",
+        "lineno": 128,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_ibm_status",
+        "signature": "get_ibm_status()",
+        "lineno": 142,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "infer_requirements.py",
+    "functions": [
+      {
+        "qualname": "iter_py_files",
+        "signature": "iter_py_files(root)",
+        "lineno": 43,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "print_heads",
+        "signature": "print_heads(root)",
+        "lineno": 50,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "collect_imports",
+        "signature": "collect_imports(root)",
+        "lineno": 63,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "propose_requirements",
+        "signature": "propose_requirements(mods)",
+        "lineno": 85,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 121,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "metrics_extra.py",
+    "functions": [
+      {
+        "qualname": "spectral_entropy_fft",
+        "signature": "spectral_entropy_fft(x)",
+        "lineno": 5,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "spectral_flatness_fft",
+        "signature": "spectral_flatness_fft(x)",
+        "lineno": 13,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "phase_coherence",
+        "signature": "phase_coherence(c)",
+        "lineno": 20,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "schmidt_entropy",
+        "signature": "schmidt_entropy(psi, n_qubits, cut)",
+        "lineno": 28,
+        "doc": "Von Neumann entropy across bipartition (pure state).",
+        "flags": []
+      },
+      {
+        "qualname": "qfi_pure_state",
+        "signature": "qfi_pure_state(psi, H)",
+        "lineno": 41,
+        "doc": "F_Q = 4(\u27e8H^2\u27e9 - \u27e8H\u27e9^2) for a pure state.",
+        "flags": []
+      },
+      {
+        "qualname": "spectral_entropy_hankel",
+        "signature": "spectral_entropy_hankel(x, nu)",
+        "lineno": 54,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "paper_batch.py",
+    "functions": [
+      {
+        "qualname": "safename",
+        "signature": "safename(s)",
+        "lineno": 17,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "paper_multi.py",
+    "functions": [
+      {
+        "qualname": "safe",
+        "signature": "safe(s)",
+        "lineno": 17,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "entropy_from_svals",
+        "signature": "entropy_from_svals(S)",
+        "lineno": 20,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "precision_scaling.py",
+    "functions": [
+      {
+        "qualname": "fidelity_upper_bound",
+        "signature": "fidelity_upper_bound(d, L)",
+        "lineno": 3,
+        "doc": "Rough analysis:",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "qte_cli.py",
+    "functions": [
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 7,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "qte_metrics.py",
+    "functions": [
+      {
+        "qualname": "amplitude_entropy",
+        "signature": "amplitude_entropy(vec)",
+        "lineno": 16,
+        "doc": "Shannon entropy (bits) of |amp|^2.",
+        "flags": []
+      },
+      {
+        "qualname": "spectral_metrics",
+        "signature": "spectral_metrics(vec, pad_len)",
+        "lineno": 22,
+        "doc": "Use your existing harmonic_analysis helper for consistency.",
+        "flags": []
+      },
+      {
+        "qualname": "safe_label_method",
+        "signature": "safe_label_method(label, method)",
+        "lineno": 40,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "prepare_state",
+        "signature": "prepare_state(spec)",
+        "lineno": 69,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_metrics",
+        "signature": "compute_metrics(spec, sv)",
+        "lineno": 79,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "save_plots",
+        "signature": "save_plots(outdir, base, sv, pad_len)",
+        "lineno": 102,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "qte_smoke.py",
+    "functions": [],
+    "todos": []
+  },
+  {
+    "file": "quantum_embedding.py",
+    "functions": [
+      {
+        "qualname": "_ensure_unit",
+        "signature": "_ensure_unit(vec)",
+        "lineno": 32,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_center_hann",
+        "signature": "_center_hann(vec)",
+        "lineno": 39,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_spectrum_metrics",
+        "signature": "_spectrum_metrics(vec)",
+        "lineno": 48,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_n_from_len",
+        "signature": "_n_from_len(L)",
+        "lineno": 58,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "simulate_statevector",
+        "signature": "simulate_statevector(qc)",
+        "lineno": 66,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "run_circuit",
+        "signature": "run_circuit(qc, use_ibm, measure, shots)",
+        "lineno": 69,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "generate_series_encoding",
+        "signature": "generate_series_encoding(label, n_qubits, method, phase_mode, amp_mode)",
+        "lineno": 83,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "index_qft_spectrum_circuit",
+        "signature": "index_qft_spectrum_circuit(vec, use_stateprep, do_measure)",
+        "lineno": 97,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qft_spectrum_from_series",
+        "signature": "qft_spectrum_from_series(label, n_qubits, method, phase_mode, amp_mode, preprocess, use_stateprep, do_measure, pad_len)",
+        "lineno": 115,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "encode_entangled_constants",
+        "signature": "encode_entangled_constants(c1, c2)",
+        "lineno": 134,
+        "doc": "Minimal 2-qubit entangled encoding: |\u03c8> = a|00> + b|11>, with a\u221dc1, b\u221dc2.",
+        "flags": []
+      },
+      {
+        "qualname": "entangle_series_registers",
+        "signature": "entangle_series_registers(const1, const2, n_qubits_each, method1, method2, phase_mode1, phase_mode2, pattern, use_stateprep, do_measure)",
+        "lineno": 145,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "entangle_series_multi",
+        "signature": "entangle_series_multi(labels, n_qubits_each, methods, phase_mode, topology, use_stateprep, do_measure)",
+        "lineno": 178,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "analyze_tensor_structure",
+        "signature": "analyze_tensor_structure(sv, cut)",
+        "lineno": 219,
+        "doc": "Return (rhoA, rhoB, rhoAB) where the bipartition is [0..cut-1] | [cut..n-1].",
+        "flags": []
+      },
+      {
+        "qualname": "perform_schmidt_decomposition",
+        "signature": "perform_schmidt_decomposition(sv, cut)",
+        "lineno": 235,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "value_phase_estimation_circuit",
+        "signature": "value_phase_estimation_circuit(label, K, method, do_measure)",
+        "lineno": 243,
+        "doc": "PEA for a 'black-box' phase U = e^{2\u03c0i x}, where x = frac(constant(label)).",
+        "flags": []
+      },
+      {
+        "qualname": "periodic_phase_state",
+        "signature": "periodic_phase_state(p, q, n_qubits, do_measure, apply_qft)",
+        "lineno": 274,
+        "doc": "Prepare |\u03c8> with amplitudes \u03c8[n] \u221d exp(2\u03c0i p n / q), n=0..N-1 (uniform magnitude).",
+        "flags": []
+      },
+      {
+        "qualname": "digit_qrom_circuit",
+        "signature": "digit_qrom_circuit(label, base, n_index, bits_per_digit, method, do_measure)",
+        "lineno": 294,
+        "doc": "Simulation-friendly QROM:",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "rail_masks.py",
+    "functions": [
+      {
+        "qualname": "even_odd_masks",
+        "signature": "even_odd_masks(d)",
+        "lineno": 5,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "block_masks",
+        "signature": "block_masks(d, blocks)",
+        "lineno": 9,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "carriers",
+        "signature": "carriers(d, ks)",
+        "lineno": 14,
+        "doc": "OFDM-style carriers r_k(i) = exp(2\u03c0 i k i / d) as (d x len(ks)) matrix.",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "run_gui.py",
+    "functions": [],
+    "todos": []
+  },
+  {
+    "file": "run_series_grid.py",
+    "functions": [
+      {
+        "qualname": "make_label",
+        "signature": "make_label(A, B, N, phase, amp, op)",
+        "lineno": 30,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "build",
+        "signature": "build(A, B, N, phase, amp, op)",
+        "lineno": 37,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 62,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "sbrv_precision.py",
+    "functions": [
+      {
+        "qualname": "quantize_msb",
+        "signature": "quantize_msb(a, step)",
+        "lineno": 6,
+        "doc": "Coarse quantizer capturing MSB-scale structure.",
+        "flags": []
+      },
+      {
+        "qualname": "build_sbrv",
+        "signature": "build_sbrv(a, L, step)",
+        "lineno": 14,
+        "doc": "Build SBRV:",
+        "flags": []
+      },
+      {
+        "qualname": "reconstruct_sbrv",
+        "signature": "reconstruct_sbrv(a0, stack, L)",
+        "lineno": 37,
+        "doc": "Reconstruct (to level L) and L2-normalize.",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "scripts/_sampler_utils.py",
+    "functions": [
+      {
+        "qualname": "get_backend",
+        "signature": "get_backend(name)",
+        "lineno": 9,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_to_bits",
+        "signature": "_to_bits(k, width)",
+        "lineno": 13,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_normalize_counts",
+        "signature": "_normalize_counts(d, width)",
+        "lineno": 28,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_counts_from_quasi",
+        "signature": "_counts_from_quasi(qd, width, shots)",
+        "lineno": 44,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "run_counts",
+        "signature": "run_counts(qc, backend, shots)",
+        "lineno": 57,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "scripts/qpsk_end2end.py",
+    "functions": [
+      {
+        "qualname": "iqft_gate",
+        "signature": "iqft_gate(n)",
+        "lineno": 13,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qpsk_indexer",
+        "signature": "qpsk_indexer(K, sym, M)",
+        "lineno": 17,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "count_twoq",
+        "signature": "count_twoq(tqc)",
+        "lineno": 27,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_as_counts_from_quasi",
+        "signature": "_as_counts_from_quasi(qd, width, shots)",
+        "lineno": 35,
+        "doc": "qd: dict-like (keys can be int or bitstrings); return int counts dict or None.",
+        "flags": []
+      },
+      {
+        "qualname": "_normalize_counts",
+        "signature": "_normalize_counts(cd, width)",
+        "lineno": 67,
+        "doc": "cd: dict mapping bitstrings/ints\u2192counts; returns {bitstring: int} or None.",
+        "flags": []
+      },
+      {
+        "qualname": "extract_counts",
+        "signature": "extract_counts(res, width, shots, circuit, backend)",
+        "lineno": 99,
+        "doc": "Make counts from a Sampler result across API shapes:",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 229,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "scripts/qpsk_end2end_golden.py",
+    "functions": [
+      {
+        "qualname": "iqft_gate",
+        "signature": "iqft_gate(n)",
+        "lineno": 7,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qpsk_indexer",
+        "signature": "qpsk_indexer(K, sym, M)",
+        "lineno": 11,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "count_twoq",
+        "signature": "count_twoq(tqc)",
+        "lineno": 20,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 29,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "scripts/qpsk_preflight_and_run.py",
+    "functions": [
+      {
+        "qualname": "build_phase_integer_circuit",
+        "signature": "build_phase_integer_circuit(SYM, K, M)",
+        "lineno": 7,
+        "doc": "Prepare a phase-gradient then collapse to |SYM> with inverse-QFT.",
+        "flags": []
+      },
+      {
+        "qualname": "hdist",
+        "signature": "hdist(a, b, M)",
+        "lineno": 25,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "extract_counts_primitive_result",
+        "signature": "extract_counts_primitive_result(job)",
+        "lineno": 28,
+        "doc": "Robustly extract counts for SamplerV2 PrimitiveResult:",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 60,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "series_bessel.py",
+    "functions": [
+      {
+        "qualname": "Jnu_maclaurin_coeff",
+        "signature": "Jnu_maclaurin_coeff(n, nu)",
+        "lineno": 5,
+        "doc": "Coefficient of x^n in:",
+        "flags": []
+      },
+      {
+        "qualname": "J0_maclaurin_coeff",
+        "signature": "J0_maclaurin_coeff(n)",
+        "lineno": 17,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "series_encoding.py",
+    "functions": [
+      {
+        "qualname": "_l2_normalize",
+        "signature": "_l2_normalize(v)",
+        "lineno": 21,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_as_complex",
+        "signature": "_as_complex(vec)",
+        "lineno": 25,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_parse_complex_token",
+        "signature": "_parse_complex_token(zstr)",
+        "lineno": 37,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_parse_polylog",
+        "signature": "_parse_polylog(label)",
+        "lineno": 47,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_polylog_series",
+        "signature": "_polylog_series(s, z, terms, tol)",
+        "lineno": 56,
+        "doc": "Li_s(z) = \u03a3_{n\u22651} z^n / n^s. Direct series with simple guards.",
+        "flags": []
+      },
+      {
+        "qualname": "_pi_value",
+        "signature": "_pi_value(terms, method)",
+        "lineno": 92,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_e_value",
+        "signature": "_e_value(terms)",
+        "lineno": 144,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_ln2_value",
+        "signature": "_ln2_value(terms)",
+        "lineno": 151,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_zeta2_value",
+        "signature": "_zeta2_value(terms)",
+        "lineno": 157,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_zeta3_value",
+        "signature": "_zeta3_value(terms)",
+        "lineno": 160,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_gamma_value",
+        "signature": "_gamma_value(terms)",
+        "lineno": 163,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_phi_value",
+        "signature": "_phi_value(_)",
+        "lineno": 167,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_catalan_value",
+        "signature": "_catalan_value(terms)",
+        "lineno": 170,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_exp_pi_value",
+        "signature": "_exp_pi_value(_)",
+        "lineno": 177,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_gelfond_value",
+        "signature": "_gelfond_value(_)",
+        "lineno": 180,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_liouville_value",
+        "signature": "_liouville_value(terms)",
+        "lineno": 183,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_champernowne10_value",
+        "signature": "_champernowne10_value(digits)",
+        "lineno": 189,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 209,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "Jnu_maclaurin_coeff",
+        "signature": "Jnu_maclaurin_coeff(n, nu)",
+        "lineno": 320,
+        "doc": "J_\u03bd(x) = \u03a3_{m\u22650} (-1)^m / (m! \u0393(m+\u03bd+1)) * (x/2)^{2m+\u03bd}",
+        "flags": []
+      },
+      {
+        "qualname": "J0_maclaurin_coeff",
+        "signature": "J0_maclaurin_coeff(n)",
+        "lineno": 331,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_J0",
+        "signature": "_terms_J0(dim)",
+        "lineno": 334,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_pi",
+        "signature": "_terms_pi(dim, method)",
+        "lineno": 340,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_e",
+        "signature": "_terms_e(dim)",
+        "lineno": 384,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_ln2",
+        "signature": "_terms_ln2(dim)",
+        "lineno": 391,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_zeta2",
+        "signature": "_terms_zeta2(dim)",
+        "lineno": 398,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_zeta3",
+        "signature": "_terms_zeta3(dim)",
+        "lineno": 401,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_gamma",
+        "signature": "_terms_gamma(dim)",
+        "lineno": 404,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_phi",
+        "signature": "_terms_phi(dim)",
+        "lineno": 407,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_terms_catalan",
+        "signature": "_terms_catalan(dim)",
+        "lineno": 414,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_series_amplitudes",
+        "signature": "get_series_amplitudes(label, dim, method, phase_mode, normalize, amp_mode)",
+        "lineno": 436,
+        "doc": "Returns exactly 'dim' amplitudes.",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series",
+        "signature": "compute_series(label, terms, method)",
+        "lineno": 492,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "encode_srd_iq",
+        "signature": "encode_srd_iq(a)",
+        "lineno": 499,
+        "doc": "Pack real signal a into complex: real = positive rail, imag = positive of negative rail.",
+        "flags": []
+      },
+      {
+        "qualname": "decode_srd_iq",
+        "signature": "decode_srd_iq(re_rail, im_rail)",
+        "lineno": 509,
+        "doc": "Reconstruct original real values from SRD/IQ rails.",
+        "flags": []
+      },
+      {
+        "qualname": "build_sbrv",
+        "signature": "build_sbrv(a, L, base_step)",
+        "lineno": 519,
+        "doc": "Greedy residual quantization with dyadic-like steps:",
+        "flags": []
+      },
+      {
+        "qualname": "reconstruct_sbrv",
+        "signature": "reconstruct_sbrv(a0, stack, M)",
+        "lineno": 539,
+        "doc": "Reconstruct with first M levels (M\u22651 includes a0). M may exceed stack length.",
+        "flags": []
+      },
+      {
+        "qualname": "spectral_entropy_fft",
+        "signature": "spectral_entropy_fft(vec)",
+        "lineno": 553,
+        "doc": "Shannon entropy (bits) of normalized FFT power spectrum (exclude zeros).",
+        "flags": []
+      },
+      {
+        "qualname": "spectral_flatness_fft",
+        "signature": "spectral_flatness_fft(vec, eps)",
+        "lineno": 565,
+        "doc": "Spectral flatness (geometric mean / arithmetic mean) of FFT power.",
+        "flags": []
+      },
+      {
+        "qualname": "_pad_truncate",
+        "signature": "_pad_truncate(v, N)",
+        "lineno": 577,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qte_extras_encode",
+        "signature": "qte_extras_encode(coeffs, n_qubits, srd_mode, sbrv_levels)",
+        "lineno": 583,
+        "doc": "Pipeline:",
+        "flags": []
+      },
+      {
+        "qualname": "_schmidt_entropy_bits",
+        "signature": "_schmidt_entropy_bits(state, cut)",
+        "lineno": 614,
+        "doc": "Von Neumann entropy (bits) for bipartition [0..cut-1] vs [cut..n-1] of |\u03c8\u27e9.",
+        "flags": []
+      },
+      {
+        "qualname": "qte_extras_metrics",
+        "signature": "qte_extras_metrics(state, n_qubits, cut)",
+        "lineno": 631,
+        "doc": "Convenience metrics for quick dashboards & tests.",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_is_maclaurin_label",
+        "signature": "_qte_is_maclaurin_label(lbl)",
+        "lineno": 646,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_maclaurin",
+        "signature": "_qte_parse_maclaurin(lbl)",
+        "lineno": 649,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_expr_preproc",
+        "signature": "_qte_expr_preproc(expr)",
+        "lineno": 667,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eval_expr",
+        "signature": "_qte_eval_expr(expr, x)",
+        "lineno": 671,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_maclaurin_coeffs",
+        "signature": "_qte_maclaurin_coeffs(expr, n_terms, radius, m)",
+        "lineno": 682,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_series_amplitudes",
+        "signature": "get_series_amplitudes(label, dim, method, phase_mode, normalize, amp_mode)",
+        "lineno": 697,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_ORIG_compute_series_value",
+        "signature": "_QTE_ORIG_compute_series_value(label, terms, method)",
+        "lineno": 714,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 716,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_PREV_compute_series_value",
+        "signature": "_QTE_PREV_compute_series_value(label, terms, method)",
+        "lineno": 733,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eval_zeta_int",
+        "signature": "_qte_eval_zeta_int(k, terms)",
+        "lineno": 736,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_polylog_label",
+        "signature": "_qte_parse_polylog_label(t)",
+        "lineno": 747,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eval_polylog",
+        "signature": "_qte_eval_polylog(sv, z, terms)",
+        "lineno": 772,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 783,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_series_amplitudes",
+        "signature": "get_series_amplitudes(label, dim, method, phase_mode, normalize, amp_mode)",
+        "lineno": 804,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_zeta_label",
+        "signature": "_qte_parse_zeta_label(label)",
+        "lineno": 814,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_zeta_even_2n",
+        "signature": "_qte_zeta_even_2n(kk)",
+        "lineno": 828,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eta",
+        "signature": "_qte_eta(s, terms)",
+        "lineno": 837,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_value_zeta_int",
+        "signature": "_qte_value_zeta_int(k, terms)",
+        "lineno": 844,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_polylog_label",
+        "signature": "_qte_parse_polylog_label(label)",
+        "lineno": 855,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eval_polylog",
+        "signature": "_qte_eval_polylog(s, z, terms)",
+        "lineno": 874,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 891,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_j0_vector",
+        "signature": "_qte_j0_vector(dim, egf, phase_mode, normalize)",
+        "lineno": 905,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_series_amplitudes",
+        "signature": "get_series_amplitudes(label, dim, method, phase_mode, normalize, amp_mode)",
+        "lineno": 932,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eval_expr",
+        "signature": "_qte_eval_expr(expr, x)",
+        "lineno": 949,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_detect_rail_and_strip",
+        "signature": "_qte_detect_rail_and_strip(lbl)",
+        "lineno": 965,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_split_rails",
+        "signature": "_qte_split_rails(vec)",
+        "lineno": 973,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_apply_egf_weights",
+        "signature": "_qte_apply_egf_weights(vec)",
+        "lineno": 982,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_qft_label",
+        "signature": "_qte_parse_qft_label(lbl)",
+        "lineno": 991,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_qft_amplitudes",
+        "signature": "_qte_qft_amplitudes(expr, dim, a, b, use_ifft)",
+        "lineno": 1014,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "get_series_amplitudes",
+        "signature": "get_series_amplitudes(label, dim, method, phase_mode, normalize, amp_mode)",
+        "lineno": 1034,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_bessel_label",
+        "signature": "_qte_parse_bessel_label(lbl)",
+        "lineno": 1081,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_euler",
+        "signature": "_qte_polylog_euler(s, z, terms)",
+        "lineno": 1097,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 1126,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_is_rail",
+        "signature": "_QTE_is_rail(lbl)",
+        "lineno": 1150,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_strip_rail",
+        "signature": "_QTE_strip_rail(lbl)",
+        "lineno": 1156,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_has_rail",
+        "signature": "_QTE_has_rail(lbl)",
+        "lineno": 1173,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_strip_rail",
+        "signature": "_QTE_strip_rail(lbl)",
+        "lineno": 1176,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_apply_rail",
+        "signature": "_QTE_apply_rail(vec)",
+        "lineno": 1179,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_j0_terms_vector",
+        "signature": "_QTE_j0_terms_vector(n)",
+        "lineno": 1191,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_get_series_amplitudes_safe",
+        "signature": "_QTE_get_series_amplitudes_safe(label, dim, method, phase_mode, normalize, amp_mode)",
+        "lineno": 1202,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qte_cache_enable",
+        "signature": "qte_cache_enable(flag)",
+        "lineno": 1299,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qte_cache_clear",
+        "signature": "qte_cache_clear()",
+        "lineno": 1301,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_power",
+        "signature": "_qte_polylog_power(s, z, terms)",
+        "lineno": 1315,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_alt_realneg",
+        "signature": "_qte_polylog_alt_realneg(s, z, terms)",
+        "lineno": 1321,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_integer_cont",
+        "signature": "_qte_polylog_integer_cont(s, z, terms)",
+        "lineno": 1340,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_known",
+        "signature": "_qte_polylog_known(s, z)",
+        "lineno": 1362,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_auto_radius",
+        "signature": "_qte_auto_radius(expr)",
+        "lineno": 1381,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_maclaurin",
+        "signature": "_qte_parse_maclaurin(lbl)",
+        "lineno": 1395,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_maclaurin_coeffs",
+        "signature": "_qte_maclaurin_coeffs(expr, n_terms, radius, m)",
+        "lineno": 1426,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_bessel_Jn_terms",
+        "signature": "_qte_bessel_Jn_terms(n, N)",
+        "lineno": 1453,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_bessel_Jn_value",
+        "signature": "_qte_bessel_Jn_value(n, x, terms, tol)",
+        "lineno": 1466,
+        "doc": "Stable J_n(x) via term ratio:",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_bessel_terms_vector",
+        "signature": "_qte_bessel_terms_vector(n, dim)",
+        "lineno": 1502,
+        "doc": "Return first `dim` Maclaurin coefficients of J_n(x).",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_parse_Jn_value",
+        "signature": "_QTE_parse_Jn_value(lbl)",
+        "lineno": 1530,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_bessel_Jn_value",
+        "signature": "_QTE_bessel_Jn_value(n, x, terms)",
+        "lineno": 1541,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 1574,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qte_cache_enabled",
+        "signature": "qte_cache_enabled()",
+        "lineno": 1594,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "qte_cache_clear",
+        "signature": "qte_cache_clear()",
+        "lineno": 1597,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_Bern",
+        "signature": "_QTE_Bern(n)",
+        "lineno": 1622,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_BernPoly",
+        "signature": "_QTE_BernPoly(n, x)",
+        "lineno": 1624,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_log_p",
+        "signature": "_QTE_log_p(z)",
+        "lineno": 1634,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_zeta_at_neg_int",
+        "signature": "_QTE_zeta_at_neg_int(m)",
+        "lineno": 1637,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_zeta_value",
+        "signature": "_QTE_zeta_value(s)",
+        "lineno": 1642,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_polylog_series_int",
+        "signature": "_QTE_polylog_series_int(n, z, terms)",
+        "lineno": 1655,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_polylog_mu_expansion_int",
+        "signature": "_QTE_polylog_mu_expansion_int(n, z, K)",
+        "lineno": 1667,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_polylog_inversion_int",
+        "signature": "_QTE_polylog_inversion_int(n, z, terms)",
+        "lineno": 1688,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_eval_polylog_int",
+        "signature": "_QTE_eval_polylog_int(n, z, terms)",
+        "lineno": 1698,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_eval_polylog",
+        "signature": "_qte_eval_polylog(s, z, terms)",
+        "lineno": 1713,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_log_branch",
+        "signature": "_QTE_log_branch(z)",
+        "lineno": 1743,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_polylog_series_int",
+        "signature": "_QTE_polylog_series_int(n, z, terms)",
+        "lineno": 1750,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_polylog_any_s",
+        "signature": "_QTE_polylog_any_s(z, s, terms)",
+        "lineno": 1755,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_QTE_compute_series_value_anys",
+        "signature": "_QTE_compute_series_value_anys(label, terms, method)",
+        "lineno": 1774,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_parse_polylog_label_qte",
+        "signature": "_qte_parse_polylog_label_qte(lbl)",
+        "lineno": 1798,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_series",
+        "signature": "_qte_polylog_series(s, z, terms)",
+        "lineno": 1813,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_euler_alt",
+        "signature": "_qte_polylog_euler_alt(s, z, terms)",
+        "lineno": 1826,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_qte_polylog_eval",
+        "signature": "_qte_polylog_eval(s, z, terms)",
+        "lineno": 1843,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "compute_series_value",
+        "signature": "compute_series_value(label, terms, method)",
+        "lineno": 1887,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "series_preserving.py",
+    "functions": [
+      {
+        "qualname": "series_vector",
+        "signature": "series_vector(label, N, method, amp_mode, phase_mode, normalize)",
+        "lineno": 24,
+        "doc": "Return a complex vector v[0:N] representing the first N coefficients (or EGF-scaled coefficients),",
+        "flags": []
+      },
+      {
+        "qualname": "to_statevector",
+        "signature": "to_statevector(vec)",
+        "lineno": 57,
+        "doc": "Wrap a normalized vector as a qiskit Statevector if available; else return the numpy array.",
+        "flags": []
+      },
+      {
+        "qualname": "hadamard_product",
+        "signature": "hadamard_product(a, b)",
+        "lineno": 73,
+        "doc": "Termwise product: c_n = a_n * b_n.",
+        "flags": []
+      },
+      {
+        "qualname": "cauchy_product",
+        "signature": "cauchy_product(a, b)",
+        "lineno": 79,
+        "doc": "OGF Cauchy product: c_n = sum_{k=0}^n a_k b_{n-k}.",
+        "flags": []
+      },
+      {
+        "qualname": "egf_product",
+        "signature": "egf_product(a, b)",
+        "lineno": 89,
+        "doc": "EGF product: c_n = sum_{k=0}^n C(n,k) a_k b_{n-k}.",
+        "flags": []
+      },
+      {
+        "qualname": "dirichlet_convolution",
+        "signature": "dirichlet_convolution(a, b)",
+        "lineno": 102,
+        "doc": "Dirichlet convolution on indices starting at 1:",
+        "flags": []
+      },
+      {
+        "qualname": "lcu_combine",
+        "signature": "lcu_combine(vectors, coeffs, normalize_out)",
+        "lineno": 123,
+        "doc": "Linear Combination of Unitaries (here: just linear combination of vectors).",
+        "flags": []
+      },
+      {
+        "qualname": "make_diag_mask",
+        "signature": "make_diag_mask(mask, N)",
+        "lineno": 149,
+        "doc": "Build a \u00b11 diagonal mask in array form.",
+        "flags": []
+      },
+      {
+        "qualname": "hadamard_test_expectation",
+        "signature": "hadamard_test_expectation(vec, mask)",
+        "lineno": 182,
+        "doc": "Analytic expectation value of a diagonal \u00b11 observable D for state |\u03c8\u27e9 with amplitudes vec:",
+        "flags": []
+      },
+      {
+        "qualname": "build_series_state",
+        "signature": "build_series_state(A, B, N, amp_mode, phase_mode, op)",
+        "lineno": 198,
+        "doc": "Compose a state from one or two series sources, with a chosen algebraic operation.",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "sign_split_register.py",
+    "functions": [
+      {
+        "qualname": "sign_split",
+        "signature": "sign_split(a)",
+        "lineno": 5,
+        "doc": "Elementwise decompose a real sequence a into nonnegative rails p, n such that a = p - n.",
+        "flags": []
+      },
+      {
+        "qualname": "_l2_norm",
+        "signature": "_l2_norm(v)",
+        "lineno": 12,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "_norm_or_zero",
+        "signature": "_norm_or_zero(v)",
+        "lineno": 15,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "encode_srd_ancilla",
+        "signature": "encode_srd_ancilla(a, alpha, beta)",
+        "lineno": 19,
+        "doc": "Phase-insensitive SRD (ancilla-tag) spec:",
+        "flags": []
+      },
+      {
+        "qualname": "encode_srd_iq",
+        "signature": "encode_srd_iq(a)",
+        "lineno": 31,
+        "doc": "Phase-aware SRD (I/Q) packing: c = p + i n  with a = p - n.",
+        "flags": []
+      },
+      {
+        "qualname": "decode_srd_iq",
+        "signature": "decode_srd_iq(real_part, imag_part)",
+        "lineno": 40,
+        "doc": "Given phase-aware estimates of Re(c), Im(c): reconstruct a = p - n.",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "smoke_test.py",
+    "functions": [
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 6,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "special_values_table.py",
+    "functions": [
+      {
+        "qualname": "realish",
+        "signature": "realish(z)",
+        "lineno": 18,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "state_io.py",
+    "functions": [
+      {
+        "qualname": "_suggest_name",
+        "signature": "_suggest_name(label, n_qubits, data)",
+        "lineno": 18,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "save_statevector",
+        "signature": "save_statevector(sv, label, out_dir)",
+        "lineno": 27,
+        "doc": "Non-dialog fallback: write into ./states/",
+        "flags": []
+      },
+      {
+        "qualname": "save_statevector_dialog",
+        "signature": "save_statevector_dialog(parent, sv, label)",
+        "lineno": 37,
+        "doc": "Native save dialog (macOS-safe). Returns path or None if cancelled.",
+        "flags": []
+      },
+      {
+        "qualname": "load_statevector_dialog",
+        "signature": "load_statevector_dialog(parent)",
+        "lineno": 62,
+        "doc": "Native open dialog (macOS-safe). Returns (label, Statevector) or None.",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "sweep_polylog.py",
+    "functions": [],
+    "todos": []
+  },
+  {
+    "file": "tests/test_fft_invariants.py",
+    "functions": [
+      {
+        "qualname": "reference_dollarhide_spectrum",
+        "signature": "reference_dollarhide_spectrum(x, remove_dc, window, pad_len)",
+        "lineno": 5,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "nms_peaks",
+        "signature": "nms_peaks(power, k, exclude_radius)",
+        "lineno": 48,
+        "doc": "Greedy non-maximum suppression peak picker.",
+        "flags": []
+      },
+      {
+        "qualname": "nearly_zero_spectrum",
+        "signature": "nearly_zero_spectrum(P, atol)",
+        "lineno": 60,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "assert_equiv",
+        "signature": "assert_equiv(name, x, **opts)",
+        "lineno": 63,
+        "doc": "Compare QTE transform to explicit reference. Returns bool.",
+        "flags": []
+      },
+      {
+        "qualname": "check_peaks",
+        "signature": "check_peaks(name, x, expect_peaks, peak_tol_bins, exclude_radius, **opts)",
+        "lineno": 76,
+        "doc": "Peak-based behavior check, pad-aware.",
+        "flags": []
+      },
+      {
+        "qualname": "main",
+        "signature": "main()",
+        "lineno": 97,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  },
+  {
+    "file": "tests_qte.py",
+    "functions": [
+      {
+        "qualname": "test_j0_egf_finite",
+        "signature": "test_j0_egf_finite()",
+        "lineno": 6,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "test_qft_rail_norm",
+        "signature": "test_qft_rail_norm()",
+        "lineno": 10,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "test_polylog_core",
+        "signature": "test_polylog_core()",
+        "lineno": 15,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "test_bessel_values",
+        "signature": "test_bessel_values()",
+        "lineno": 22,
+        "doc": "",
+        "flags": []
+      },
+      {
+        "qualname": "test_maclaurin_syntax",
+        "signature": "test_maclaurin_syntax()",
+        "lineno": 27,
+        "doc": "",
+        "flags": []
+      }
+    ],
+    "todos": []
+  }
+]

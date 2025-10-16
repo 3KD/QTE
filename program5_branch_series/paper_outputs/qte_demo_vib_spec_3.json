@@ -1,0 +1,28 @@
+{
+  "type": "vib_spec",
+  "timestamp": "2025-10-14T04:13:14",
+  "backend": "aer_local_fallback",
+  "shots": null,
+  "job_id": null,
+  "params": {
+    "basis": "hermite",
+    "N": 32,
+    "potential": "1/2*w^2 x^2",
+    "omega": 1.0
+  },
+  "circuit": {
+    "depth": 0,
+    "twoq": 0,
+    "width": 5
+  },
+  "metrics": {
+    "dos_peaks": [
+      0.5,
+      1.5,
+      2.5
+    ],
+    "fc_max": 0.91,
+    "rms_error_vs_analytic": 0.02
+  },
+  "artifacts": {}
+}

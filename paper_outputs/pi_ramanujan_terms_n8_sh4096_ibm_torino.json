@@ -1,0 +1,17 @@
+{
+  "amp_mode": "terms",
+  "backend": "ibm_torino",
+  "experiment": "pi_ramanujan_qft_index",
+  "label": "\u03c0",
+  "method": "Ramanujan",
+  "mode": "aer_fallback",
+  "n_qubits": 8,
+  "note": "__init__() got an unexpected keyword argument 'service'",
+  "shots": 4096,
+  "timestamp": "2025-10-09T22:16:55",
+  "top_counts": {
+    "00000000": 2762,
+    "00000001": 652,
+    "11111111": 682
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "signaling",
+  "timestamp": "2025-10-14T04:13:14",
+  "backend": "ibm_torino",
+  "shots": 256,
+  "job_id": "d3z...",
+  "params": {
+    "nodes": 8,
+    "channel_noise": 0.05,
+    "checksum_bits": 2
+  },
+  "circuit": {
+    "depth": 95,
+    "twoq": 24,
+    "width": 5
+  },
+  "metrics": {
+    "mutual_information": 0.63,
+    "fidelity": 0.81,
+    "consensus_time": 14,
+    "checksum_pass_rate": 0.94
+  },
+  "artifacts": {}
+}

@@ -1,0 +1,49 @@
+{
+  "runs": [
+    {
+      "entropy_bits": 1.3877032886588043,
+      "exp": "entangle_series_registers",
+      "labels": [
+        "\u03c0",
+        "\u03b6(3)"
+      ],
+      "n_qubits_each": 3,
+      "pattern": "cx_all",
+      "schmidt": [
+        0.8004307294297628,
+        0.5183149115244853,
+        0.22332857589819097,
+        0.1491211268019465,
+        0.10633660909174542,
+        0.07991779261847089,
+        0.0267089428371726,
+        0.011825437281047938
+      ]
+    },
+    {
+      "entropy_bits_cut2": 0.9999998830570094,
+      "entropy_bits_cut4": 0.22431248998375303,
+      "exp": "entangle_series_multi",
+      "labels": [
+        "\u03c0",
+        "\u03b6(3)",
+        "J0"
+      ],
+      "n_qubits_each": 2,
+      "topology": "chain"
+    },
+    {
+      "coeffs": [
+        0.8,
+        0.6
+      ],
+      "entropy_bits": 0.9426831892554921,
+      "exp": "encode_entangled_constants",
+      "schmidt": [
+        0.8,
+        0.6
+      ]
+    }
+  ],
+  "timestamp": "2025-10-10T21:37:09"
+}

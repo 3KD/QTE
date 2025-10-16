@@ -1,0 +1,122 @@
+{
+  "ramsey": [
+    {
+      "type": "ramsey",
+      "file": "paper_outputs/ramsey_ibm_torino_256s.json",
+      "timestamp": "2025-10-11T14:19:42",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": "",
+      "ramsey_points": 17,
+      "ramsey_amp": 0.765625,
+      "visibility": 0.7520274770100415,
+      "R2": 0.9900501219320302,
+      "psi": -3.1066860685499065
+    }
+  ],
+  "chsh": [
+    {
+      "type": "chsh",
+      "file": "paper_outputs/chsh2_ibm_torino_256s.json",
+      "timestamp": "2025-10-11T19:59:00",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": {
+        "Eab": "d3leuc8dd19c7396v3eg",
+        "Eabp": "d3leudr4kkus739cm740",
+        "Eapb": "d3leuehfk6qs73e6tc1g",
+        "Eapbp": "d3leug1fk6qs73e6tc30"
+      },
+      "S": -0.015625,
+      "terms": {
+        "Eab": 0.2265625,
+        "Eabp": 0.640625,
+        "Eapb": -0.5,
+        "Eapbp": 0.3828125
+      },
+      "angles_rad": {
+        "Eab": {
+          "A": 0.0,
+          "B": 0.7853981633974483
+        },
+        "Eabp": {
+          "A": 0.0,
+          "B": -0.7853981633974483
+        },
+        "Eapb": {
+          "A": 1.5707963267948966,
+          "B": 0.7853981633974483
+        },
+        "Eapbp": {
+          "A": 1.5707963267948966,
+          "B": -0.7853981633974483
+        }
+      }
+    },
+    {
+      "type": "chsh",
+      "file": "paper_outputs/chsh_ibm_torino_256s.json",
+      "timestamp": "2025-10-11T14:20:44",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": {
+        "Eab": "d3l9vr34kkus739ch9o0",
+        "Eabp": "d3l9vs9fk6qs73e6og2g",
+        "Eapb": "d3l9vt34kkus739ch9r0",
+        "Eapbp": "d3l9vu0dd19c7396q9ug"
+      },
+      "S": -0.109375,
+      "terms": {
+        "Eab": -0.5390625,
+        "Eabp": -0.421875,
+        "Eapb": 0.4140625,
+        "Eapbp": -0.4375
+      },
+      "angles_rad": null
+    }
+  ],
+  "qpsk": [
+    {
+      "type": "qpsk",
+      "file": "paper_outputs/qpsk_ibm_torino_M128_sym73_7b_512s_d3libb03qtks738cedmg.json",
+      "timestamp": "2025-10-11T23:51:12",
+      "backend": "ibm_torino",
+      "shots": 512,
+      "job_id": "",
+      "M": 128,
+      "K": 7,
+      "symbol": 73,
+      "p_star": 0.01953125,
+      "depth": 232,
+      "twoq": 82
+    },
+    {
+      "type": "qpsk",
+      "file": "paper_outputs/qpsk_ibm_torino_M128_sym73_7b_256s_d3lf0dodd19c7396v5eg.json",
+      "timestamp": "2025-10-11T20:03:06",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": "d3lf0dodd19c7396v5eg",
+      "M": 128,
+      "K": 7,
+      "symbol": 73,
+      "p_star": null,
+      "depth": null,
+      "twoq": null
+    },
+    {
+      "type": "qpsk",
+      "file": "paper_outputs/qpsk_ibm_torino_M64_sym19_6b_256s_d3lf0b83qtks738cb73g.json",
+      "timestamp": "2025-10-11T20:02:59",
+      "backend": "ibm_torino",
+      "shots": 256,
+      "job_id": "d3lf0b83qtks738cb73g",
+      "M": 64,
+      "K": 6,
+      "symbol": 19,
+      "p_star": null,
+      "depth": null,
+      "twoq": null
+    }
+  ]
+}
