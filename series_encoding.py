@@ -1922,3 +1922,61 @@ def _qte_maclaurin_coeffs(expr, n_terms, radius=0.6, m=None):
     except Exception:
         # If SymPy isn't available or expr can't be parsed, fall back untouched.
         return coeffs
+# --- QTE hotfix v2 (append-only): robust a0/2 computation for Fourier constant term ---
+try:
+    original__qte_maclaurin_coeffs  # type: ignore[name-defined]
+except NameError:
+    try:
+        original__qte_maclaurin_coeffs = _qte_maclaurin_coeffs  # type: ignore[name-defined]
+    except Exception:
+        original__qte_maclaurin_coeffs = None
+
+def _qte_maclaurin_coeffs(expr, n_terms, radius=0.6, m=None):
+    """
+    Wrapper that calls the prior implementation (if present) and then
+    sets coeffs[0] to the trigonometric constant term a0/2 over [-π, π]:
+        a0/2 = (1/(2π)) ∫_{-π}^{π} f(x) dx
+    Uses SymPy when available; otherwise a high-accuracy numeric fallback
+    that supports caret '^' as exponent.
+    """
+    import numpy as _np
+    if original__qte_maclaurin_coeffs is not None:
+        coeffs = original__qte_maclaurin_coeffs(expr, n_terms, radius=radius, m=m)
+    else:
+        coeffs = _np.zeros(int(n_terms), dtype=complex)
+
+    # Try exact with SymPy
+    try:
+        import sympy as sp
+        x = sp.symbols('x', real=True)
+        f = sp.sympify(expr)
+        c0_exact = sp.integrate(f, (x, -sp.pi, sp.pi)) / (2*sp.pi)
+        coeffs = _np.asarray(coeffs, dtype=complex)
+        coeffs[0] = complex(float(c0_exact.evalf()), 0.0)
+        return coeffs
+    except Exception:
+        pass
+
+    # Numeric fallback (vectorized): average over dense grid on [-pi, pi)
+    try:
+        expr_py = str(expr).replace('^', '**')
+        N = 131072  # power of two; high accuracy but fast in numpy
+        xs = _np.linspace(-_np.pi, _np.pi, N, endpoint=False)
+        # Safe namespace for eval
+        _ns = {
+            "__builtins__": {},
+            "x": xs,
+            "pi": _np.pi, "e": _np.e, "E": _np.e, "I": 1j, "j": 1j,
+            "sin": _np.sin, "cos": _np.cos, "tan": _np.tan,
+            "exp": _np.exp, "log": _np.log, "sqrt": _np.sqrt,
+            "abs": _np.abs, "real": _np.real, "imag": _np.imag,
+        }
+        vals = eval(expr_py, _ns, {})  # numpy vectorized eval
+        vals = _np.asarray(vals)
+        c0_num = _np.mean(vals.real)  # constant term is real for real-valued f
+        coeffs = _np.asarray(coeffs, dtype=complex)
+        coeffs[0] = complex(float(c0_num), 0.0)
+        return coeffs
+    except Exception:
+        # fallback: leave coeffs as-is if we couldn't evaluate
+        return coeffs
