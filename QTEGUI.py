@@ -46,6 +46,12 @@ from series_encoding import get_series_amplitudes, compute_series, compute_serie
 from ibm_backend import get_backend, initialize_ibm
 from harmonic_analysis import compute_fft_spectrum_from_amplitudes
 from quantum_embedding import (
+# == QTEGUI OPTIONAL IMPORTS START ==
+try:
+    import entropy_lab
+except Exception:
+    entropy_lab = None
+# == QTEGUI OPTIONAL IMPORTS END ==
     qft_spectrum_from_series, index_qft_spectrum_circuit,
     run_circuit, simulate_statevector, generate_series_encoding,
     encode_entangled_constants, entangle_series_registers, entangle_series_multi,
@@ -145,7 +151,10 @@ KNOWN_METHODS = {m.lower() for arr in METHOD_CHOICES.values() for m in arr}
 SUGGESTED_LABELS = [
     "π", "e", "ln(2)", "ζ(2)", "ζ(3)", "γ", "Catalan", "φ",
     "exp(π)", "2^√2", "Liouville", "Champernowne10",
-    "Li(2,0.5)", "polylog(3, 0.5)", "J0"  # <-- added J0, "Maclaurin[sin(x), "Maclaurin[sin(x), "Maclaurin[log(1+x), "J1", "J2", "J3", "QFT[sin(2*pi*x); N=64; a=0; b=1; ifft, "Maclaurin[log(1+x); auto_r; real_coeffs]"][rail]"]"]"]"]
+    "Li(2,0.5)", "polylog(3, 0.5)", "J0",
+    "Maclaurin[sin(x)]", "Maclaurin[log(1+x)]"
+]
+"][rail]"]"]"]"]
 
 def _norm_label(label: str) -> str:
     s = label.strip()
