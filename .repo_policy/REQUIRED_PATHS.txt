@@ -1,0 +1,11 @@
+# files/dirs that must never be deleted by a PR without an explicit allowlist
+quantum_embedding.py
+series_encoding.py
+metrics_extra.py
+tests/
+physics/
+research_summary/
+experiments/chsh_angles_phi_pi4.json
+pytest.ini
+tests/conftest.py
+QTEGUI.py
