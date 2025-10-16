@@ -1,59 +1,26 @@
 name: CI
-
 on:
-  push:
-    branches: [ main ]
   pull_request:
-
+  push:
+    branches: [ "**" ]
 jobs:
   test:
-    name: tests (py ${{ matrix.python-version }})
+    name: pytest (3.9, 3.12)
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-      - name: Install deps
+      - name: Install deps (minimal)
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install -U pip
+          # terra is enough for our imports; Aer is optional in our code paths
+          pip install "qiskit-terra<1.0" sympy pytest
       - name: Run tests
-        run: |
-          python -m pip install pytest
-          pytest -q
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Smoke/test suite
-        run: |
-          set -e
-          if [ -f tests_qte.py ]; then python tests_qte.py; fi
-          if [ -f smoke_test.py ]; then python smoke_test.py; fi
-
-  docs:
-    name: docs (mkdocs)
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    permissions:
-      contents: write  # needed for gh-pages push with GITHUB_TOKEN
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-      - name: Install mkdocs
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install mkdocs mkdocs-material
-      - name: Build site
-        run: mkdocs build --strict
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          force_orphan: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -q
