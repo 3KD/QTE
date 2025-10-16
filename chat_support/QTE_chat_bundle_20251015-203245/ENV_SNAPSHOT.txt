@@ -1,0 +1,33 @@
+Python 3.9.21
+
+[Conda envs]
+
+
+# conda environments:
+#
+                       /Users/erik/Environments/LastGPT
+base                   /opt/anaconda3
+LastGPT                /opt/anaconda3/envs/LastGPT
+qiskit-clean           /opt/anaconda3/envs/qiskit-clean
+qiskit-fresh         * /opt/anaconda3/envs/qiskit-fresh
+qiskit-ramanujan       /opt/anaconda3/envs/qiskit-ramanujan
+qiskit-x               /opt/anaconda3/envs/qiskit-x
+qiskit-x86             /opt/anaconda3/envs/qiskit-x86
+quest3                 /opt/anaconda3/envs/quest3
+                       /usr/local/anaconda3
+
+
+[Key pip packages]
+
+matplotlib==3.9.4
+numpy==2.0.2
+pytest==8.4.2
+pytest-xdist==3.8.0
+qiskit==2.2.1
+qiskit-aer==0.15.1
+qiskit-experiments==0.10.0
+qiskit-ibm-experiment==0.4.8
+qiskit-ibm-provider==0.11.0
+qiskit-ibm-runtime==0.42.0
+scipy==1.13.1
+sympy==1.14.0

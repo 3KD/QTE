@@ -1,0 +1,57 @@
+{
+  "bundle_dir": "chat_support/QTE_chat_bundle_20251015-203245",
+  "generated_utc": "2025-10-16T02:09:15Z",
+  "count": 10,
+  "files": [
+    {
+      "path": "ENV_SNAPSHOT.txt",
+      "sha256": "303b97c96eb736daafbf012b7d7c1149ffa20683d00d4965b2b20bd760b077f7",
+      "size": 830
+    },
+    {
+      "path": "GIT_SNAPSHOT.txt",
+      "sha256": "388e31038505f31be5743b310d2be72eeb82c5d970594918cc02a093b00c263d",
+      "size": 1258
+    },
+    {
+      "path": "README_CHAT_BUNDLE.md",
+      "sha256": "e97511d7c38ed424186dc61a3e83599fbf0c23997a5668836f9e49ad8965a54f",
+      "size": 507
+    },
+    {
+      "path": "lorentz.py",
+      "sha256": "3c86684658968bb2d9504e8d3c26d02cc81dba7277d7cad9a907ccc37f903dbf",
+      "size": 625
+    },
+    {
+      "path": "metrics_extra.py",
+      "sha256": "a9d6d7d578e59419235e0f1cd4556049ce044eb4c5108d7448ee73aae8379257",
+      "size": 3295
+    },
+    {
+      "path": "qtegui_adapter.py",
+      "sha256": "8619399e17455311c701500789d8b3e2f3b4b54d9d3de845474629ada785f720",
+      "size": 1273
+    },
+    {
+      "path": "quantum_embedding.py",
+      "sha256": "38613676ca99ddd1d2d7c0ff9ea3ef58c56ed332b6605470ca93e11882335fe7",
+      "size": 13347
+    },
+    {
+      "path": "series_encoding.py",
+      "sha256": "3032770c87ba1f0987b502f14f972f7a34216f9f0d8259869462a39fd9e71dfc",
+      "size": 68050
+    },
+    {
+      "path": "test_entanglement.py",
+      "sha256": "bbce958fcaa18268282239a7c8fdc0c594b779a95687230c4d07b47b3de7ed87",
+      "size": 1101
+    },
+    {
+      "path": "test_series_trig.py",
+      "sha256": "f967103b1d1a1caf90bf804fbae4ba9d4e1273cfaae5cc699fd651d4d39deda4",
+      "size": 830
+    }
+  ]
+}

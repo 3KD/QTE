@@ -1,0 +1,19 @@
+[Branch] results-20251005-0226
+[Commit] edf0774
+
+[Status]
+## results-20251005-0226...origin/results-20251005-0226 [ahead 8]
+?? chat_support/
+?? qtegui_adapter.py
+
+[Recent commits]
+edf0774 hotfix(tests): robust a0/2 (SymPy or numeric mean with '^' support); Schmidt decomposition returns NumPy density matrices
+ddbd717 hotfix(tests): return numpy (rhoA,rhoB,rhoAB); set Fourier constant term a0/2 via SymPy over [-π,π]
+0e5b1ad fix(tests): perform_schmidt_decomposition returns (rhoA,rhoB,rhoAB); _qte_maclaurin_coeffs yields Fourier constant term a0/2
+dcf3d92 metrics: schmidt_entropy uses log2 (bits); fixes Bell-state entropy test
+03c57ce tests: clean optional Aer/AerSimulator header; drop stray indents; restrict discovery; add conftest
+0ffb5b0 tests: fix optional qiskit_aer header; remove stray try/except; restrict discovery; add conftest
+812d9dc tests: fix optional qiskit_aer import; scrub conflict markers; restrict discovery; conftest for sys.path
+cccb579 tests: fix optional qiskit_aer import; scrub conflict markers; restrict discovery; conftest for sys.path
+ecc8059 tests: scrub conflict markers; optional qiskit_aer import; restrict discovery; conftest for sys.path
+5e71a60 tests: restrict discovery; make qiskit_aer optional for import-time
