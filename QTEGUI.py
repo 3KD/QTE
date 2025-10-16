@@ -1804,3 +1804,4 @@ if __name__ == "__main__":
 # • EGF mode: weights 1/k! using lgamma (stable).
 # • QFT[f(x); N=..; a=..; b=..; ifft]: sample f on [a,b), optional IFFT of samples, then normalize.
 # • Polylog Li(s,z): Euler transform auto-accelerates when z in (-1,0) real.
+\n# == QTEGUI OPTIONAL IMPORTS START ==\ntry:\n    import entropy_lab\nexcept Exception:\n    entropy_lab=None\n# == QTEGUI OPTIONAL IMPORTS END ==\n
