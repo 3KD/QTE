@@ -1,0 +1,11 @@
+{
+  "file": "QTEGUI.py",
+  "lines": 1815,
+  "problems": [
+    "suspicious try without except near header"
+  ],
+  "notes": [
+    "Verify GUI treats FFT output as dict (P, dc, entropy_bits, flatness).",
+    "GUI may not expose entropy certificates yet."
+  ]
+}
