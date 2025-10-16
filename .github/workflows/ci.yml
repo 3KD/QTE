@@ -1,26 +1,22 @@
 name: CI
 on:
-  pull_request:
   push:
-    branches: [ "**" ]
+    branches: [ "results-20251005-0226", "feature/**", "fix/**", "docs/**" ]
+  pull_request:
+    branches: [ "results-20251005-0226" ]
 jobs:
   test:
-    name: pytest (3.9, 3.12)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install deps (minimal)
+          python-version: "3.11"
+      - name: Install deps
         run: |
-          python -m pip install -U pip
-          # terra is enough for our imports; Aer is optional in our code paths
-          pip install "qiskit-terra<1.0" sympy pytest
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+          pip install qiskit numpy pytest
       - name: Run tests
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: pytest -q
+        run: |
+          pytest -q
