@@ -353,3 +353,24 @@ def perform_schmidt_decomposition(psi, cut: int = 1):
         return DensityMatrix(rhoA), DensityMatrix(rhoB), DensityMatrix(rhoAB)
     except Exception:
         return rhoA, rhoB, rhoAB
+# --- QTE hotfix (append-only): numpy-based Schmidt decomposition for tests ---
+def perform_schmidt_decomposition(psi, cut: int = 1):
+    """
+    Return (rhoA, rhoB, rhoAB) as NumPy arrays for a pure state |psi>.
+    - psi: length 2**n complex statevector (array-like)
+    - cut: number of qubits in subsystem A (0..n)
+    """
+    import numpy as _np
+    psi = _np.asarray(psi, dtype=complex).reshape(-1)
+    n = int(round(_np.log2(psi.size)))
+    if 2**n != psi.size:
+        raise ValueError("state length must be a power of 2")
+    if not (0 <= cut <= n):
+        raise ValueError("cut must be between 0 and n")
+    dimA = 2**cut
+    dimB = 2**(n - cut)
+    psi_ab = psi.reshape(dimA, dimB)
+    rhoA = psi_ab @ psi_ab.conj().T          # dimA x dimA
+    rhoB = psi_ab.conj().T @ psi_ab          # dimB x dimB
+    rhoAB = _np.outer(psi, psi.conj())       # (2**n) x (2**n)
+    return rhoA, rhoB, rhoAB
