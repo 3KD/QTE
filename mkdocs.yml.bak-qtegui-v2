@@ -5,8 +5,6 @@ theme:
   features: [content.code.copy]
 nav:
   - QTE GUI:
-    - Tab 05 — Gates: QTE_TAB_05_GATES.md
-  - QTE GUI:
     - Overview: QTEGUI.md
     - API Map (final): QTEGUI_API_MAP_final.md
     - Function Checklist (final): QTEGUI_FUNCTION_CHECKLIST_final.md
