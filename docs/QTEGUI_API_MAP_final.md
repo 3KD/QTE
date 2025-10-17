@@ -1,0 +1,554 @@
+# QTE GUI API Map (final)
+
+## Entry Module
+
+- `QTEGUI.py` contains class `QTEGUI`: yes
+- It hosts tabs from `QTEGUI_Lite` when available.
+
+## Tabs & Methods (from `QTEGUI_Lite`)
+
+### EntropyTab
+- `_Misc__winfo_getint(self, x)`
+- `_Misc__winfo_parseitem(self, t)`
+- `_bind(self, what, sequence, func, add, needcleanup=1)`
+- `_build_ui(self)`
+- `_configure(self, cmd, cnf, kw)`
+- `_displayof(self, displayof)`
+- `_do(self, name, args=())`
+- `_getboolean(self, string)`
+- `_getconfigure(self, *args)`
+- `_getconfigure1(self, *args)`
+- `_getdoubles(self, string)`
+- `_getints(self, string)`
+- `_grid_configure(self, command, index, cnf, kw)`
+- `_gridconvvalue(self, value)`
+- `_nametowidget(self, name)`
+- `_options(self, cnf, kw=None)`
+- `_register(self, func, subst=None, needcleanup=1)`
+- `_report_exception(self)`
+- `_root(self)`
+- `_setup(self, master, cnf)`
+- `_substitute(self, *args)`
+- `after(self, ms, func=None, *args)`
+- `after_cancel(self, id)`
+- `after_idle(self, func, *args)`
+- `anchor(self, anchor=None)`
+- `bbox(self, column=None, row=None, col2=None, row2=None)`
+- `bell(self, displayof=0)`
+- `bind(self, sequence=None, func=None, add=None)`
+- `bind_all(self, sequence=None, func=None, add=None)`
+- `bind_class(self, className, sequence=None, func=None, add=None)`
+- `bindtags(self, tagList=None)`
+- `cget(self, key)`
+- `clipboard_append(self, string, **kw)`
+- `clipboard_clear(self, **kw)`
+- `clipboard_get(self, **kw)`
+- `columnconfigure(self, index, cnf={}, **kw)`
+- `compute_certificate(self)`
+- `config(self, cnf=None, **kw)`
+- `configure(self, cnf=None, **kw)`
+- `deletecommand(self, name)`
+- `destroy(self)`
+- `event_add(self, virtual, *sequences)`
+- `event_delete(self, virtual, *sequences)`
+- `event_generate(self, sequence, **kw)`
+- `event_info(self, virtual=None)`
+- `focus(self)`
+- `focus_displayof(self)`
+- `focus_force(self)`
+- `focus_get(self)`
+- `focus_lastfor(self)`
+- `focus_set(self)`
+- `forget(self)`
+- `getboolean(self, s)`
+- `getdouble(self, s)`
+- `getint(self, s)`
+- `getvar(self, name='PY_VAR')`
+- `grab_current(self)`
+- `grab_release(self)`
+- `grab_set(self)`
+- `grab_set_global(self)`
+- `grab_status(self)`
+- `grid(self, cnf={}, **kw)`
+- `grid_anchor(self, anchor=None)`
+- `grid_bbox(self, column=None, row=None, col2=None, row2=None)`
+- `grid_columnconfigure(self, index, cnf={}, **kw)`
+- `grid_configure(self, cnf={}, **kw)`
+- `grid_forget(self)`
+- `grid_info(self)`
+- `grid_location(self, x, y)`
+- `grid_propagate(self, flag=['_noarg_'])`
+- `grid_remove(self)`
+- `grid_rowconfigure(self, index, cnf={}, **kw)`
+- `grid_size(self)`
+- `grid_slaves(self, row=None, column=None)`
+- `identify(self, x, y)`
+- `image_names(self)`
+- `image_types(self)`
+- `info(self)`
+- `instate(self, statespec, callback=None, *args, **kw)`
+- `keys(self)`
+- `lift(self, aboveThis=None)`
+- `location(self, x, y)`
+- `lower(self, belowThis=None)`
+- `mainloop(self, n=0)`
+- `nametowidget(self, name)`
+- `option_add(self, pattern, value, priority=None)`
+- `option_clear(self)`
+- `option_get(self, name, className)`
+- `option_readfile(self, fileName, priority=None)`
+- `pack(self, cnf={}, **kw)`
+- `pack_configure(self, cnf={}, **kw)`
+- `pack_forget(self)`
+- `pack_info(self)`
+- `pack_propagate(self, flag=['_noarg_'])`
+- `pack_slaves(self)`
+- `place(self, cnf={}, **kw)`
+- `place_configure(self, cnf={}, **kw)`
+- `place_forget(self)`
+- `place_info(self)`
+- `place_slaves(self)`
+- `propagate(self, flag=['_noarg_'])`
+- `quit(self)`
+- `register(self, func, subst=None, needcleanup=1)`
+- `rowconfigure(self, index, cnf={}, **kw)`
+- `save_certificate(self, path: Optional[str] = None) -> Optional[str]`
+- `selection_clear(self, **kw)`
+- `selection_get(self, **kw)`
+- `selection_handle(self, command, **kw)`
+- `selection_own(self, **kw)`
+- `selection_own_get(self, **kw)`
+- `send(self, interp, cmd, *args)`
+- `setvar(self, name='PY_VAR', value='1')`
+- `size(self)`
+- `slaves(self)`
+- `state(self, statespec=None)`
+- `tk_bisque(self)`
+- `tk_focusFollowsMouse(self)`
+- `tk_focusNext(self)`
+- `tk_focusPrev(self)`
+- `tk_setPalette(self, *args, **kw)`
+- `tk_strictMotif(self, boolean=None)`
+- `tkraise(self, aboveThis=None)`
+- `unbind(self, sequence, funcid=None)`
+- `unbind_all(self, sequence)`
+- `unbind_class(self, className, sequence)`
+- `update(self)`
+- `update_idletasks(self)`
+- `verify_certificate(self, path: str, atol_bits: float = 1e-06)`
+- `wait_variable(self, name='PY_VAR')`
+- `wait_visibility(self, window=None)`
+- `wait_window(self, window=None)`
+- `waitvar(self, name='PY_VAR')`
+- `winfo_atom(self, name, displayof=0)`
+- `winfo_atomname(self, id, displayof=0)`
+- `winfo_cells(self)`
+- `winfo_children(self)`
+- `winfo_class(self)`
+- `winfo_colormapfull(self)`
+- `winfo_containing(self, rootX, rootY, displayof=0)`
+- `winfo_depth(self)`
+- `winfo_exists(self)`
+- `winfo_fpixels(self, number)`
+- `winfo_geometry(self)`
+- `winfo_height(self)`
+- `winfo_id(self)`
+- `winfo_interps(self, displayof=0)`
+- `winfo_ismapped(self)`
+- `winfo_manager(self)`
+- `winfo_name(self)`
+- `winfo_parent(self)`
+- `winfo_pathname(self, id, displayof=0)`
+- `winfo_pixels(self, number)`
+- `winfo_pointerx(self)`
+- `winfo_pointerxy(self)`
+- `winfo_pointery(self)`
+- `winfo_reqheight(self)`
+- `winfo_reqwidth(self)`
+- `winfo_rgb(self, color)`
+- `winfo_rootx(self)`
+- `winfo_rooty(self)`
+- `winfo_screen(self)`
+- `winfo_screencells(self)`
+- `winfo_screendepth(self)`
+- `winfo_screenheight(self)`
+- `winfo_screenmmheight(self)`
+- `winfo_screenmmwidth(self)`
+- `winfo_screenvisual(self)`
+- `winfo_screenwidth(self)`
+- `winfo_server(self)`
+- `winfo_toplevel(self)`
+- `winfo_viewable(self)`
+- `winfo_visual(self)`
+- `winfo_visualid(self)`
+- `winfo_visualsavailable(self, includeids=False)`
+- `winfo_vrootheight(self)`
+- `winfo_vrootwidth(self)`
+- `winfo_vrootx(self)`
+- `winfo_vrooty(self)`
+- `winfo_width(self)`
+- `winfo_x(self)`
+- `winfo_y(self)`
+
+### SpectrumTab
+- `_Misc__winfo_getint(self, x)`
+- `_Misc__winfo_parseitem(self, t)`
+- `_bind(self, what, sequence, func, add, needcleanup=1)`
+- `_build_ui(self)`
+- `_configure(self, cmd, cnf, kw)`
+- `_displayof(self, displayof)`
+- `_do(self, name, args=())`
+- `_getboolean(self, string)`
+- `_getconfigure(self, *args)`
+- `_getconfigure1(self, *args)`
+- `_getdoubles(self, string)`
+- `_getints(self, string)`
+- `_grid_configure(self, command, index, cnf, kw)`
+- `_gridconvvalue(self, value)`
+- `_nametowidget(self, name)`
+- `_options(self, cnf, kw=None)`
+- `_register(self, func, subst=None, needcleanup=1)`
+- `_report_exception(self)`
+- `_root(self)`
+- `_setup(self, master, cnf)`
+- `_substitute(self, *args)`
+- `after(self, ms, func=None, *args)`
+- `after_cancel(self, id)`
+- `after_idle(self, func, *args)`
+- `anchor(self, anchor=None)`
+- `bbox(self, column=None, row=None, col2=None, row2=None)`
+- `bell(self, displayof=0)`
+- `bind(self, sequence=None, func=None, add=None)`
+- `bind_all(self, sequence=None, func=None, add=None)`
+- `bind_class(self, className, sequence=None, func=None, add=None)`
+- `bindtags(self, tagList=None)`
+- `cget(self, key)`
+- `clipboard_append(self, string, **kw)`
+- `clipboard_clear(self, **kw)`
+- `clipboard_get(self, **kw)`
+- `columnconfigure(self, index, cnf={}, **kw)`
+- `config(self, cnf=None, **kw)`
+- `configure(self, cnf=None, **kw)`
+- `deletecommand(self, name)`
+- `destroy(self)`
+- `event_add(self, virtual, *sequences)`
+- `event_delete(self, virtual, *sequences)`
+- `event_generate(self, sequence, **kw)`
+- `event_info(self, virtual=None)`
+- `focus(self)`
+- `focus_displayof(self)`
+- `focus_force(self)`
+- `focus_get(self)`
+- `focus_lastfor(self)`
+- `focus_set(self)`
+- `forget(self)`
+- `getboolean(self, s)`
+- `getdouble(self, s)`
+- `getint(self, s)`
+- `getvar(self, name='PY_VAR')`
+- `grab_current(self)`
+- `grab_release(self)`
+- `grab_set(self)`
+- `grab_set_global(self)`
+- `grab_status(self)`
+- `grid(self, cnf={}, **kw)`
+- `grid_anchor(self, anchor=None)`
+- `grid_bbox(self, column=None, row=None, col2=None, row2=None)`
+- `grid_columnconfigure(self, index, cnf={}, **kw)`
+- `grid_configure(self, cnf={}, **kw)`
+- `grid_forget(self)`
+- `grid_info(self)`
+- `grid_location(self, x, y)`
+- `grid_propagate(self, flag=['_noarg_'])`
+- `grid_remove(self)`
+- `grid_rowconfigure(self, index, cnf={}, **kw)`
+- `grid_size(self)`
+- `grid_slaves(self, row=None, column=None)`
+- `identify(self, x, y)`
+- `image_names(self)`
+- `image_types(self)`
+- `info(self)`
+- `instate(self, statespec, callback=None, *args, **kw)`
+- `keys(self)`
+- `lift(self, aboveThis=None)`
+- `location(self, x, y)`
+- `lower(self, belowThis=None)`
+- `mainloop(self, n=0)`
+- `nametowidget(self, name)`
+- `option_add(self, pattern, value, priority=None)`
+- `option_clear(self)`
+- `option_get(self, name, className)`
+- `option_readfile(self, fileName, priority=None)`
+- `pack(self, cnf={}, **kw)`
+- `pack_configure(self, cnf={}, **kw)`
+- `pack_forget(self)`
+- `pack_info(self)`
+- `pack_propagate(self, flag=['_noarg_'])`
+- `pack_slaves(self)`
+- `place(self, cnf={}, **kw)`
+- `place_configure(self, cnf={}, **kw)`
+- `place_forget(self)`
+- `place_info(self)`
+- `place_slaves(self)`
+- `propagate(self, flag=['_noarg_'])`
+- `quit(self)`
+- `register(self, func, subst=None, needcleanup=1)`
+- `rowconfigure(self, index, cnf={}, **kw)`
+- `selection_clear(self, **kw)`
+- `selection_get(self, **kw)`
+- `selection_handle(self, command, **kw)`
+- `selection_own(self, **kw)`
+- `selection_own_get(self, **kw)`
+- `send(self, interp, cmd, *args)`
+- `setvar(self, name='PY_VAR', value='1')`
+- `size(self)`
+- `slaves(self)`
+- `spectrum(self, a: numpy.ndarray) -> Dict[str, Any]`
+- `state(self, statespec=None)`
+- `tk_bisque(self)`
+- `tk_focusFollowsMouse(self)`
+- `tk_focusNext(self)`
+- `tk_focusPrev(self)`
+- `tk_setPalette(self, *args, **kw)`
+- `tk_strictMotif(self, boolean=None)`
+- `tkraise(self, aboveThis=None)`
+- `unbind(self, sequence, funcid=None)`
+- `unbind_all(self, sequence)`
+- `unbind_class(self, className, sequence)`
+- `update(self)`
+- `update_idletasks(self)`
+- `wait_variable(self, name='PY_VAR')`
+- `wait_visibility(self, window=None)`
+- `wait_window(self, window=None)`
+- `waitvar(self, name='PY_VAR')`
+- `winfo_atom(self, name, displayof=0)`
+- `winfo_atomname(self, id, displayof=0)`
+- `winfo_cells(self)`
+- `winfo_children(self)`
+- `winfo_class(self)`
+- `winfo_colormapfull(self)`
+- `winfo_containing(self, rootX, rootY, displayof=0)`
+- `winfo_depth(self)`
+- `winfo_exists(self)`
+- `winfo_fpixels(self, number)`
+- `winfo_geometry(self)`
+- `winfo_height(self)`
+- `winfo_id(self)`
+- `winfo_interps(self, displayof=0)`
+- `winfo_ismapped(self)`
+- `winfo_manager(self)`
+- `winfo_name(self)`
+- `winfo_parent(self)`
+- `winfo_pathname(self, id, displayof=0)`
+- `winfo_pixels(self, number)`
+- `winfo_pointerx(self)`
+- `winfo_pointerxy(self)`
+- `winfo_pointery(self)`
+- `winfo_reqheight(self)`
+- `winfo_reqwidth(self)`
+- `winfo_rgb(self, color)`
+- `winfo_rootx(self)`
+- `winfo_rooty(self)`
+- `winfo_screen(self)`
+- `winfo_screencells(self)`
+- `winfo_screendepth(self)`
+- `winfo_screenheight(self)`
+- `winfo_screenmmheight(self)`
+- `winfo_screenmmwidth(self)`
+- `winfo_screenvisual(self)`
+- `winfo_screenwidth(self)`
+- `winfo_server(self)`
+- `winfo_toplevel(self)`
+- `winfo_viewable(self)`
+- `winfo_visual(self)`
+- `winfo_visualid(self)`
+- `winfo_visualsavailable(self, includeids=False)`
+- `winfo_vrootheight(self)`
+- `winfo_vrootwidth(self)`
+- `winfo_vrootx(self)`
+- `winfo_vrooty(self)`
+- `winfo_width(self)`
+- `winfo_x(self)`
+- `winfo_y(self)`
+
+### PayloadTab
+- `_Misc__winfo_getint(self, x)`
+- `_Misc__winfo_parseitem(self, t)`
+- `_bind(self, what, sequence, func, add, needcleanup=1)`
+- `_build_ui(self)`
+- `_configure(self, cmd, cnf, kw)`
+- `_displayof(self, displayof)`
+- `_do(self, name, args=())`
+- `_getboolean(self, string)`
+- `_getconfigure(self, *args)`
+- `_getconfigure1(self, *args)`
+- `_getdoubles(self, string)`
+- `_getints(self, string)`
+- `_grid_configure(self, command, index, cnf, kw)`
+- `_gridconvvalue(self, value)`
+- `_nametowidget(self, name)`
+- `_options(self, cnf, kw=None)`
+- `_register(self, func, subst=None, needcleanup=1)`
+- `_report_exception(self)`
+- `_root(self)`
+- `_setup(self, master, cnf)`
+- `_substitute(self, *args)`
+- `after(self, ms, func=None, *args)`
+- `after_cancel(self, id)`
+- `after_idle(self, func, *args)`
+- `anchor(self, anchor=None)`
+- `bbox(self, column=None, row=None, col2=None, row2=None)`
+- `bell(self, displayof=0)`
+- `bind(self, sequence=None, func=None, add=None)`
+- `bind_all(self, sequence=None, func=None, add=None)`
+- `bind_class(self, className, sequence=None, func=None, add=None)`
+- `bindtags(self, tagList=None)`
+- `cget(self, key)`
+- `clipboard_append(self, string, **kw)`
+- `clipboard_clear(self, **kw)`
+- `clipboard_get(self, **kw)`
+- `columnconfigure(self, index, cnf={}, **kw)`
+- `config(self, cnf=None, **kw)`
+- `configure(self, cnf=None, **kw)`
+- `deletecommand(self, name)`
+- `destroy(self)`
+- `event_add(self, virtual, *sequences)`
+- `event_delete(self, virtual, *sequences)`
+- `event_generate(self, sequence, **kw)`
+- `event_info(self, virtual=None)`
+- `focus(self)`
+- `focus_displayof(self)`
+- `focus_force(self)`
+- `focus_get(self)`
+- `focus_lastfor(self)`
+- `focus_set(self)`
+- `forget(self)`
+- `getboolean(self, s)`
+- `getdouble(self, s)`
+- `getint(self, s)`
+- `getvar(self, name='PY_VAR')`
+- `grab_current(self)`
+- `grab_release(self)`
+- `grab_set(self)`
+- `grab_set_global(self)`
+- `grab_status(self)`
+- `grid(self, cnf={}, **kw)`
+- `grid_anchor(self, anchor=None)`
+- `grid_bbox(self, column=None, row=None, col2=None, row2=None)`
+- `grid_columnconfigure(self, index, cnf={}, **kw)`
+- `grid_configure(self, cnf={}, **kw)`
+- `grid_forget(self)`
+- `grid_info(self)`
+- `grid_location(self, x, y)`
+- `grid_propagate(self, flag=['_noarg_'])`
+- `grid_remove(self)`
+- `grid_rowconfigure(self, index, cnf={}, **kw)`
+- `grid_size(self)`
+- `grid_slaves(self, row=None, column=None)`
+- `identify(self, x, y)`
+- `image_names(self)`
+- `image_types(self)`
+- `info(self)`
+- `instate(self, statespec, callback=None, *args, **kw)`
+- `keys(self)`
+- `lift(self, aboveThis=None)`
+- `location(self, x, y)`
+- `lower(self, belowThis=None)`
+- `mainloop(self, n=0)`
+- `nametowidget(self, name)`
+- `option_add(self, pattern, value, priority=None)`
+- `option_clear(self)`
+- `option_get(self, name, className)`
+- `option_readfile(self, fileName, priority=None)`
+- `pack(self, cnf={}, **kw)`
+- `pack_configure(self, cnf={}, **kw)`
+- `pack_forget(self)`
+- `pack_info(self)`
+- `pack_propagate(self, flag=['_noarg_'])`
+- `pack_slaves(self)`
+- `place(self, cnf={}, **kw)`
+- `place_configure(self, cnf={}, **kw)`
+- `place_forget(self)`
+- `place_info(self)`
+- `place_slaves(self)`
+- `propagate(self, flag=['_noarg_'])`
+- `quit(self)`
+- `register(self, func, subst=None, needcleanup=1)`
+- `rowconfigure(self, index, cnf={}, **kw)`
+- `run_demo(self, n: int = 6, v: int = 13, key: bytes = b'key', tamper: bool = False)`
+- `selection_clear(self, **kw)`
+- `selection_get(self, **kw)`
+- `selection_handle(self, command, **kw)`
+- `selection_own(self, **kw)`
+- `selection_own_get(self, **kw)`
+- `send(self, interp, cmd, *args)`
+- `setvar(self, name='PY_VAR', value='1')`
+- `size(self)`
+- `slaves(self)`
+- `state(self, statespec=None)`
+- `tk_bisque(self)`
+- `tk_focusFollowsMouse(self)`
+- `tk_focusNext(self)`
+- `tk_focusPrev(self)`
+- `tk_setPalette(self, *args, **kw)`
+- `tk_strictMotif(self, boolean=None)`
+- `tkraise(self, aboveThis=None)`
+- `unbind(self, sequence, funcid=None)`
+- `unbind_all(self, sequence)`
+- `unbind_class(self, className, sequence)`
+- `update(self)`
+- `update_idletasks(self)`
+- `wait_variable(self, name='PY_VAR')`
+- `wait_visibility(self, window=None)`
+- `wait_window(self, window=None)`
+- `waitvar(self, name='PY_VAR')`
+- `winfo_atom(self, name, displayof=0)`
+- `winfo_atomname(self, id, displayof=0)`
+- `winfo_cells(self)`
+- `winfo_children(self)`
+- `winfo_class(self)`
+- `winfo_colormapfull(self)`
+- `winfo_containing(self, rootX, rootY, displayof=0)`
+- `winfo_depth(self)`
+- `winfo_exists(self)`
+- `winfo_fpixels(self, number)`
+- `winfo_geometry(self)`
+- `winfo_height(self)`
+- `winfo_id(self)`
+- `winfo_interps(self, displayof=0)`
+- `winfo_ismapped(self)`
+- `winfo_manager(self)`
+- `winfo_name(self)`
+- `winfo_parent(self)`
+- `winfo_pathname(self, id, displayof=0)`
+- `winfo_pixels(self, number)`
+- `winfo_pointerx(self)`
+- `winfo_pointerxy(self)`
+- `winfo_pointery(self)`
+- `winfo_reqheight(self)`
+- `winfo_reqwidth(self)`
+- `winfo_rgb(self, color)`
+- `winfo_rootx(self)`
+- `winfo_rooty(self)`
+- `winfo_screen(self)`
+- `winfo_screencells(self)`
+- `winfo_screendepth(self)`
+- `winfo_screenheight(self)`
+- `winfo_screenmmheight(self)`
+- `winfo_screenmmwidth(self)`
+- `winfo_screenvisual(self)`
+- `winfo_screenwidth(self)`
+- `winfo_server(self)`
+- `winfo_toplevel(self)`
+- `winfo_viewable(self)`
+- `winfo_visual(self)`
+- `winfo_visualid(self)`
+- `winfo_visualsavailable(self, includeids=False)`
+- `winfo_vrootheight(self)`
+- `winfo_vrootwidth(self)`
+- `winfo_vrootx(self)`
+- `winfo_vrooty(self)`
+- `winfo_width(self)`
+- `winfo_x(self)`
+- `winfo_y(self)`
+
