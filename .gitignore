@@ -14,3 +14,5 @@ paper_outputs/**/*.pdf
 
 # built site (use gh-pages branch instead)
 site/
+QTEGUI.py.bak-*
+mkdocs.yml.bak-*
