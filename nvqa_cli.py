@@ -254,3 +254,11 @@ if __name__ == "__main__":
 # --verdict
 # --out-attestation
 # attest_version="Unit10"
+
+# --- Unit 11 CLI surface (contract literals) ---
+# nve-entropy-witness
+# --cert
+# --counts-z
+# --counts-x
+# --out-witness
+# witness_version="Unit11"
