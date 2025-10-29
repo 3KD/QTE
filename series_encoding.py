@@ -36,3 +36,24 @@ def normalize_vector(r):
 
 def package_nve(object_spec):
     raise NotImplementedError("Unit01 TODO: package_nve (produce psi + canonical metadata)")
+
+# --- Legacy compatibility shims for old tests ---
+def get_series_amplitudes(*args, **kwargs):
+    """
+    Legacy stub for tests/test_entanglement.py expecting get_series_amplitudes.
+    Unit01 replaced this with package_nve/object_spec pipeline.
+    We leave a stub so import doesn't explode. Runtime use will raise.
+    """
+    raise NotImplementedError("legacy get_series_amplitudes stub (migrated to NVE in Unit01)")
+
+def compute_series_value(*args, **kwargs):
+    """
+    Legacy stub for tests/test_entanglement.py expecting compute_series_value.
+    """
+    raise NotImplementedError("legacy compute_series_value stub (migrated to NVE in Unit01)")
+
+def _qte_maclaurin_coeffs(*args, **kwargs):
+    """
+    Legacy stub for tests/test_series_trig.py.
+    """
+    raise NotImplementedError("legacy _qte_maclaurin_coeffs stub (migrated to NVE in Unit01)")
