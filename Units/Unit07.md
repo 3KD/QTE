@@ -30,7 +30,7 @@ CLI surface (must appear in nvqa_cli.py):
   "embedding": {
     "embedding_algo": "FIXED_LINEAR_MAP_V1",
     "coords": [
-      {"x": 0.0, "y": 0.0}
+      { "x": 0.0, "y": 0.0 }
     ]
   }
 }
