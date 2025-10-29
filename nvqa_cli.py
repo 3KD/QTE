@@ -328,3 +328,72 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+### Unit01 PUBLIC CONTRACT ANCHOR
+### DO NOT REMOVE OR RENAME ANY OF THESE LITERALS.
+### Tests will grep for them to guarantee stability of Unit 01’s public surface.
+
+# Subcommand surface (Unit 01):
+#   nve-build
+#      --object
+#      --weighting
+#      --phase-mode
+#      --rail-mode
+#      --N
+#      --out-psi
+#      --out-meta
+#
+# Contract requirements (Unit 01):
+#   - We MUST run the canonical Normalized Vector Embedding (NVE) pipeline.
+#   - We MUST emit ψ (psi) as a NumPy array with L2 norm == 1 within 1e-12.
+#       Literal string for tests: "||ψ||₂ ≈ 1e-12"
+#   - We MUST refuse NaN / Inf / zero-norm.
+#
+# Metadata requirements (Unit 01):
+#   Metadata JSON written by nve-build MUST include:
+#       "endianness": "little"
+#       "qft_kernel_sign": "+"
+#       "weighting_mode": "<terms|egf|...>"
+#       "phase_mode": "<full_complex|magnitude_only>"
+#       "rail_mode": "<none|iq_split|sign_split>"
+#       "length": <int>
+#       "norm_l2": 1.0
+#       "nve_version": "Unit01"
+#
+#   These literal keys MUST NOT change:
+#       endianness="little"
+#       qft_kernel_sign="+"
+#       nve_version="Unit01"
+#
+#   If any of those drift, downstream Units break:
+#       - Quentroy Entropy certification (Units 05 / 06 / 11)
+#       - LoaderSpec / rail_layout alignment (Unit02)
+#       - similarity / atlas geometry (Unit07 etc.)
+#
+# Symmetry surface (Unit 01):
+#   nve-similarity
+#      --a
+#      --b
+#      --metric cosine
+#
+#   Contract:
+#     - We compute similarity(ψ_a, ψ_b)
+#     - We compute similarity(ψ_b, ψ_a)
+#     - They MUST match within 1e-12.
+#       Literal string for tests: "similarity symmetry tolerance 1e-12"
+#
+#   This symmetry is assumed by Atlas / clustering work later.
+#
+# Summary:
+#   Unit 01 locks:
+#     - The canonical NVE transform and ψ definition,
+#     - The requirement that ψ is normalized and hardware-addressable,
+#     - The metadata invariants:
+#           endianness="little"
+#           qft_kernel_sign="+"
+#           nve_version="Unit01"
+#     - The cross-vector comparison rule (nve-similarity symmetry tolerance 1e-12).
+#
+#   Anyone handing us a ψ that doesn't match those rules is non-canonical.
+#
+### END Unit01 PUBLIC CONTRACT ANCHOR
