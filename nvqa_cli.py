@@ -224,3 +224,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# --- Unit07 contract literals ---
+# nve-atlas
+# --inputs
+# --metric
+# --out-embed
+# --out-clusters
+# atlas_version="Unit07"
