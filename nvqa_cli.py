@@ -37,3 +37,18 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Unit 02 TODO:
+# subcommand: nve-loader-spec
+# Flags:
+#   --object <...>
+#   --weighting <...>
+#   --phase-mode <...>
+#   --rail-mode <...>
+#   --N <int>
+#   --out-spec <path>
+#
+# Behavior:
+#   1. build NVE bundle (Unit 01)
+#   2. build LoaderSpec via loader_layout.build_loader_spec (Unit 02)
+#   3. write JSON via loader_layout.loader_spec_to_json
