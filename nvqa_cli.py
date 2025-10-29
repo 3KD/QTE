@@ -397,3 +397,85 @@ if __name__ == "__main__":
 #   Anyone handing us a ψ that doesn't match those rules is non-canonical.
 #
 ### END Unit01 PUBLIC CONTRACT ANCHOR
+
+### Unit03 PUBLIC CONTRACT ANCHOR
+### DO NOT DELETE / RENAME ANY OF THESE LITERALS.
+### Downstream tests grep for them. If you "clean wording", pytest kills the push.
+
+# Subcommand surface (Unit 03):
+#   nve-run-sim
+#
+# Flags (MUST appear in the CLI interface exactly like this):
+#   --object <...>
+#   --weighting <...>
+#   --phase-mode <...>
+#   --rail-mode <...>
+#   --N <int>
+#   --shots <int>
+#   --out-spec <prep_spec.json>
+#   --out-counts <sim_result.json>
+#
+# High-level required behavior (logical contract, not yet fully implemented code):
+#   1. Build canonical ψ via NVE (Unit 01).
+#      - uses nve_version="Unit01"
+#      - ψ has ||ψ||₂ ≈ 1e-12 normalization guarantee.
+#   2. Build LoaderSpec (Unit 02).
+#      - LoaderSpec MUST include loader_version="Unit02".
+#      - LoaderSpec MUST include rail_layout with explicit rails like ["rail0","rail1",...].
+#   3. Build PrepSpec (Unit 03).
+#      - PrepSpec = "how do I initialize those rails into logical qubits before execution?"
+#      - MUST include:
+#           "prep_version": "Unit03"
+#           "qubit_order":  [0,1,2,...]  # explicit little-endian logical order
+#           "rail_layout":  ...          # copied / derived from LoaderSpec
+#           "psi_source":  "nve-build"   # string telling where ψ came from
+#   4. Simulate execution locally (no hardware yet, pure software).
+#      - Produce measurement shots (counts).
+#      - The SimResult JSON MUST include:
+#           "backend": "sim"
+#           "shots": <int>
+#           "counts": { "bitstring(little-endian)": int, ... }
+#           "qubit_order": same list as PrepSpec.qubit_order
+#           "rail_layout": same layout
+#
+# Required literals in SimResult contract:
+#       "backend": "sim"
+#       "prep_version": "Unit03"
+#       "qubit_order"
+#       "shots"
+#       "counts"
+#       "rail_layout"
+#
+# Why we freeze this:
+#   - Unit 04 (device exec) will compare real hardware counts to this
+#     simulated reference. The keys MUST match so we can diff them.
+#   - Unit 05 / Unit 06 Quentroy Entropy certification reads these counts.
+#     It assumes fields and conventions are stable.
+#
+# Security / audit angle:
+#   - We attach "psi_source": "nve-build" so an auditor can prove the run
+#     actually came from canonical NVE and not some rando vector.
+#   - We attach loader_version="Unit02" and prep_version="Unit03" so later
+#     crypto / watermark / attestation steps (Units 11 / 25 etc.) can
+#     say "this state load path is legit" and reject spoofed witnesses.
+#
+# TL;DR guarantees we are locking down right now:
+#   - The CLI MUST expose a subcommand literally named: nve-run-sim
+#   - The CLI MUST accept a --shots flag
+#   - The simulated output MUST claim backend: "sim"
+#   - The PrepSpec MUST declare prep_version="Unit03"
+#   - PrepSpec and SimResult MUST both carry qubit_order (little-endian)
+#   - PrepSpec and SimResult MUST both carry rail_layout
+#
+# These phrases are GREPPED by tests:
+#   "nve-run-sim"
+#   "--shots"
+#   "backend\": \"sim\""
+#   "prep_version\": \"Unit03\""
+#   "qubit_order"
+#   "rail_layout"
+#   "psi_source\": \"nve-build\""
+#
+# If you rename ANY of that clever-style, your push dies immediately.
+#
+### END Unit03 PUBLIC CONTRACT ANCHOR
