@@ -33,7 +33,11 @@ CLI subcommand and flags that MUST appear literally in nvqa_cli.py:
   "semantic_hash": "",
   "timestamp_utc": "",
   "hardware_signature": "",
-  "integrity_note": ""
+  "integrity_note": "",
+  "counts_source": "",
+  "psi_source": "",
+  "endianness": "little",
+  "qft_kernel_sign": "+"
 }
 
 ### Behavior (documentation)
