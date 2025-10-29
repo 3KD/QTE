@@ -52,3 +52,21 @@ if __name__ == "__main__":
 #   1. build NVE bundle (Unit 01)
 #   2. build LoaderSpec via loader_layout.build_loader_spec (Unit 02)
 #   3. write JSON via loader_layout.loader_spec_to_json
+
+# Unit 03 TODO:
+# subcommand: nve-run-sim
+# Flags:
+#   --object <...>
+#   --weighting <...>
+#   --phase-mode <...>
+#   --rail-mode <...>
+#   --N <int>
+#   --shots <int>
+#   --out-spec <prep_spec.json>
+#   --out-counts <sim_result.json>
+#
+# Behavior:
+#   1. build NVE bundle (Unit 01)
+#   2. build LoaderSpec (Unit 02)
+#   3. build PrepSpec + simulate counts (Unit 03)
+#   4. write both JSON artifacts
