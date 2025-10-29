@@ -101,3 +101,105 @@ hardware_loader.py implements build_exec_spec, run_backend, verify_exec_hash, ex
 tests exist and pass static validation;  
 nvqa_cli.py contains nve-run-exec stub;  
 no implicit mutation of prior units; hashes deterministic.
+
+## CONTRACT (DO NOT CHANGE)
+
+This section is machine-checked by pytest.  
+If you edit / rename / remove any required tokens here without updating tests, pytest will fail and you will not be allowed to push.
+
+Required CLI subcommand (must exist in nvqa_cli.py and stay spelled exactly like this):
+- `nve-run-exec`
+
+Required CLI flags for `nve-run-exec`:
+- `--object`
+- `--weighting`
+- `--phase-mode`
+- `--rail-mode`
+- `--N`
+- `--shots`
+- `--backend`
+- `--out-spec`
+- `--out-receipt`
+
+Behavioral contract for `nve-run-exec`:
+1. Build canonical state ψ via NVE (Unit01) using Normalized Vector Embedding.
+2. Build LoaderSpec (Unit02) with deterministic rail layout + rail_layout JSON, including `loader_version="Unit02"`.
+3. Build PrepSpec (Unit03) with a staged state-prep circuit + shot plan, including `prep_version="Unit03"`.
+4. Build ExecSpec (Unit04) that binds PrepSpec to a physical backend, sets `backend_name`, and records how many `shots` were actually requested. ExecSpec MUST carry:
+   - `loader_version`
+   - `prep_version`
+   - `exec_version="Unit04"`
+   - `rail_layout`
+   - `backend_name`
+   - `shots`
+   - `endianness`
+   - `qft_kernel_sign`
+5. Run the backend (hardware or qasm/simulator).
+6. Emit a RunReceipt JSON with:
+   - `counts` (basis measurement histogram)
+   - `backend_name`
+   - `shots`
+   - `exec_version`
+   - `receipt_version="Unit04"`
+
+Both ExecSpec and RunReceipt MUST be written to disk at the paths given by:
+- `--out-spec`
+- `--out-receipt`
+
+Security / attestation expectations:
+- The `rail_layout` frozen in LoaderSpec/PrepSpec MUST match the loader layout the backend actually used, or downstream Quentroy / audit will reject the run.
+- The `exec_version="Unit04"` tag is mandatory. This proves which version of exec semantics produced the receipt.
+- The `endianness` MUST still be `"little"`.
+- `qft_kernel_sign` MUST still be `"+"`.
+If any of those drift, downstream Units (05/11/25) will treat the run as untrusted.
+
+Downstream dependency:
+- Unit05 and later pull `counts` and `exec_version` and `rail_layout` from the RunReceipt when computing Quentroy Entropy and audit trails.
+- Unit11 / Unit25 pull `backend_name`, `shots`, and layout info during tamper detection and crypto watermark attestation.
+
+## CONTRACT (DO NOT CHANGE)
+
+This section is test-enforced. These exact substrings MUST remain visible in this file,
+because downstream tooling and attestation logic grep for them. If you drift this text,
+pytest will fail and you're not allowed to ship.
+
+nvqa_cli.py subcommand surface (must exist exactly as shown):
+  nve-run-exec \
+    --object <...> \
+    --weighting <...> \
+    --phase-mode <...> \
+    --rail-mode <...> \
+    --N <int> \
+    --shots <int> \
+    --backend <backend_name> \
+    --out-spec exec_spec.json \
+    --out-receipt run_receipt.json \
+    exec_version="Unit04"
+
+exec_spec.json MUST include:
+  {
+    "nve_version": "Unit01",
+    "loader_version": "Unit02",
+    "prep_version": "Unit03",
+    "exec_version": "Unit04",
+    "endianness": "little",
+    "qft_kernel_sign": "+",
+    "rail_layout": "... layout of rails to logical qubits ...",
+    "backend_name": "ibm_torino_or_whatever",
+    "shots": 1024
+  }
+
+run_receipt.json MUST include:
+  {
+    "receipt_version": "Unit04",
+    "backend_name": "ibm_torino_or_whatever",
+    "shots": 1024,
+    "rail_layout": "... same semantic rail_layout ...",
+    "endianness": "little",
+    "qft_kernel_sign": "+",
+    "exec_version": "Unit04"
+  }
+
+The strings "rail_layout", "backend_name", "shots",
+"endianness": "little", "qft_kernel_sign": "+",
+and "receipt_version": "Unit04" are all considered frozen API markers.
