@@ -247,3 +247,10 @@ if __name__ == "__main__":
 # --counts
 # --out-verdict
 # verify_version="Unit09"
+
+# --- Unit 10 CLI surface (contract literals) ---
+# nve-attest
+# --cert
+# --verdict
+# --out-attestation
+# attest_version="Unit10"
