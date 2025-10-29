@@ -1,357 +1,299 @@
-Unit 02 — State Loader Construction and Hardware-Ready Register Layout
+UNIT 02 — LOADER SPEC AND SEMANTIC RAIL ALIGNMENT
+=================================================
 
-This unit defines how a normalized ψ from Unit 01 becomes an actual register layout we can hand to hardware or a simulator. “Becomes” here means: ψ (a complex amplitude vector with ‖ψ‖₂ = 1, already locked under NVE metadata) is turned into something loadable: rail-split, ordered, sized to an n-qubit register, and expressed in a form an initializer / loader circuit can actually realize without guesswork.
+SCOPE
+-----
 
-This unit answers: given ψ and its metadata (endianness="little", qft_kernel_sign="+", rail_mode, etc.), how do we map ψ into basis states on an n-qubit device in a way that is:
-- deterministic,
-- reconstructable from metadata alone,
-- and admissible for later attestation and Quentroy Entropy checks on real hardware shot data.
+Unit 02 defines how a normalized ψ from Unit 01 (Normalized Vector Embedding / NVE) is assigned a physical / logical load layout so later hardware and simulators know exactly what each amplitude means and where it lives.
 
-Dependencies:
-- Requires Unit 01 (Normalized Vector Embedding / NVE, NVQA, Quentroy Entropy naming, rail modes, endianness, qft_kernel_sign).
-- Assumes `package_nve(...)` is implemented and returns:
-  {
-    "psi": np.ndarray (normalized),
-    "metadata": {
-      "object_spec": {...},
-      "weighting_mode": "...",
-      "phase_mode": "...",
-      "rail_mode": "...",
-      "endianness": "little",
-      "qft_kernel_sign": "+",
-      "length": L,
-      "norm_l2": 1.0,
-      "nve_version": "Unit01"
-    }
-  }
+In plain terms:
+- Unit 01 gives us ψ plus metadata (phase_mode, rail_mode, etc).
+- Unit 02 turns that ψ into a LoaderSpec object that freezes:
+  - rail ordering,
+  - subregister mapping,
+  - bit significance (endianness),
+  - QFT kernel sign convention,
+  - and a deterministic semantic hash.
 
-Later units depend on this for:
-- Unit 03 / 04 style “actual circuit synthesis and run on backend.”
-- Unit 05 / 11 Quentroy Entropy certification from real device shot counts.
-- Unit 07 similarity / atlas geometry that assumes consistent basis alignment across runs, not guessed qubit order.
-- Unit 11 / 25 tamper + payload verification, where we claim “this exact ψ (with this layout) got prepared.”
+After this unit:
+- There is NO ambiguity about “which amplitude is which rail / qubit / slot.”
+- Anyone downstream (Unit 03 simulation, Unit 04 execution on backend, Unit 05 Quentroy Entropy attestation) must consume LoaderSpec, not improvise.
 
-If this unit changes, downstream physical prep, entropy certification, crypto attestation, and atlas comparisons all become untrustworthy. So once committed, this file is treated as binding.
+We do not say “canonical” and we do not let anyone substitute their own layout silently. LoaderSpec is the reference layout. If LoaderSpec changes, it is a version bump and old LoaderSpec is considered incompatible.
 
 
-SCOPE OF THIS UNIT
+MOTIVATION
+----------
 
-We are doing three things here:
+Why we need this:
 
-(1) Register dimension resolution  
-    We take ψ of length L and decide what register shape is required.  
-    - If ψ is length L and L is not a power of two, we define how to embed ψ into the next power-of-two dimension by padding trailing zeros in a declared way.  
-    - We assign an integer number of logical qubits n such that 2ⁿ ≥ L_after_padding.  
-    - We record n in metadata.  
-    - We record how many trailing basis states are actually “unused / forced-zero,” not just silently pad and pretend it was native.
+1. Rail mode from Unit 01 (iq_split, sign_split, etc.) explodes a logical object into rails. If we don't pin which slice of ψ corresponds to which semantic component, hardware prep in Unit 04 and entropy witness / Quentroy Entropy in Unit 05 are meaningless.
 
-(2) Rail -> subregister mapping  
-    rail_mode from Unit 01 can be:
-    - "none"        (ψ is already a straightforward complex state vector),
-    - "iq_split"    (real and imag stored in two rails concatenated),
-    - "sign_split"  (positive and negative magnitude rails concatenated).
-    We must define:
-    - how those rails become physically distinct subregisters or contiguous address blocks,
-    - how those subregisters map to computational basis indices under the global little-endian convention,
-    - and how we reconstruct semantic meaning later from raw counts.
+2. We must freeze index meaning:
+   - Computational basis ordering is LITTLE-ENDIAN. That means basis index k maps to bitstring where the least significant bit is the physically “rightmost drawn” qubit.
+   - We commit that here. Anyone who flips that later is wrong.
+   - This matters for attribution of counts, parsing QFT basis transforms, and proving identity of a prepared state.
 
-(3) Loader spec  
-    We output a deterministic loader spec: a structure that later units will turn into actual circuit instructions.  
-    The loader spec is not yet the circuit; it’s the binding contract that says “qubit 0 gets this bit significance, these amplitudes correspond to these basis states, here is where rail A vs rail B lives, here is which padded states are zero, here is the declared QFT kernel sign alignment, here is the declared endianness.”  
-    That loader spec is what we will sign, serialize, and later compare against hardware output to prove that hardware actually prepared what we said.
+3. We must freeze transform sign:
+   - qft_kernel_sign = "+"
+   - That means our QFT-like kernel is exp(+2π i m k / N) / √N.
+   - Classical FFT libraries often use a minus sign. We are NOT using the minus sign as default. If you want to compare, conjugate or take |·|² manually. That’s on you.
+   - This sign choice affects how we interpret entropy in Fourier-like bases and must match across all units.
+
+4. We must emit a deterministic loader spec file that future tooling can diff byte-for-byte.
+   - If two LoaderSpecs differ for “the same ψ input + same params,” everything downstream (attestation, similarity atlas, crypto watermark embedding, etc.) loses the ability to trust that a given ψ is THE ψ.
 
 
-KEY CONVENTIONS (LOCKED HERE)
+REQUIRED ARTIFACT: LoaderSpec
+-----------------------------
 
-Endianness
-- We continue to enforce little-endian basis indexing from Unit 01.
-- Bit j (j=0 is least significant) maps to qubit j. Index m = Σ_j 2^j * b_j.
-- We do not reorder qubits later just to make pretty plots. If someone wants MSB-first visuals, they must explicitly note that it’s a display transform.
-- Any loader spec that violates this is rejected as nonconforming.
+LoaderSpec is a dict/JSON with ALL of these fields, no exceptions:
 
-QFT kernel sign
-- Still “+”.
-- All Fourier / Hadamard / conjugate-basis, etc., mapping in later entropy checks assumes that sign.
-- No one is allowed to silently flip the Fourier sign just because some DSP lib likes “-”.
-- Loader spec must restate qft_kernel_sign = "+" so downstream has zero ambiguity.
+- "object_spec": dict
+    The full structured ObjectSpec that produced ψ in Unit 01. Must include:
+    - construction recipe
+    - truncation N
+    - weighting_mode
+    - phase_mode
+    - rail_mode
+    - endianness
+    - qft_kernel_sign="+"
+    This cannot be just a human string. It must be a structured dump of whatever Unit 01's package_nve() used.
 
-Padding / extension policy
-- If ψ length L is not an exact power of two, we choose n = ceil(log2(L)).  
-  Let D = 2**n.  
-  We embed ψ into length D by appending zeros to the tail (highest index end).
-- We must record:
-  - original_length = L
-  - padded_length = D
-  - pad_count = D - L
-- The padded amplitudes must literally be 0.0 exactly, not tiny epsilons.
-- The norm guarantee from Unit 01 applies to ψ prior to padding. After padding with exact zeros, norm is still 1.0.
-- Anyone who measures an occupation in a padded basis state later is either seeing noise, leakage, or adversarial tampering. We will use that in later trust tests.
+- "rail_layout": list
+    Deterministic, ordered description of how ψ is mapped onto logical rails / subregisters / qubit slots.
+    Each entry MUST include:
+      {
+        "index": <int>,          # position in ψ
+        "rail_tag": <str>,       # e.g. "I", "Q", "POS", "NEG", "MAIN", etc.
+        "subregister": <str>,    # e.g. "R0", "R1", "Z0", etc.
+        "bit_index_le": <int>    # the little-endian bit index that would host this slot in computation basis labeling
+      }
+    "rail_layout" MUST be length == len(ψ). No gaps. No padding that isn't represented. No silent compression.
 
-Rail packing and register layout
-- If rail_mode == "none":  
-  ψ already corresponds to one register of size L (or D after padding). Done.
+- "endianness": "little"
+    Always literally "little". This MUST match Unit 01 and MUST be explicit here again.
 
-- If rail_mode == "iq_split":  
-  Unit 01 said: we took complex a[n] = x[n] + i y[n], split into rails r_real[n]=x[n], r_imag[n]=y[n], and concatenated [r_real || r_imag] -> r_concat, then normalized r_concat to ψ.  
-  Interpretation here in Unit 02:
-  - The first half of ψ corresponds to the “real rail subspace.”  
-  - The second half of ψ corresponds to the “imag rail subspace.”  
-  - We must assign disjoint contiguous basis index ranges for those two halves.
-  - Loader spec must clearly tag these as rail_real and rail_imag with exact index ranges, not vibes.
+- "qft_kernel_sign": "+"
+    Always literally "+". This MUST match Unit 01 and MUST be explicit here again.
 
-- If rail_mode == "sign_split":  
-  Unit 01 said: we split positive and negative magnitude contributions into two rails r_pos, r_neg and concatenated. Then normalized.  
-  Interpretation here:
-  - First half of ψ is the positive rail,
-  - Second half of ψ is the negative rail.
-  - Loader spec must tag rail_pos / rail_neg and ranges.
+- "loader_version": "Unit02"
+    Literal string "Unit02".
+    This is how later units verify that whoever produced this LoaderSpec was actually following Unit 02 rules and not improvising.
 
-In all split-rail cases, we are defining a multi-register logical interpretation. Physically, it may all live on one n-qubit register. Logically, we treat those halves as different semantic channels. That semantic mapping is what allows us to take returned shots later and say “yes, the device actually preserved sign information vs. no, it collapsed sign and lied.”
+- "semantic_hash": "<hex string>"
+    A deterministic digest computed from everything in the LoaderSpec EXCEPT the semantic_hash field itself.
+    Rule:
+      semantic_hash = SHA256(
+         json.dumps(spec_without_semantic_hash, sort_keys=True, separators=(',',':')).encode('utf-8')
+      ).hexdigest()
+    You MUST sort keys in the JSON before hashing, and you MUST use compact separators (",", ":") so it's reproducible cross-platform.
 
+- "length": <int>
+    Length of ψ (post-rail expansion). Same as len(rail_layout).
 
-LOADER SPEC STRUCTURE
-
-We define a loader spec object. This object is produced in this unit and consumed in Unit 04 to actually synthesize and run hardware.
-
-We call it LoaderSpec. LoaderSpec is a dict with required fields:
-
-{
-  "nve_version": "Unit01",
-  "loader_version": "Unit02",
-  "endianness": "little",
-  "qft_kernel_sign": "+",
-
-  "object_spec": { ...copy of Unit 01 object_spec... },
-
-  "rail_mode": "none" | "iq_split" | "sign_split",
-  "rail_layout": {
-      // if rail_mode=="none":
-      //   "kind": "single",
-      //   "range": [0, D-1]
-
-      // if rail_mode=="iq_split":
-      //   "kind": "iq_split",
-      //   "real_range": [0, D/2 - 1],
-      //   "imag_range": [D/2, D-1]
-
-      // if rail_mode=="sign_split":
-      //   "kind": "sign_split",
-      //   "pos_range": [0, D/2 - 1],
-      //   "neg_range": [D/2, D-1]
-  },
-
-  "register_qubits": {
-      "n_qubits": n,
-      "original_length": L,
-      "padded_length": D,
-      "pad_count": D-L
-  },
-
-  "amplitudes": {
-      "vector": [ ... list of floats or complex pairs, deterministic order ... ],
-      "dtype": "float64" | "complex128"
-  }
-}
-
-Rules:
-- LoaderSpec["amplitudes"]["vector"] is the direct data we will ask Unit 04 to prepare on hardware.
-- LoaderSpec MUST be deterministic given the same ψ input bundle from Unit 01.
-- No field is allowed to be omitted “because it’s obvious.”
-- No field is allowed to silently change meaning later. If it changes, loader_version must bump.
+If ANY of these keys is missing, LoaderSpec is invalid.
+If "endianness" != "little" or "qft_kernel_sign" != "+", LoaderSpec is invalid.
+If "loader_version" != "Unit02", LoaderSpec is invalid.
+If length != len(rail_layout), LoaderSpec is invalid.
+If semantic_hash does not match recompute(rule above), LoaderSpec is invalid.
 
 
-ATTACK / ADVERSARY MODEL FOR THIS UNIT
+FUNCTION CONTRACTS (loader_layout.py)
+-------------------------------------
 
-The attacker can:
-- Hand us some different vector ψ′ and claim “this is what got loaded.”
-- Claim different rail assignments than we actually declared.
-- Claim different endianness.
-- Claim different n_qubits mapping than we used.
+Unit 02 introduces loader_layout.py. That file MUST exist and MUST define:
+
+1. build_loader_spec(object_spec: dict, psi, nve_metadata: dict) -> dict
+   - object_spec: the exact structured ObjectSpec from Unit 01 (NOT a lossy human summary).
+   - psi: the normalized ψ vector from Unit 01 (NumPy array or list of floats/complex that we just got).
+   - nve_metadata: the metadata dict returned alongside ψ from Unit 01 package_nve().
+
+   What it MUST do:
+   - Validate nve_metadata["endianness"] == "little".
+   - Validate nve_metadata["qft_kernel_sign"] == "+".
+   - Get rail_mode from nve_metadata (like "iq_split", "sign_split", "none").
+   - Construct rail_layout deterministically. Deterministic here means:
+       same object_spec + same ψ always yields byte-identical rail_layout ordering.
+     How you label "subregister" and "rail_tag" MUST be fixed by rail_mode rules:
+       - iq_split example:
+         first half of ψ => I rail values, tag rail_tag="I", subregister="I"
+         second half of ψ => Q rail values, tag rail_tag="Q", subregister="Q"
+       - sign_split example:
+         first half => POS rail, rail_tag="POS", subregister="POS"
+         second half => NEG rail, rail_tag="NEG", subregister="NEG"
+       - none:
+         single rail, rail_tag="MAIN", subregister="MAIN"
+     For each index k in ψ, assign:
+       index = k
+       bit_index_le = k  (for now 1:1; we reserve more complicated mapping for Unit 04 routing, but here it's identity)
+       Note: bit_index_le MUST correspond to little-endian interpretation of basis states. No reversal.
+
+   - Build spec dict with all required keys except semantic_hash.
+   - Compute semantic_hash per rule.
+   - Insert semantic_hash.
+   - Return resulting dict.
+
+   build_loader_spec MUST raise (not silently continue) if:
+   - ψ is empty,
+   - len(ψ) != claimed "length",
+   - rail_mode is unknown,
+   - rail_mode implies 2N structure but ψ length is not divisible correctly,
+   - nve_metadata disagrees with endianness/little or qft_kernel_sign/+.
+
+2. loader_spec_to_json(spec: dict, path: str) -> None
+   - Recompute semantic_hash using the rule above and assert it matches spec["semantic_hash"].
+   - Write the JSON to disk at `path`, using:
+       json.dumps(spec, sort_keys=True, separators=(',',':'))
+     EXACTLY those separators. EXACTLY sort_keys=True.
+   - File must be UTF-8, no BOM.
+   - If semantic_hash mismatch, raise and refuse to write.
+
+   Why:
+   - deterministic serialization. If two machines build the same LoaderSpec, `diff` on the resulting .json must say identical.
+
+3. validate_loader_spec(spec: dict) -> None
+   - Assert required keys exist.
+   - Assert:
+       spec["endianness"] == "little"
+       spec["qft_kernel_sign"] == "+"
+       spec["loader_version"] == "Unit02"
+   - Assert:
+       isinstance(spec["rail_layout"], list)
+       len(spec["rail_layout"]) == spec["length"] == len({entry["index"] for entry in rail_layout})
+         i.e. complete coverage, no missing slots, no duplicates.
+   - Recompute semantic_hash and assert exact match.
+
+   On ANY failure: raise. DO NOT "fix" or "autocorrect" or "guess". This is security critical.
+
+These functions MUST be pure and deterministic. No RNG. No clock time. No host-dependent ordering.
+If environment differences change spec output bytes, that's a violation of Unit 02.
+
+
+CLI EXTENSION (nvqa_cli.py)
+---------------------------
+
+nvqa_cli.py already exists (from Unit 01). It MUST, by the end of Unit 02, grow a subcommand:
+
+Subcommand name:
+    nve-loader-spec
+
+Flags (all required unless noted):
+    --object "<ObjectSpec>"
+    --weighting <weighting_mode>
+    --phase-mode <phase_mode>
+    --rail-mode <rail_mode>
+    --N <int>
+    --out-spec <path/to/spec.json>
+
+Behavior contract:
+1. Parse args into an ObjectSpec dict. ObjectSpec dict MUST include:
+   {
+     "recipe": "...",
+     "weighting_mode": "...",
+     "phase_mode": "...",
+     "rail_mode": "...",
+     "N": <int>,
+     "endianness": "little",
+     "qft_kernel_sign": "+"
+   }
+   The CLI is not allowed to leave those implicit.
+
+2. Call Unit 01 pipeline (package_nve) to get:
+   - psi (normalized, ||psi||₂ = 1 within 1e-12, no NaN/Inf, nonzero),
+   - nve_metadata (must include endianness="little", qft_kernel_sign="+", rail_mode, etc.).
+
+3. Call loader_layout.build_loader_spec(object_spec, psi, nve_metadata).
+
+4. Call loader_layout.loader_spec_to_json(spec, out_path).
+
+5. Exit 0 only if:
+   - spec["loader_version"] == "Unit02"
+   - spec["endianness"] == "little"
+   - spec["qft_kernel_sign"] == "+"
+   - spec["length"] == len(spec["rail_layout"])
+   - semantic_hash validated and stable
+
+If any of those fails, exit nonzero and print an error. DO NOT silently "fix" rails; DO NOT silently renumber.
+
+The CLI string "nve-loader-spec" MUST literally appear in nvqa_cli.py source. The string "loader_version=\"Unit02\"" MUST literally appear too. The tests below check this.
+
+
+WHY UNIT 02 IS LIFE OR DEATH FOR LATER UNITS
+--------------------------------------------
+
+- Unit 03 (simulation / PrepSpec): assumes LoaderSpec exists and is valid and TRUSTED. Unit 03 produces simulated shot counts based on ψ loaded according to LoaderSpec.
+
+- Unit 04 (on-hardware execution / ExecSpec): assumes LoaderSpec is the truth when actually allocating rails / qubits. If LoaderSpec lies or drifts, the backend run is unauditable.
+
+- Unit 05 (Quentroy Entropy certification): computes Quentroy Entropy for a run and binds it to the LoaderSpec + ψ identity. If LoaderSpec shifts rails, Quentroy certificates become meaningless, and tamper-proofing dies.
+
+- Payload watermarking later (attestation / crypto units): expects LoaderSpec to be versioned and reproducible so we can say "this prepared state matches THIS ψ, not some edited ψ'".
+
+- Atlas / similarity geometry units (later ones): depend on ψ being reproducible (Unit 01) AND mapped consistently to subspaces (Unit 02). If either drifts, function atlas is garbage.
+
+Basically: Unit 01 said "this is ψ". Unit 02 says "this is how ψ sits in memory / rails / qubits / subregisters EVERY TIME". If either moves, the rest of the stack cannot prove identity, cannot detect tampering, cannot certify entropy, and cannot compare states between runs.
+
+
+TEST CONTRACTS (THESE TESTS ARE REAL ENFORCERS)
+-----------------------------------------------
+
+These tests run under pytest on developer machines and in pre-push. They are designed to fail LOUD if anyone weakens guarantees.
+
+Test file: tests/test_unit02_contract_cli.py
+
+What it enforces:
+- nvqa_cli.py MUST contain:
+  - the literal string "nve-loader-spec"
+  - the literal flag string "--out-spec"
+  - the literal string "loader_version=\"Unit02\""
+- This proves that the CLI surface is in place and that loader_version lock is acknowledged in code.
+
+Test file: tests/test_unit02_doc_contract.py
+
+What it enforces:
+- Units/Unit02.md MUST mention all of these phrases:
+  - "LoaderSpec"
+  - "rail_layout"
+  - "endianness\": \"little\""  (note: the exact literal with quotes appears below)
+  - "qft_kernel_sign\": \"+\""
+  - "loader_version\": \"Unit02\""
+  - "build_loader_spec"
+  - "loader_spec_to_json"
+  - "validate_loader_spec"
+  - "deterministic"
+  - "same input → identical JSON"
+  - "len(rail_layout)"
+  - "semantic_hash"
+- This prevents silent watering-down of the spec. If someone edits Unit02.md and rips out requirements, tests break immediately.
+
+NOTE: We purposely test for literal text matches, because that catches anyone trying to "reinterpret" endianness or remove deterministic guarantees without us noticing.
+
+
+SECURITY / ADVERSARY MODEL REITERATION
+--------------------------------------
+
+Every future proof-of-integrity and Quentroy Entropy certificate assumes:
+- ψ generation (Unit 01) was deterministic and recorded.
+- LoaderSpec (Unit 02) captured rail layout, endianness, QFT sign, and subregister mapping deterministically.
+- semantic_hash seals that map so that if ANY of it changes, the hash changes.
+
+We assume an adversary:
+- Can supply any ψ' they want.
+- Can lie about what ψ' supposedly encodes.
+- Can lie about rails / subregister semantics.
 
 We defend by:
-- Serializing LoaderSpec in full before any run.
-- Treating that LoaderSpec as the contract.
-- In later units, we get counts back from hardware and we interpret them using that exact LoaderSpec. If the counts don’t match the rail breakup, qubit ordering, padded zeros, etc., we call fraud.
+1. Regenerating ψ ourselves from ObjectSpec using Unit 01 rules.
+2. Rebuilding LoaderSpec using Unit 02 rules.
+3. Checking the resulting semantic_hash and LoaderSpec JSON byte-for-byte against what they claimed.
+4. Rejecting mismatches, full stop.
 
-So this unit’s job is basically: freeze a machine-verifiable, post-hoc-checkable loader contract.
+No "close enough".
+No "float rounding".
+No "structurally similar".
+Exact match or it's not trusted.
 
-
-IMPLEMENTATION REQUIREMENTS FOR THIS UNIT
-
-We need a new module for this unit. Create `loader_layout.py` at repo root with the following required functions.
-
-Required functions:
-
-1. resolve_register_shape(psi: np.ndarray) -> dict
-   Input:
-   - psi: np.ndarray (normalized), length L
-   Output (returns both data and shape info):
-   {
-     "psi_padded": np.ndarray length D,
-     "original_length": L,
-     "padded_length": D,
-     "pad_count": D-L,
-     "n_qubits": n
-   }
-   where:
-     n = smallest integer with 2**n >= L
-     D = 2**n
-   MUST:
-   - append exact zeros to get length D
-   - not renormalize (norm stays ~1.0)
-   - assert no NaN/Inf
-   - assert abs(||psi||₂ - 1.0) <= 1e-12 pre-pad
-   - assert abs(||psi_padded||₂ - 1.0) <= 1e-12 post-pad
-
-2. derive_rail_layout(psi_padded: np.ndarray, rail_mode: str) -> dict
-   Input:
-   - psi_padded (length D)
-   - rail_mode in {"none","iq_split","sign_split"}
-   Output:
-   - dict that matches LoaderSpec["rail_layout"] contract:
-     * kind
-     * index ranges
-   MUST:
-   - if rail_mode=="none":
-       kind="single"
-       range=[0, D-1]
-   - if rail_mode=="iq_split":
-       kind="iq_split"
-       real_range=[0, D/2 - 1]
-       imag_range=[D/2, D-1]
-       assert D even
-   - if rail_mode=="sign_split":
-       kind="sign_split"
-       pos_range=[0, D/2 - 1]
-       neg_range=[D/2, D-1]
-       assert D even
-   - must NOT reorder amplitudes. Only annotate.
-
-3. build_loader_spec(nve_bundle: dict) -> dict
-   Input:
-   - nve_bundle exactly from Unit 01 package_nve()
-     {
-       "psi": np.ndarray,
-       "metadata": {...}
-     }
-   Steps:
-   - read psi, metadata
-   - call resolve_register_shape -> get shape info + psi_padded
-   - call derive_rail_layout(psi_padded, metadata["rail_mode"])
-   - assemble LoaderSpec:
-     {
-       "nve_version": metadata["nve_version"],
-       "loader_version": "Unit02",
-       "endianness": metadata["endianness"],            # MUST be "little" or raise
-       "qft_kernel_sign": metadata["qft_kernel_sign"],  # MUST be "+" or raise
-       "object_spec": metadata["object_spec"],
-       "rail_mode": metadata["rail_mode"],
-       "rail_layout": <from derive_rail_layout>,
-       "register_qubits": {
-           "n_qubits": n,
-           "original_length": L,
-           "padded_length": D,
-           "pad_count": D-L
-       },
-       "amplitudes": {
-           "vector": serialized psi_padded (list form, deterministic),
-           "dtype": "float64" | "complex128"
-       }
-     }
-   MUST:
-   - confirm still ||psi_padded||₂ ~ 1.0 within 1e-12
-   - confirm no NaN/Inf
-   - include pad_count etc
-   - be deterministic: same nve_bundle in => identical dict out byte-for-byte after stable JSON dump
-
-4. loader_spec_to_json(spec: dict, path: str) -> None
-   - write LoaderSpec to disk at `path` as JSON
-   - stable key ordering for determinism tests
-   - refuse to write if spec fails invariants
-
-All four functions MUST raise instead of silently fixing anything.
-
-TESTS FOR THIS UNIT
-
-Add:
-
-tests/test_loader_shape_padding.py
-- Create a fake ψ of length 3 that is already unit norm.
-- resolve_register_shape must say:
-    n_qubits == 2
-    padded_length == 4
-    pad_count == 1
-- The padded ψ must be identical in first 3 slots and exactly 0 in the last slot.
-- Norm must still be ~1.0.
-
-tests/test_loader_rail_layout.py
-- For rail_mode="none":
-  kind="single", range covers [0, D-1].
-- For rail_mode="iq_split":
-  kind="iq_split", and ranges are disjoint halves [0, D/2-1], [D/2, D-1].
-- For rail_mode="sign_split":
-  kind="sign_split", same shape rule (pos_range / neg_range).
-- Assert no amplitude reordering happened, only annotation.
-
-tests/test_loader_spec_integrity.py
-- build_loader_spec(nve_bundle) must emit:
-  loader_version == "Unit02"
-  copies nve_version from metadata
-  endianness == "little"
-  qft_kernel_sign == "+"
-  register_qubits.n_qubits consistent with padded_length == 2**n_qubits
-  amplitudes.vector length == padded_length
-  last pad_count entries are exactly 0 or 0+0j
-  norm ~1.0 within 1e-12
-  no NaN/Inf
-
-tests/test_loader_spec_determinism.py
-- Build the same nve_bundle twice from the same ObjectSpec.
-- build_loader_spec on both must JSON-dump identically
-  (stable ordering, exact byte match).
-- If not identical, determinism is broken and later attestation is impossible.
-
-CLI IMPACT
-
-`nvqa_cli.py` must grow:
-
-nve-loader-spec
-Example:
-./nvqa_cli.py nve-loader-spec \
-  --object "Maclaurin[sin(x)]" \
-  --weighting egf \
-  --phase-mode full_complex \
-  --rail-mode iq_split \
-  --N 64 \
-  --out-spec /abs/path/sin_loader.json
-
-Behavior:
-- internally call the same build path as nve-build to get the Unit 01 bundle
-- call build_loader_spec(bundle)
-- write LoaderSpec JSON to --out-spec using loader_spec_to_json
-- refuse on invariant violation
-
-This is mandatory so later units can consume loader specs without guessing rail split semantics or qubit indexing.
+If that sounds rigid: good. That rigidity is the point. It's how we get certifiable state identity with zero "just trust me" handwaving.
 
 
-ACCEPTANCE CRITERIA FOR THIS UNIT
-
-This unit is considered integrated / valid if and only if:
-- loader_layout.py exists with resolve_register_shape, derive_rail_layout, build_loader_spec, loader_spec_to_json as defined here,
-- the 4 new tests exist and assert the behaviors above (even if they’re TODO at first, the rules they claim are binding),
-- nvqa_cli.py exposes an nve-loader-spec subcommand stub with the required flags and behavior contract,
-- downstream code is not allowed to reinterpret ψ, change endianness, drop rail mapping, or invent a different padding story without bumping loader_version.
-
-FUTURE NOTES TIED TO THIS UNIT
-
-- Hardware init cost:
-  We’re not yet solving “how do I cheaply prepare ψ on hardware with limited native initialization.” That is Unit 04. Unit 02 only pins the logical layout and padding so Unit 04 has a stable target to hit.
-
-- Multiple physical registers:
-  Some backends expose disjoint qubit blocks or topology constraints. We are not routing around coupling maps here. We’re just freezing semantic layout. Physical routing / transpile comes later.
-
-- Entropy witness alignment:
-  Quentroy Entropy (Units 05 / 11) assumes we know which logical subspace corresponds to which semantic rail. That assumption comes straight from LoaderSpec["rail_layout"]. That’s why rail_layout exists as a first-class field and is versioned here, not invented later.
-
-- Payload watermarking / keyed twirl:
-  Later units that introduce keyed scrambling, authentication, and watermarking depend on having a deterministic loader spec so we can prove “the decrypted / unscrambled state matches exactly what LoaderSpec said.” If LoaderSpec drifts, you can’t prove anything. So loader_version="Unit02" matters for crypto arguments later.
