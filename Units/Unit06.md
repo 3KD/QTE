@@ -1,196 +1,226 @@
-# Unit 06 — Quentroy Entropy Certification / Attestation Layer
+# Unit 06 — Quentroy Certificate / Attested Witness Blob
 
-## UNIT NAME AND SCOPE
+## SCOPE / PURPOSE
 
-This unit defines how we turn raw shot data from execution (simulated or hardware) into a Quentroy certificate ("QuentroyCert"), and it locks what that certificate MUST contain, how it is versioned, and how it is tied back to the exact ψ and loader layout that were claimed.
+Unit 06 defines the final attested cert blob we hand to anyone downstream when we claim:
+"this quantum(-ish) state ψ was prepared, measured, and its uncertainty fingerprint matches
+what we said it would." This is the thing a verifier ingests.
 
-We are not "doing statistics." We are creating an auditable object.
+This unit consumes:
+- an executed run receipt (Unit04) OR simulator baseline (Unit03),
+- the Quentroy Entropy bundle (Unit05),
+- the canonical NVE / LoaderSpec provenance (Units 01/02),
+and fuses them into a single JSON object we call a Quentroy Certificate.
 
-This unit answers:
-- We ran something (or simulated it). How do we prove what state that was, how uncertain it looked, and whether that matches the thing we SAID we loaded?
+This cert is what people store, transmit, and sign.
+This cert is what auditing / crypto (Units 11, 25+) will work with.
+This cert is what we assert in any public claim.
 
-We will NOT rename your terms:
-- NVE      = Normalized Vector Embedding (Unit 01)
-- NVQA     = Normalized Vector Quantum Analysis (global field name)
-- Quentroy Entropy = the entropy / flatness / anti-structure witness we attach
-- LoaderSpec  = semantic rail layout (Unit 02)
-- PrepSpec    = concrete init recipe (Unit 03)
-- ExecSpec    = requested hardware execution (Unit 04)
-- RunReceipt  = what the backend actually said happened (Unit 04)
-- QuentroyCert = the signed/attestable summary of uncertainty & match (THIS UNIT)
+Once Unit 06 is live, nobody should have to look at raw shot counts or hardware receipts
+just to verify a run label. They only need this cert blob and access to the canonical
+generation rules that were locked in Units 01–05.
 
-We lock that the QuentroyCert object is versioned with `"quentroy_version": "Unit06"`. That literal string MUST appear in output and in nvqa_cli.py so that future tests can grep for it and so a verifier can instantly reject older or spoofed formats.
+This unit is the public witness boundary.
 
-This unit does NOT introduce any new naming you didn't authorize. We just structure Quentroy so later crypto units (11, 25) can authenticate payloads.
+## WHAT IT PRODUCES
 
-## POSITION IN THE PIPELINE
+We produce `attested_cert.json` by running the CLI surface:
 
-By Unit 04 we've done:
-1. Build ψ from an ObjectSpec via NVE (Unit 01).
-2. Generate LoaderSpec so we know which amplitude chunk maps to which register / rail (Unit 02).
-3. Generate PrepSpec and (for sim) produce counts (Unit 03).
-4. Generate ExecSpec, actually run hardware, then capture RunReceipt with shot counts, backend ID, timestamps, etc. (Unit 04).
+    nve-quentroy-cert \
+      --counts hw_counts.json \
+      --out-cert attested_cert.json \
+      quentroy_version="Unit06"
 
-Unit 06 consumes either:
-- (PrepSpec, sim_counts) from nve-run-sim (Unit 03 path), OR
-- (ExecSpec, RunReceipt) from nve-run-exec (Unit 04 path),
+The output MUST be a single JSON object with (at minimum) the following keys:
 
-and emits:
-- QuentroyCert, a JSON object which becomes the audit artifact and security anchor for later tamper checks.
+    {
+      "nve_version": "Unit01",
+      "loader_version": "Unit02",
+      "prep_version": "Unit03",
+      "exec_version": "Unit04",
+      "quentroy_version": "Unit06",
 
-In English: Unit 06 is where "I ran this" turns into "Here's a cert that proves how it behaved statistically and what that maps back to."
+      "endianness": "little",
+      "qft_kernel_sign": "+",
+      "rail_layout": "... canonical rail → logical qubit mapping ...",
+      "qubit_order": "... canonical little-endian bit order ...",
 
-This QuentroyCert is the THING downstream. Everything in Units 11 / 25 / 27 points back to this.
+      "backend_name": "<backend>",       // e.g. "ibm_xx" or "sim"
+      "shots": <int>,                    // integer shot count
 
-## QUENTROY ENTROPY: WHAT WE'RE MEASURING
+      "H_Z_bits": <float>,
+      "H_X_bits": <float>,
+      "KL_to_uniform_bits": <float>,
+      "min_entropy_bits": <float>,
+      "MU_lower_bound_bits": <float>,
 
-We are *not* calling this "Shannon entropy" or "some distribution stats". We are calling it Quentroy Entropy, full stop, because that is what you said it is called.
+      "psi_fingerprint": "<stable deterministic hash of ψ>",
+      "semantic_hash": "<stable semantic hash from LoaderSpec>",
+      "timestamp_utc": "<ISO8601 timestamp>",
 
-Internally, Quentroy Entropy bundles:
-- H_Z: the entropy of the observed Z-basis measurement distribution (shot histogram of computational basis bitstrings under the frozen little-endian basis convention).
-- H_QFT or H_X: entropy of a conjugate-basis measurement distribution, typically after applying a Fourier-like or Hadamard-like transform that we promised to respect sign `+` in the exponent for. (We insist on qft_kernel_sign="+" everywhere.)
-- KL_to_uniform: how "flat" the distribution looks vs uniform. This kills structured cheating where someone gives you a fake "random-looking" state that is actually super peaky.
-- min_entropy_estimate: worst-case single-outcome surprise (a lower bound on unpredictability).
-- bias / flatness diagnostics that tell us if rails are lopsided or if certain qubits are frozen.
+      "hardware_signature": "<opaque / may be empty now>",
+      "integrity_note": "no tamper detected / etc."
+    }
 
-For Unit 06 we don't nail down exact math for all components, but we DO hard-lock the field names and the required presence of H_Z. We also lock that metadata like endianness and qft_kernel_sign flow into QuentroyCert so you can prove the QuentroyCert matches the exact conventions we said we were using upstream.
+The point:
+- `nve_version`, `loader_version`, `prep_version`, `exec_version` prove lineage.
+- `endentianness` being "little" and `qft_kernel_sign` being "+" lock global conventions.
+- `rail_layout` and `qubit_order` certify how ψ occupied registers.
+- `backend_name` and `shots` bind to reality (or sim).
+- The Quentroy block (H_Z_bits, H_X_bits, KL_to_uniform_bits, min_entropy_bits,
+  MU_lower_bound_bits) is the uncertainty/flatness signature.
+- `psi_fingerprint` and `semantic_hash` tie back to the canonical ψ from Unit01 and LoaderSpec from Unit02.
+- `hardware_signature` and `integrity_note` prepare the slot where later crypto (Unit 11 / later Units 25+) can attach real auth, MACs, PRF twirls, etc.
 
-If anybody shows up later with a QuentroyCert that doesn't carry endianness="little" and qft_kernel_sign="+", we reject it as nonconforming.
+Anyone verifying later SHOULD reject the run if:
+- `endianness` is not "little"
+- `qft_kernel_sign` is not "+"
+- `loader_version` != "Unit02"
+- `quentroy_version` != "Unit06"
+- `exec_version` != "Unit04" (unless explicitly declared "sim"/no hardware, see below)
 
-## WHAT COUNTS AS INPUT
+The only valid exception is if this cert is labeled as derived purely from a sim baseline:
+in that case, you can have `"backend_name": "sim"` and `"exec_version": "Unit04_simulated"`,
+but the rest of the fields (endianness, qft_kernel_sign, loader_version="Unit02", etc.)
+still MUST match. We are not letting simulation drift conventions.
 
-Unit 06 takes *measurement evidence*. That evidence can come from either:
-- SIM path (nve-run-sim from Unit 03): where we have
-  - PrepSpec (an object that says how ψ would be loaded),
-  - sim_counts (fake but structurally correct shot counts).
-- EXEC path (nve-run-exec from Unit 04): where we have
-  - ExecSpec (the requested hardware run, including loader_version, exec_version, backend, shots),
-  - RunReceipt (actual device-reported counts_Z, maybe counts_aux, timing, etc.).
+## HOW THIS CONNECTS UPSTREAM
 
-Unit 06 doesn't generate ψ. ψ was frozen in Unit 01.
-Unit 06 doesn't generate LoaderSpec. That's Unit 02.
-Unit 06 doesn't deal with routing or hardware coupling maps or that garbage. That's handled before.
-Unit 06 just notarizes: "You said you ran THIS. Here is what actually came out. Here's Quentroy on it."
+Unit 01 (NVE):
+- gave you ψ (normalized vector embedding) deterministically: nve_version="Unit01".
+- locked `endianness="little"`, `qft_kernel_sign="+"`, L2 norm ||ψ||₂ ≈ 1e-12.
+- gave you `psi_fingerprint` (stable hash) as a reproducible identifier.
+- also defined `nve-similarity` and the similarity symmetry tolerance 1e-12 which
+  becomes useful for atlas clustering, but that's orthogonal here.
 
-## QUENTROY CERTIFICATE STRUCTURE (QuentroyCert)
+Unit 02 (LoaderSpec):
+- mapped rails / sign-split / iq_split into logical qubit registers.
+- produced loader_version="Unit02".
+- produced `rail_layout`, `semantic_hash`.
+- froze how meaning is bound to rail index / qubit index.
 
-We define QuentroyCert as a JSON object that MUST contain at least the following keys. If any required key is missing, the cert is invalid.
+Unit 03 (PrepSpec / nve-run-sim):
+- prep_version="Unit03".
+- added qubit_order, psi_source="nve-build", backend": "sim", etc.
+- defined shots and how we intend to sample / measure.
 
-Required top-level keys:
-- "quentroy_version": "Unit06"
-  - THIS IS FIXED. If someone hands you "Unit07" or "v1" or whatever nonsense, reject.
-- "source_kind": "sim" or "exec"
-  - "sim" means derived from nve-run-sim (Unit 03).
-  - "exec" means derived from nve-run-exec (Unit 04).
-- "endianness": "little"
-  - required or reject.
-- "qft_kernel_sign": "+"
-  - required or reject.
-- "loader_version": "Unit02"
-  - required or reject. This binds the QuentroyCert back to the LoaderSpec semantics (split rails, IQ rails, etc.).
-- "prep_spec_fingerprint": "<digest or stable fingerprint of PrepSpec or ExecSpec>"
-  - this is what ties QuentroyCert to the exact loading configuration and not some random other run.
-- "object_spec_fingerprint": "<digest of the ObjectSpec that created ψ in Unit 01>"
-  - this lets you tell which conceptual object this cert is about.
-- "shots_total": <int>
-  - total number of samples observed.
-- "H_Z_bits": <float>
-  - Quentroy Entropy component for Z-basis histogram.
-- "H_QFT_bits": <float>  (or "H_X_bits" depending which conjugate basis we use)
-  - Quentroy Entropy component for conjugate-basis histogram.
-  - We are allowed to emit null/None for now IF we don't have conjugate counts yet,
-    but the field MUST exist.
-- "flatness_KL_uniform": <float>
-  - KL divergence of observed distribution from uniform.
-- "min_entropy_bits": <float>
-  - self-explanatory: the min-entropy estimate from highest-probability outcome.
-- "counts_digest": "<digest of actual counts table>"
-  - We do NOT include the entire raw histogram in the core cert if that's huge.
-    We just hash/digest it here. Raw counts live in RunReceipt / sim_result.json.
-    This makes QuentroyCert small and portable.
+Unit 04 (ExecSpec / nve-run-exec):
+- exec_version="Unit04".
+- bound backend_name (real hardware), shots, and rail_layout / qubit_order / endianness.
+- emitted run_receipt.json ("receipt_version": "Unit04") for the live backend.
 
-Optional-but-encouraged:
-- "timestamp_run_utc": "<ISO8601 or epoch string>"
-  - from RunReceipt if available.
-- "backend_id": "<backend name>"
-  - from RunReceipt if source_kind == "exec".
-- "exec_version": "Unit04"
-  - only for "exec". Locks to Unit 04 ExecSpec contract.
-- "rail_layout": [ ... objects ... ]
-  - same shape as LoaderSpec["rail_layout"], so you can audit rail packing.
-  - we *highly* recommend copying it in so cert review doesn't have to fish
-    across 3 JSON files to know which slice of ψ meant what.
+Unit 05 (Quentroy bundle / nve-quentroy):
+- quentroy_version="Unit05".
+- took counts (hardware or sim) and computed:
+  H_Z_bits,
+  H_X_bits,
+  KL_to_uniform_bits,
+  min_entropy_bits,
+  MU_lower_bound_bits.
+- attached provenance like backend_name, shots, rail_layout.
 
-The point is: QuentroyCert is what an auditor / verifier / downstream crypto unit actually holds up and says "prove that matches what you claimed." So it MUST embed enough structure to link to ψ, LoaderSpec, and the measured distribution you claim came from ψ.
+Unit 06 (this unit):
+- quentroy_version="Unit06" is now the seal version, NOT "Unit05".
+- In Unit 06 we fuse all of it into a single cert blob that a verifier can ingest
+  without having direct access to your backend or raw counts.
 
-## CLI SURFACE (THIS UNIT LOCKS IT)
+Why "Unit06" instead of "Unit05" in the final cert?
+Because `nve-quentroy` (Unit05) is "compute Quentroy from counts," and now
+`nve-quentroy-cert` (Unit06) is "package Quentroy + provenance +
+conventions + hashes into an auditable witness."
 
-We are extending nvqa_cli.py with one more subcommand that downstream tests are now going to require textually present:
+We want the final top-level cert to say quentroy_version="Unit06"
+so you can't fake provenance by taking old Quentroy numbers out of context.
 
-Subcommand:
-    nve-quentroy-cert   (belongs to Unit 06)
 
-Flags:
-    --source-kind {sim,exec}
-    --in-spec   <prep_spec.json OR exec_spec.json>
-    --in-counts <sim_result.json OR run_receipt.json>
-    --out-cert  <quentroy_cert.json>
+## VERIFIER BEHAVIOR
 
-Behavior contract:
-    - Read PrepSpec+sim_counts (if --source-kind sim) or ExecSpec+RunReceipt (if --source-kind exec).
-    - Compute Quentroy Entropy metrics, at least H_Z_bits.
-    - Assemble QuentroyCert JSON with all required top-level keys listed above.
-    - Force:
-        "quentroy_version": "Unit06"
-        "endianness": "little"
-        "qft_kernel_sign": "+"
-        "loader_version": "Unit02"
-      into the output. If any of those are missing or different, that's a FAIL.
-    - Write QuentroyCert to --out-cert.
+A verifier that gets attested_cert.json SHOULD do:
 
-We are not required (in this unit) to define how to compute KL, min-entropy, etc. numerically. We ARE required to output keys with numeric placeholders or 0.0 or null if not available. The existence and naming of these keys is the contract.
+1. Check version anchors:
+   - assert cert["nve_version"] == "Unit01"
+   - assert cert["loader_version"] == "Unit02"
+   - assert cert["prep_version"] == "Unit03"
+   - assert cert["exec_version"].startswith("Unit04")
+   - assert cert["quentroy_version"] == "Unit06"
 
-## TEST REQUIREMENTS LOCKED BY THIS UNIT
+2. Check global invariants:
+   - assert cert["endianness"] == "little"
+   - assert cert["qft_kernel_sign"] == "+"
+   - assert "rail_layout" in cert
+   - assert "qubit_order" in cert
+   - assert "backend_name" in cert
+   - assert "shots" in cert
 
-New tests (Unit 06) will enforce the following:
+3. Check Quentroy fields exist and are floats / sane:
+   - H_Z_bits
+   - H_X_bits
+   - KL_to_uniform_bits
+   - min_entropy_bits
+   - MU_lower_bound_bits
 
-1. test_unit06_contract_cli.py
-   - opens nvqa_cli.py
-   - requires it to literally contain:
-        "nve-quentroy-cert"
-        "--out-cert"
-        "quentroy_version=\"Unit06\""
-        "loader_version=\"Unit02\""
-        "endianness=\"little\""
-        "qft_kernel_sign=\"+\""
-   - This guarantees the CLI surface and invariants didn't quietly mutate.
+4. Check ψ identity:
+   - recompute ψ from cert["psi_fingerprint"] / ObjectSpec if provided,
+     or request canonical ψ from whoever claims authorship.
+   - verify the ψ hash matches `psi_fingerprint`.
+   - if mismatch: reject.
 
-2. test_unit06_cert_shape.py
-   - constructs a fake QuentroyCert dict inline (not by running anything yet)
-   - asserts the dict has all required top-level keys exactly as listed.
-   - asserts quentroy_version == "Unit06"
-   - asserts loader_version == "Unit02"
-   - asserts endianness == "little"
-   - asserts qft_kernel_sign == "+"
-   - asserts source_kind in {"sim","exec"}
-   - asserts we exposed H_Z_bits, flatness_KL_uniform, min_entropy_bits, etc.
+5. Optionally check cryptographic seal:
+   - if hardware_signature is not empty and you know how to verify it,
+     verify it.
+   - if it's empty, you still CAN accept the cert as a "lab claim," but
+     it's not yet cryptographically anchored.
 
-If any of those fail in the future, you broke Unit 06.
+In other words: the Unit 06 cert is the minimum standalone evidence that
+should ever be allowed to leave the lab. Anything less than this is not auditable.
 
-## WHY THIS UNIT EXISTS
+## CONTRACT (DO NOT CHANGE)
 
-- Without QuentroyCert, anyone can claim "I ran ψ" and show you any random histogram.
-  You'd have zero leverage to push back.
+pytest will grep this exact block. Do not edit these substrings unless you also
+update tests and bump versions. This is law.
 
-- With QuentroyCert:
-  * We bind shot data to ObjectSpec (via object_spec_fingerprint).
-  * We bind it to LoaderSpec (via loader_version="Unit02" and rail_layout).
-  * We bind it to ExecSpec/PrepSpec fingerprints.
-  * We show statistical structure (Quentroy) that SHOULD match ψ if ψ was correctly loaded and run.
-    If later you get a hardware run that produces a cert way off from baseline,
-    you know it's bogus or tampered.
+CLI surface string we promise exists in nvqa_cli.py:
 
-- QuentroyCert is the input to crypto-tamper-proofing later (Units 11, 25).
-  Without this unit stabilized, those units can't claim security.
+    nve-quentroy-cert \
+      --counts hw_counts.json \
+      --out-cert attested_cert.json \
+      quentroy_version="Unit06"
 
-End of Unit 06 spec.
+Required substrings in both this file AND nvqa_cli.py:
+
+    nve-quentroy-cert
+    quentroy_version="Unit06"
+    loader_version="Unit02"
+    endianness="little"
+    qft_kernel_sign="+"
+
+Required fields inside attested_cert.json (verifier MUST see these):
+
+    "nve_version": "Unit01",
+    "loader_version": "Unit02",
+    "prep_version": "Unit03",
+    "exec_version": "Unit04",
+    "quentroy_version": "Unit06",
+
+    "endianness": "little",
+    "qft_kernel_sign": "+",
+    "rail_layout": "...",
+    "qubit_order": "...",
+    "backend_name": "<backend>",
+    "shots": <int>,
+
+    "H_Z_bits": <float>,
+    "H_X_bits": <float>,
+    "KL_to_uniform_bits": <float>,
+    "min_entropy_bits": <float>,
+    "MU_lower_bound_bits": <float>,
+
+    "psi_fingerprint": "<stable deterministic hash of ψ>",
+    "semantic_hash": "<stable semantic hash>",
+    "timestamp_utc": "<ISO8601 timestamp>",
+
+    "hardware_signature": "<opaque or empty>",
+    "integrity_note": "..."
+
+If any of those required substrings disappear from Unit06.md or nvqa_cli.py,
+pytest should (and will) fail, and we don't push.
