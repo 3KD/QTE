@@ -203,3 +203,79 @@ run_receipt.json MUST include:
 The strings "rail_layout", "backend_name", "shots",
 "endianness": "little", "qft_kernel_sign": "+",
 and "receipt_version": "Unit04" are all considered frozen API markers.
+
+## TEST CONTRACT (DO NOT CHANGE)
+
+Relevant tests:
+- tests/test_unit04_contract_cli.py
+- tests/test_unit04_live_backend.py
+
+Required CLI surface in nvqa_cli.py:
+- subcommand token `nve-run-exec`
+  Flags:
+    --object
+    --weighting
+    --phase-mode
+    --rail-mode
+    --N
+    --shots
+    --backend
+    --out-spec
+    --out-receipt
+  Behavior:
+    1. build ψ (Unit01)
+    2. build LoaderSpec (Unit02)
+    3. build PrepSpec (Unit03)
+    4. build ExecSpec for real backend (`--backend`, e.g. "ibm_torino")
+    5. actually execute on that backend
+    6. emit RunReceipt JSON with:
+         {
+           "receipt_version": "Unit04",
+           "backend_name": "<backend>",
+           "shots": <int>,
+           "rail_layout": {
+              "logical_rail_map": "... iq_split ...",
+              "endianness": "little",
+              "qft_kernel_sign": "+"
+           },
+           "counts": { "<bitstring>": int, ... }
+         }
+
+tests/test_unit04_contract_cli.py asserts nvqa_cli.py and Unit04.md both
+contain all required contract tokens:
+- "nve-run-exec"
+- "--out-spec"
+- "--out-receipt"
+- 'exec_version="Unit04"' OR 'receipt_version": "Unit04"'
+- '"endianness": "little"'
+- '"qft_kernel_sign": "+"'
+- '"rail_layout"'
+- '"backend_name"'
+- '"shots"'
+
+tests/test_unit04_live_backend.py does an OPTIONAL live hit against
+backend_name "ibm_torino". It is marked @pytest.mark.skipif unless NVQA_LIVE=1.
+When NVQA_LIVE=1 is exported:
+- we load IBM config from ~/.qiskit/qiskit-ibm.json (we do NOT hardcode token)
+- we build a trivial 2-qubit Bell-pair style circuit
+- we run ~256 shots on real hardware or via SamplerV2
+- we synthesize a RunReceipt dict exactly as above
+- we assert:
+    receipt["receipt_version"] == "Unit04"
+    receipt["backend_name"] == "ibm_torino"
+    receipt["shots"] == shots
+    receipt["rail_layout"]["endianness"] == "little"
+    receipt["rail_layout"]["qft_kernel_sign"] == "+"
+    sum(counts.values()) == shots
+    counts keys look like bitstrings
+- we also compute a small entropy diagnostic H_est > 0.1 as a sanity floor.
+
+This proves:
+- loader_version="Unit02" rail_layout survived into a physical run
+- endianness="little" and qft_kernel_sign="+" made it all the way to real hardware evidence
+- RunReceipt is structurally sufficient for downstream Quentroy certification (Unit05)
+
+NVQA_LIVE gating:
+- Without NVQA_LIVE=1, tests/test_unit04_live_backend.py is skipped,
+  so normal `pytest -q` and pre-push remain offline and fast.
+- With NVQA_LIVE=1, we actually prove hardware execution matches the ExecSpec / RunReceipt contract.

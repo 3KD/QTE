@@ -49,3 +49,71 @@ Security / attestation expectations:
 
 Downstream dependency:
 - Unit11 (tamper cert) and Unit25 (payload attestation / watermark) will refuse to honor any run that doesn’t ship a Quentroy cert with `quentroy_version="Unit05"` and matching `nve_version`.
+
+## TEST CONTRACT (DO NOT CHANGE)
+
+Relevant tests:
+- tests/test_unit05_contract_cli.py
+
+Required CLI surface in nvqa_cli.py:
+- subcommand token `nve-quentroy`
+  Flags:
+    --counts
+    --basis
+    --out-cert
+  Behavior:
+    - ingest counts from either:
+        * simulator path (Unit03 PrepSpec shot loop), or
+        * hardware RunReceipt (Unit04, e.g. ibm_torino)
+    - compute Quentroy certificate
+    - write QuentroyCert JSON to --out-cert
+
+QuentroyCert MUST include:
+- quentroy_version="Unit05"
+- per-basis entropy bundle fields:
+    "H_Z_bits"
+    "H_X_bits"
+    "KL_to_uniform_bits"
+    "min_entropy_bits"
+    "MU_lower_bound_bits"
+- provenance fields to tie this cert back to physical execution:
+    "nve_version": "Unit01"
+    "loader_version": "Unit02"
+    "prep_version": "Unit03"
+    "exec_version": "Unit04"
+    "backend_name": "<backend>"
+    "shots": <int>
+    "rail_layout": { ... }
+    "endianness": "little"
+    "qft_kernel_sign": "+"
+
+tests/test_unit05_contract_cli.py literally greps nvqa_cli.py
+and Units/Unit05.md for:
+- "nve-quentroy"
+- "--counts"
+- "--out-cert"
+- 'quentroy_version="Unit05"'
+- "H_Z_bits"
+- "H_X_bits"
+- "KL_to_uniform_bits"
+- "min_entropy_bits"
+- "MU_lower_bound_bits"
+- "nve_version"
+- "rail_layout"
+- "exec_version"
+- "backend_name"
+- "shots"
+- "endianness"
+- "little"
+- "qft_kernel_sign"
+- "+"
+
+If any of these disappear or change spelling, pytest fails, because that
+would mean we broke auditability: you wouldn't be able to prove that the
+entropy signature you're handing someone actually came from the specific
+ψ built in Unit01, loaded via Unit02, prepared in Unit03, executed in
+Unit04 on a named backend, with known rail_layout, endianness="little",
+and qft_kernel_sign="+".
+
+This is the tamper witness / certification path and will later drive
+payload attestation and cryptographic watermarking.

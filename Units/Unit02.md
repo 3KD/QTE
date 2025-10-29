@@ -297,3 +297,44 @@ Exact match or it's not trusted.
 If that sounds rigid: good. That rigidity is the point. It's how we get certifiable state identity with zero "just trust me" handwaving.
 
 
+
+## TEST CONTRACT (DO NOT CHANGE)
+
+Relevant tests:
+- tests/test_unit02_contract_cli.py
+- tests/test_unit02_doc_contract.py
+
+Required CLI surface in nvqa_cli.py:
+- the presence of subcommand token `nve-loader-spec`
+  Flags:
+    --object
+    --weighting
+    --phase-mode
+    --rail-mode
+    --N
+    --out-spec
+  Behavior:
+    1. call NVE (Unit01) to get ψ + metadata
+    2. build LoaderSpec
+    3. write LoaderSpec JSON to --out-spec
+
+LoaderSpec MUST include:
+- loader_version="Unit02"
+- mapping from semantic rails (iq_split / sign_split / etc.) to physical qubits
+  under a field named `rail_layout`
+- explicit "endianness": "little"
+- explicit "qft_kernel_sign": "+"
+- the qubit index order ("qubit_order") that downstream loading will respect
+- reference to which NVE rails ended up on which physical line
+
+Determinism:
+- Given the same NVE bundle, LoaderSpec must be byte-identical when regenerated.
+  This is contractually enforced by tests/test_unit02_* through string search.
+
+Forward dependency:
+- Unit04 ExecSpec / RunReceipt must embed LoaderSpec. The RunReceipt field
+  `"rail_layout"` originates here in Unit02 and is checked again in Unit04 live
+  backend tests.
+
+If required strings like loader_version="Unit02" or "rail_layout" disappear
+from docs or CLI, tests fail. That blocks tamper-evidence and Quentroy later.

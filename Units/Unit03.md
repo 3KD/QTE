@@ -257,3 +257,50 @@ Unit 03 is considered integrated if:
 - all required version markers are enforced (prep_version == "Unit03") and we NEVER silently alter rail layout, endianness, qft_kernel_sign, or amplitude ordering.
 
 This locks the intended logical prep circuit and the reference simulator path. Later units (entropy certificate, crypto witness, tamper proofing, atlas) will rely on this exact shape.
+
+## TEST CONTRACT (DO NOT CHANGE)
+
+Relevant tests:
+- tests/test_unit03_contract_cli.py
+
+Required CLI surface in nvqa_cli.py:
+- subcommand token `nve-run-sim`
+  Flags:
+    --object
+    --weighting
+    --phase-mode
+    --rail-mode
+    --N
+    --shots
+    --out-spec
+    --out-counts
+  Behavior:
+    1. build ψ via Unit01 (`psi_source`: "nve-build")
+    2. build LoaderSpec via Unit02
+    3. build PrepSpec for a simulator backend (backend: "sim")
+         PrepSpec MUST include:
+           {
+             "prep_version": "Unit03",
+             "psi_source": "nve-build",
+             "backend": "sim",
+             "shots": <int>,
+             "qubit_order": [...],
+             "rail_layout": {... mirrors LoaderSpec ...}
+           }
+    4. run a simulator shot loop and dump synthetic counts JSON to --out-counts
+
+Requirements enforced by tests/test_unit03_contract_cli.py:
+- nvqa_cli.py must literally contain:
+    "nve-run-sim"
+    "--shots"
+    'prep_version="Unit03"'
+    'backend": "sim"'
+    "qubit_order"
+    "rail_layout"
+    'psi_source": "nve-build"'
+- total reported counts must sum to `shots` in downstream usage.
+
+Downstream tie-in:
+- Unit03 PrepSpec is what Unit04 turns into an ExecSpec for real hardware.
+- If PrepSpec stops carrying "rail_layout", "qubit_order", or loses prep_version="Unit03",
+  then ExecSpec -> RunReceipt mapping becomes unverifiable, and Quentroy cert breaks.
