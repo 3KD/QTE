@@ -232,3 +232,11 @@ if __name__ == "__main__":
 # --out-embed
 # --out-clusters
 # atlas_version="Unit07"
+
+# --- Unit 08 CLI surface (contract literals) ---
+# nve-atlas-report
+# --embed
+# --clusters
+# --out-report
+# --out-fig
+# report_version="Unit08"
