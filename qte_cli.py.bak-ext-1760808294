@@ -3,7 +3,6 @@ import os
 import argparse
 import numpy as np
 import series_encoding as se
-from qte_cli_ext_register import add_qte_ext
 
 def main():
     ap = argparse.ArgumentParser(description="Quantum series encoder CLI")
@@ -22,8 +21,6 @@ def main():
                     help="polylog backend override (env QTE_POLYLOG_BACKEND if omitted)")
 
     args = ap.parse_args()
-    if hasattr(args, 'func'):
-        return args.func(args)
 
     # Apply toggles via env (read by series_encoding)
     if args.cache is not None:

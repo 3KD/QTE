@@ -11,9 +11,8 @@ imports so it can be imported headlessly.
 ## Tabs (currently wired)
 - **Entropy** — save/verify entropy certificates
 - **Spectrum** — FFT metrics (DC, entropy bits, flatness)
-- **Payload** — demo payload flow + capacity
+- **Payload** — demo a basis-state payload flow and report capacity
 
 ## Quickstart
-```bash
-python QTEGUI.py
-```
+
+    python QTEGUI.py

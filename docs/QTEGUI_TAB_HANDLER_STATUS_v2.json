@@ -1,0 +1,19 @@
+{
+  "wrote": [
+    "docs/QTEGUI_API_MAP_v4.md",
+    "docs/QTEGUI_FUNCTION_CHECKLIST_v3.md",
+    "docs/QTEGUI_TAB_HANDLER_STATUS_v2.json"
+  ],
+  "qte_import_error": null,
+  "tabs_src": [],
+  "handlers_src": [],
+  "tabs_class": [],
+  "handlers_class": [],
+  "tabs_missing_on_class": [],
+  "handlers_missing_on_class": [],
+  "lite": {
+    "EntropyTab": 160,
+    "SpectrumTab": 158,
+    "PayloadTab": 158
+  }
+}

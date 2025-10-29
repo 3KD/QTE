@@ -1,0 +1,68 @@
+{
+  "notes_created": 0,
+  "notes_updated": 10,
+  "master_synced": true,
+  "categories": 10,
+  "counts": {
+    "sine-wave-sweeps-fft-sanity": {
+      "total": 192,
+      "code": 127,
+      "tests": 4,
+      "bullets": 7
+    },
+    "maclaurin-vs-egf-checks": {
+      "total": 369,
+      "code": 190,
+      "tests": 9,
+      "bullets": 13
+    },
+    "precision-scaling": {
+      "total": 16,
+      "code": 8,
+      "tests": 2,
+      "bullets": 1
+    },
+    "dual-rail-sign-split-encoding": {
+      "total": 89,
+      "code": 28,
+      "tests": 6,
+      "bullets": 5
+    },
+    "periodic-p-q-pea": {
+      "total": 87,
+      "code": 44,
+      "tests": 0,
+      "bullets": 7
+    },
+    "qrom-digit-encoding": {
+      "total": 66,
+      "code": 26,
+      "tests": 0,
+      "bullets": 5
+    },
+    "spectrum-metrics-dc-entropy-bits-flatness": {
+      "total": 259,
+      "code": 134,
+      "tests": 6,
+      "bullets": 9
+    },
+    "tomography-path-fallback": {
+      "total": 75,
+      "code": 35,
+      "tests": 2,
+      "bullets": 8
+    },
+    "entanglement-analyzer-schmidt-cuts": {
+      "total": 102,
+      "code": 32,
+      "tests": 0,
+      "bullets": 18
+    },
+    "chunk-hierarchy-merging": {
+      "total": 4,
+      "code": 0,
+      "tests": 0,
+      "bullets": 0
+    }
+  }
+}

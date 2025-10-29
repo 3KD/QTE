@@ -4,6 +4,24 @@ theme:
   name: material
   features: [content.code.copy]
 nav:
+  - Latest changes: docs/latest.md
+  - Crypto / Security:
+    - Stand-Alone Encryption: QE_STANDALONE_TELEPORTATION.md
+    - Results / Claims: results/claims.md
+- QTE GUI:
+  - New Work:
+    - Sine-wave sweeps / FFT sanity: docs/NOTE_sine-wave-sweeps-fft-sanity.md
+    - Maclaurin vs EGF checks: docs/NOTE_maclaurin-vs-egf-checks.md
+    - Precision scaling: docs/NOTE_precision-scaling.md
+    - Dual-rail / sign-split encoding: docs/NOTE_dual-rail-sign-split-encoding.md
+    - Periodic p/q & PEA: docs/NOTE_periodic-p-q-pea.md
+    - QROM "Digit" encoding: docs/NOTE_qrom-digit-encoding.md
+    - Spectrum metrics (DC, entropy bits, flatness): docs/NOTE_spectrum-metrics-dc-entropy-bits-flatness.md
+    - Tomography path & fallback: docs/NOTE_tomography-path-fallback.md
+    - Entanglement analyzer & Schmidt cuts: docs/NOTE_entanglement-analyzer-schmidt-cuts.md
+    - Chunk hierarchy merging: docs/NOTE_chunk-hierarchy-merging.md
+  - QTE GUI:
+    - Master List: QTEGUI_MASTER.md
   - QTE GUI:
     - Tab 05 — Gates: QTE_TAB_05_GATES.md
   - QTE GUI:

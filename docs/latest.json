@@ -1,0 +1,92 @@
+[
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/mkdocs.yml",
+    "mtime": 1760772745.151397
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/_archive",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/_archive/QTEGUI2.py",
+    "mtime": 1759797427.081372
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/chat_support",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/chat_support/QTE_chat_bundle_20251015-203245.zip",
+    "mtime": 1760574765.8638513
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/chat_support/QTE_chat_bundle_20251015-203245",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/chat_support/QTE_chat_bundle_20251015-203245/README_CHAT_BUNDLE.md",
+    "mtime": 1760574765.8580532
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/docs",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/docs/index.md",
+    "mtime": 1760772745.1509721
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/docs/results",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/docs/results/claims.md",
+    "mtime": 1760773783.4774222
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/experiments",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/experiments/chsh_angles_phi_pi4.json",
+    "mtime": 1760511033.892863
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/paper_outputs",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/paper_outputs/summary.csv",
+    "mtime": 1760510540.4170494
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/physics",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/physics/lorentz.py",
+    "mtime": 1760592746.601816
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/qe_crypto",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/qe_crypto/primitives.py",
+    "mtime": 1760778769.950623
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/qtegui",
+    "file": null,
+    "mtime": null
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/research_summary",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/research_summary/QTEGUI_CHECKLIST.md",
+    "mtime": 1760592977.1745882
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/research_summary/chat_bundles",
+    "file": null,
+    "mtime": null
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/research_summary/chat_bundles/QTE_chat_bundle_20251015-203245",
+    "file": null,
+    "mtime": null
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/scripts",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/scripts/postlog_qpsk.py",
+    "mtime": 1760511033.8935404
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/states",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/states/20250818-020659__\u03c0[EGF,sign,Ramanujan](6)__N64__ent[none].qstate.npz",
+    "mtime": 1759797427.0937748
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/tests",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/tests/test_crypto_regression.py",
+    "mtime": 1760774524.2260826
+  },
+  {
+    "directory": "/Users/erik/Documents/QTExpanded/program5_branch_series/tools",
+    "file": "/Users/erik/Documents/QTExpanded/program5_branch_series/tools/most_recent.py",
+    "mtime": 1760785260.16246
+  }
+]

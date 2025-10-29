@@ -1,0 +1,55 @@
+{
+  "git_rev": "a576fe9",
+  "files": {
+    "QTEGUI.py": {
+      "parse_error": null,
+      "top_level_functions": [
+        "_qte_call"
+      ],
+      "classes": {},
+      "tabs": [],
+      "handlers": [],
+      "flags": {
+        "has_FigureCanvasTkAgg": true,
+        "has_tk_import": true,
+        "has_ttk_import": true,
+        "has_eval": false,
+        "has_TOMO_OK": true,
+        "has_fft_wrapper": true,
+        "tabs_wired": true,
+        "imports_entropy_lab": true,
+        "imports_harmonic_analysis": true,
+        "imports_quantum_embedding": true
+      }
+    },
+    "QTEGUI_Lite.py": {
+      "present": true,
+      "parse_error": null,
+      "classes": {
+        "EntropyTab": [
+          "__init__",
+          "_build_ui",
+          "compute_certificate",
+          "save_certificate",
+          "verify_certificate"
+        ],
+        "SpectrumTab": [
+          "__init__",
+          "_build_ui",
+          "spectrum"
+        ],
+        "PayloadTab": [
+          "__init__",
+          "_build_ui",
+          "run_demo"
+        ]
+      }
+    }
+  },
+  "checks": {
+    "all_tabs_known": [],
+    "has_entropy_tab_class": true,
+    "has_spectrum_tab_class": true,
+    "has_payload_tab_class": true
+  }
+}

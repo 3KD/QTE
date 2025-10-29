@@ -3,7 +3,6 @@ import os
 import argparse
 import numpy as np
 import series_encoding as se
-from qte_cli_ext_register import add_qte_ext
 
 def main():
     ap = argparse.ArgumentParser(description="Quantum series encoder CLI")
@@ -34,6 +33,7 @@ def main():
     # Banner
     try:
         import mpmath as _mp  # noqa: F401
+from qte_cli_ext_register import add_qte_ext
         have_mp = True
     except Exception:
         have_mp = False

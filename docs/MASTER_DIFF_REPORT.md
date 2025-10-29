@@ -1,0 +1,218 @@
+# Master Diff Report
+
+_generated 2025-10-17 19:44:56_
+
+This lists topics present in the repo that are **not yet represented** in `QTEGUI_MASTER.md`.
+
+## A) Doc headings missing in Master
+
+- (none)
+
+## B) Code topics missing in Master
+
+- [ ] 4 optional shallow hw entropy probe
+- [ ] 4 schmidt purity numpy arrays not densitymatrix densitymatrix
+- [ ] 6 entropy certificate exposure
+- [ ] 8 tomography
+- [ ] 9 entanglement
+- [ ] active state first fft qft measure amplitudes tomography basis all use active
+- [ ] add bessel j maclaurin coefficients 0
+- [ ] add custom
+- [ ] add dual rail ancilla tag composition spec
+- [ ] add fixed maclaurin coefficient erf x
+- [ ] add rail split extra sign qubit strict egf weighting qft amplitudes
+- [ ] add sign split registers srd i q packing
+- [ ] analytic polylog block begin
+- [ ] analytic polylog block end
+- [ ] ap add argument hardware action store true help run shallow entropy pro
+- [ ] ap argparse argumentparser description entropy certificate tool
+- [ ] apply method
+- [ ] arctan inv
+- [ ] axs 1 imshow np outer s s cmap magma axs 1 set title schmidt outer pr
+- [ ] bell pair entropy
+- [ ] bessel j n
+- [ ] bessel j n series value maclaurin auto r real coeffs known li constant
+- [ ] bessel j n value support idempotent
+- [ ] bits
+- [ ] bits m
+- [ ] build amplitudes
+- [ ] build basis
+- [ ] build clustering
+- [ ] build entanglement
+- [ ] build fft
+- [ ] build gates
+- [ ] build measure
+- [ ] build preview
+- [ ] build qft
+- [ ] build qft spectrum
+- [ ] build series state
+- [ ] build similarity
+- [ ] build state io
+- [ ] build tomography
+- [ ] build ui
+- [ ] cancel
+- [ ] chain compute series value insert euler accelerated polylog
+- [ ] compute certificate
+- [ ] compute fft
+- [ ] compute series value label terms method none constants polylog
+- [ ] current constants
+- [ ] current highlight
+- [ ] draw prep last
+- [ ] draw qft
+- [ ] e
+- [ ] elif basis upper x qft fourier
+- [ ] elif mode digit qrom
+- [ ] elif mode periodic p q
+- [ ] elif mode value phase pea
+- [ ] encode srd iq decode srd iq sign split dual rail i q
+- [ ] end bessel j n value support
+- [ ] ent analyze
+- [ ] entanglement per register cut only if we have multi register structure
+- [ ] entanglement signature
+- [ ] entanglement simple 2 qubit series registers multi constant
+- [ ] entropy bits none entropy none flatness none
+- [ ] entropy h
+- [ ] entropy helpers robust certificates append only
+- [ ] entropy helpers safe append
+- [ ] entropy meta get entropy
+- [ ] entropy meta get entropy if isinstance meta dict else none
+- [ ] entropy out get entropy
+- [ ] entropy spectral entropy nats entropy bits bits
+- [ ] euler transform alternating polylog z 1 0
+- [ ] ext zeta polylog generalization
+- [ ] extra sweep polylog trial sweep idx
+- [ ] extras register block labeling grid overlays schmidt entropies register ma
+- [ ] f write hardware entropy probe shallow n
+- [ ] features cache toggle polylog continuation s 2 3 4 complex z euler accel
+- [ ] fft
+- [ ] first
+- [ ] fmt amp
+- [ ] get active selected
+- [ ] h qft bits shannon entropy all qubit qft probabilities
+- [ ] h z bits shannon entropy z basis probabilities
+- [ ] help polylog backend override env polylog backend if omitted
+- [ ] hotfix append only numpy based schmidt decomposition tests
+- [ ] hotfix append only set trigonometric fourier constant term a0 2 e
+- [ ] hotfix v2 append only robust a0 2 computation fourier constant
+- [ ] hw error f entropy probe failed e
+- [ ] if lu startswith li lu startswith polylog
+- [ ] if polylog label z 1 0 apply euler acceleration
+- [ ] if t lower startswith maclaurin
+- [ ] if u lower startswith polylog u endswith
+- [ ] includes entanglement signature per register cut schmidt entropies
+- [ ] inside your sweep loop after you create statevector
+- [ ] k dc frac dc entropy entropy bits flatness
+- [ ] key f label qrom b base d bpd l 2 nidx
+- [ ] lbl ttk label self text f entropy ready n self n d self d
+- [ ] li 2 0 5 4000 polylog 3 0 5 4000
+- [ ] li 2 0 5 polylog 3 0 5
+- [ ] load state
+- [ ] load statevector dialog
+- [ ] m re fullmatch r polylog s t
+- [ ] m re match r s li polylog s s s s s s flags
+- [ ] m re match r s li polylog s s s s s t flag
+- [ ] maclaurin exp x 2 x 0 4 none
+- [ ] maclaurin generic
+- [ ] maclaurin log 1 x x 0 3 none
+- [ ] maclaurin niceties auto r real coeffs
+- [ ] maclaurin sin x maclaurin log 1 x 3
+- [ ] maclaurin sin x maclaurin log 1 x maclaurin exp x 2 r 0 7
+- [ ] maclaurin sin x x 0 3 none
+- [ ] maclaurin terms generators
+- [ ] makes sin 2 x yield 0 5 constant term matching test
+- [ ] maybe prompt ibm
+- [ ] measure state
+- [ ] messagebox showerror entanglement error str e
+- [ ] messagebox showerror tomography error str e
+- [ ] messagebox showinfo tomography no active selected state return
+- [ ] mode str egf terms periodic pea qrom etc
+- [ ] modes egf terms periodic p q value phase pea digit qrom
+- [ ] nb add entropytab nb text entropy
+- [ ] new parse multi label get schmidt entropy
+- [ ] ok fourier a0 2 0 5 sin 2
+- [ ] ok schmidt entropy 1 bit
+- [ ] optional hankel domain entropy needs scipy safe ignore if not installed
+- [ ] optional hardware entropy probe shallow
+- [ ] optional hardware entropy probe z qft entropies qiskit sampler robust
+- [ ] optional shallow hardware entropy probe z qft ibm backend
+- [ ] optional tomography
+- [ ] parse amp
+- [ ] pea black box phase u e 2 i x where x frac constant label
+- [ ] phi x
+- [ ] pick constants
+- [ ] plot amplitudes
+- [ ] polylog helpers
+- [ ] polylog li s z analytic continuation wrapper idempotent
+- [ ] polylog parser evaluator
+- [ ] polylog series
+- [ ] preview amplitudes
+- [ ] preview multi registers
+- [ ] print entropy probe hw
+- [ ] print f polylog backend mpmath if have mp else off
+- [ ] qft spectrum series
+- [ ] quick local batch build several series states algebra combos save w
+- [ ] raise importerror scipy required hankel domain entropy e
+- [ ] raise valueerror polylog continuation needs mpmath pip conda install
+- [ ] raise valueerror polylog requires z 1 series
+- [ ] random state
+- [ ] re compile r s polylog li s s d d s s s
+- [ ] refresh all combos
+- [ ] register combo
+- [ ] register grid schmidt entropies
+- [ ] report notes append entropy lab optional import not referenced may lack
+- [ ] report notes append may not expose entropy certificates yet
+- [ ] return complex mp polylog s z
+- [ ] return first maclaurin coefficients j n x
+- [ ] return measurement distribution basis z computational qft fourie
+- [ ] return s singular values schmidt coeffs
+- [ ] return t startswith maclaurin t startswith maclaurin
+- [ ] return z qft entropy certificate current amplitudes
+- [ ] returns coefficient x n maclaurin series nonzero only odd n
+- [ ] returns dc fraction spectral entropy top 1 index fraction
+- [ ] returns dict keys freq x p dc entropy bits entropy flatness
+- [ ] run demo
+- [ ] run qft circuit
+- [ ] run tomography
+- [ ] save active
+- [ ] save certificate
+- [ ] save plots
+- [ ] save statevector
+- [ ] sbrv precision stacking build sbrv reconstruct sbrv
+- [ ] schmidt entropies across register cuts
+- [ ] schmidt entropies bits
+- [ ] schmidt entropy
+- [ ] select
+- [ ] self preview text insert end f pea estimate frac label x 12f wit
+- [ ] self preview text insert end f periodic phase e 2 i p n q p p q
+- [ ] self set status previewed digits digit qrom
+- [ ] self set status previewed pea parameters
+- [ ] self set status previewed periodic parameters
+- [ ] self set status ran pea results shown
+- [ ] series vector
+- [ ] set active
+- [ ] set active amp
+- [ ] set active basis
+- [ ] set status
+- [ ] shannon entropy bits amp 2
+- [ ] shannon entropy bits normalized fft power spectrum exclude zeros
+- [ ] shannon entropy h x bits probability vector
+- [ ] shannon h counts
+- [ ] show basis
+- [ ] show marginals
+- [ ] simulate qft statevector
+- [ ] simulation friendly qrom
+- [ ] sin 2 x 1 cos 2x 2 so constant term should 0 5
+- [ ] sin maclaurin coeff
+- [ ] single constant required
+- [ ] spectral entropy
+- [ ] spectral flatness
+- [ ] srd sign split i q rails
+- [ ] t t replace li polylog
+- [ ] title save entropy certificate
+- [ ] tomography availability flag safe
+
+## C) Test topics missing in Master
+
+- [ ] random state
+- [ ] sin 2 x 1 cos 2x 2 so constant term should 0 5
+- [ ] sin maclaurin coeff

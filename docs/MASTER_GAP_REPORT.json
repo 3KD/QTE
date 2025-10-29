@@ -1,0 +1,66 @@
+{
+  "master_exists": false,
+  "master_path": "/Users/erik/Documents/QTExpanded/program5_branch_series/docs/QTEGUI_MASTER.md",
+  "counts": {
+    "master_keys": 0,
+    "docs_all": 481,
+    "code_all": 216,
+    "tests_all": 27,
+    "missing_docs": 481,
+    "missing_code": 216,
+    "missing_tests": 27
+  },
+  "examples": {
+    "missing_docs": [
+      "05 gates",
+      "actions",
+      "after",
+      "after self ms func none args",
+      "aftercancel",
+      "aftercancel self id",
+      "afteridle",
+      "afteridle self func args",
+      "anchor",
+      "anchor self anchor none",
+      "api map final",
+      "api map qteguiapimapfinal md",
+      "append rail map plus minus amplitudes even odd rails",
+      "auto prefers mpmath else euler accel",
+      "backends backend auto mp env qtepolylogbackend"
+    ],
+    "missing_code": [
+      "all all",
+      "amplitude entropy",
+      "amplitudes",
+      "analyze tensor structure",
+      "apply egf weights",
+      "apply rail",
+      "arctan inv",
+      "ascii safe",
+      "auto radius",
+      "backend",
+      "bern",
+      "bernpoly",
+      "bessel jn",
+      "bessel jn terms",
+      "bessel terms"
+    ],
+    "missing_tests": [
+      "test bell certificate verify",
+      "test bell entropy one",
+      "test boost preserves minkowski metric",
+      "test counts shannon matches exact uniform4",
+      "test docs exist",
+      "test ensemble entropy pure mixed",
+      "test ensemble entropy two orthogonal 1bit",
+      "test entropic uncertainty mub",
+      "test entropy api signatures",
+      "test entropy has verify",
+      "test entropytab compute certificate",
+      "test importable",
+      "test lite classes present",
+      "test lite present",
+      "test maassen uffink bound"
+    ]
+  }
+}

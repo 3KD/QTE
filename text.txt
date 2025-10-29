@@ -1,0 +1,215 @@
+NVIDIA: $4.509 T
+
+    Apple: $3.918 T
+
+    Microsoft: $3.901 T
+
+    Alphabet (Google): $3.163 T
+
+    Amazon: $2.396 T
+
+    Meta Platforms (Facebook): $1.856 T
+
+    Broadcom: $1.678 T
+
+    Tesla: $1.439 T
+
+    Berkshire Hathaway: $1.063 T
+
+    Subtotal: $23.923 T
+
+Billion-Dollar Companies (Converted to Trillions)
+
+    Walmart: $846.43 B = $0.846 T
+
+    JPMorgan Chase: $820.92 B = $0.821 T
+
+    Oracle: $812.49 B = $0.812 T
+
+    Eli Lilly: $746.56 B = $0.747 T
+
+    Visa: $675.00 B = $0.675 T
+
+    Mastercard: $520.51 B = $0.521 T
+
+    Exxon Mobil: $492.74 B = $0.493 T
+
+    Netflix: $466.48 B = $0.466 T
+
+    Johnson & Johnson: $459.30 B = $0.459 T
+
+    Palantir: $437.28 B = $0.437 T
+
+    Costco: $413.65 B = $0.414 T
+
+    AMD: $406.57 B = $0.407 T
+
+    AbbVie: $403.07 B = $0.403 T
+
+    Home Depot: $385.17 B = $0.385 T
+
+    Bank of America: $384.68 B = $0.385 T
+
+    Procter & Gamble: $357.56 B = $0.358 T
+
+    UnitedHealth: $329.93 B = $0.330 T
+
+    General Electric: $321.58 B = $0.322 T
+
+    Chevron: $313.92 B = $0.314 T
+
+    Coca-Cola: $300.98 B = $0.301 T
+
+    IBM: $285.31 B = $0.285 T
+
+    Cisco: $279.82 B = $0.280 T
+
+    Wells Fargo: $272.98 B = $0.273 T
+
+    Morgan Stanley: $260.74 B = $0.261 T
+
+    American Express: $248.11 B = $0.248 T
+
+    Caterpillar: $245.94 B = $0.246 T
+
+    Philip Morris International: $245.76 B = $0.246 T
+
+    Micron Technology: $244.90 B = $0.245 T
+
+    Salesforce: $242.80 B = $0.243 T
+
+    T-Mobile US: $242.07 B = $0.242 T
+
+    Goldman Sachs: $240.92 B = $0.241 T
+
+    RTX: $240.22 B = $0.240 T
+
+    Abbott Laboratories: $220.39 B = $0.220 T
+
+    Merck: $218.58 B = $0.219 T
+
+    McDonald: $218.53 B = $0.219 T
+
+    Thermo Fisher Scientific: $216.81 B = $0.217 T
+
+    AppLovin: $210.28 B = $0.210 T
+
+    Pepsico: $207.37 B = $0.207 T
+
+    Walt Disney: $201.15 B = $0.201 T
+
+    Uber: $198.15 B = $0.198 T
+
+    Intuitive Surgical: $195.18 B = $0.195 T
+
+    ServiceNow: $194.44 B = $0.194 T
+
+    Arista Networks: $193.84 B = $0.194 T
+
+    Intuit: $191.62 B = $0.192 T
+
+    Lam Research: $191.58 B = $0.192 T
+
+    Blackstone Group: $190.94 B = $0.191 T
+
+    QUALCOMM: $183.61 B = $0.184 T
+
+    Applied Materials: $183.28 B = $0.183 T
+
+    Intel: $182.49 B = $0.182 T
+
+    AT&T: $178.82 B = $0.179 T
+
+    Citigroup: $177.15 B = $0.177 T
+
+    BlackRock: $176.71 B = $0.177 T
+
+    Nextera Energy: $173.47 B = $0.173 T
+
+    Charles Schwab: $171.77 B = $0.172 T
+
+    Booking Holdings (Booking.com): $167.66 B = $0.168 T
+
+    Boeing: $167.43 B = $0.167 T
+
+    Amphenol: $163.86 B = $0.164 T
+
+    Verizon: $163.40 B = $0.163 T
+
+    GE Vernova: $159.66 B = $0.160 T
+
+    TJX Companies: $158.44 B = $0.158 T
+
+    Danaher: $157.71 B = $0.158 T
+
+    Amgen: $156.87 B = $0.157 T
+
+    KLA: $155.66 B = $0.156 T
+
+    Texas Instruments: $153.82 B = $0.154 T
+
+    Boston Scientific: $150.39 B = $0.150 T
+
+    S&P Global: $149.96 B = $0.150 T
+
+    Gilead Sciences: $149.61 B = $0.150 T
+
+    Adobe: $148.33 B = $0.148 T
+
+    Palo Alto Networks: $147.56 B = $0.148 T
+
+    Stryker Corporation: $145.45 B = $0.145 T
+
+    Capital One: $143.48 B = $0.143 T
+
+    Pfizer: $140.68 B = $0.141 T
+
+    Honeywell: $137.60 B = $0.138 T
+
+    Lowe's Companies: $136.53 B = $0.137 T
+
+    CrowdStrike: $132.22 B = $0.132 T
+
+    Union Pacific Corporation: $128.66 B = $0.129 T
+
+    Progressive: $128.07 B = $0.128 T
+
+    Deere & Company (John Deere): $127.48 B = $0.127 T
+
+    Robinhood: $123.65 B = $0.124 T
+
+    Constellation Energy: $121.03 B = $0.121 T
+
+    Welltower: $119.73 B = $0.120 T
+
+    Prologis: $117.66 B = $0.118 T
+
+    Analog Devices: $117.38 B = $0.117 T
+
+    Interactive Brokers: $116.77 B = $0.117 T
+
+    Automatic Data Processing: $114.10 B = $0.114 T
+
+    KKR & Co.: $113.50 B = $0.114 T
+
+    Lockheed Martin: $112.51 B = $0.113 T
+
+    DoorDash: $111.03 B = $0.111 T
+
+    ConocoPhillips: $110.53 B = $0.111 T
+
+    Altria Group: $108.63 B = $0.109 T
+
+    Vertex Pharmaceuticals: $108.52 B = $0.109 T
+
+    Comcast: $108.32 B = $0.108 T
+
+    Dell: $106.63 B = $0.107 T
+
+    Southern Copper: $106.33 B = $0.106 T
+
+    HCA Healthcare: $106.30 B = $0.106 T
+
+    Southern Company: $105.70 B = $0.106 T
+
+    CVS Health: $104.08 B = $0.104 T
