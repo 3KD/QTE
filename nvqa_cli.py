@@ -70,3 +70,13 @@ if __name__ == "__main__":
 #   2. build LoaderSpec (Unit 02)
 #   3. build PrepSpec + simulate counts (Unit 03)
 #   4. write both JSON artifacts
+
+# Unit 04 TODO:
+# subcommand: nve-run-exec
+# Flags: --object --weighting --phase-mode --rail-mode --N --shots --backend --out-spec --out-receipt
+# Behavior:
+#   1. build NVE bundle (Unit 01)
+#   2. build LoaderSpec (Unit 02)
+#   3. build PrepSpec (Unit 03)
+#   4. build ExecSpec + run backend (Unit 04)
+#   5. write ExecSpec + RunReceipt JSON
