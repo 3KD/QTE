@@ -1,37 +1,26 @@
-"""
-Unit 06 CLI surface contract test.
-
-We don't execute nvqa_cli.py here.
-We just read the file contents and assert that the CLI text for Unit 06
-(Quentroy certificate generation) and the hard invariants are present.
-
-If you change nvqa_cli.py and remove any of these required phrases,
-this test fails and you are not allowed to push.
-
-Required phrases:
-- "nve-quentroy-cert"
-- "--out-cert"
-- "quentroy_version=\"Unit06\""
-- "loader_version=\"Unit02\""
-- "endianness=\"little\""
-- "qft_kernel_sign=\"+\""
-"""
-
 import pathlib
 
 def test_unit06_cli_contract_strings_present():
     root = pathlib.Path(__file__).resolve().parents[1]
-    cli_path = root / "nvqa_cli.py"
-    src = cli_path.read_text()
-
-    required_bits = [
-        "nve-quentroy-cert",
-        "--out-cert",
-        "quentroy_version=\"Unit06\"",
-        "loader_version=\"Unit02\"",
-        "endianness=\"little\"",
-        "qft_kernel_sign=\"+\"",
+    src = (root / "nvqa_cli.py").read_text()
+    req = [
+        "nve-quentroy-cert","--counts","--basis","--out-cert",
+        'quentroy_version="Unit06"','endianness="little"','qft_kernel_sign="+"',
+        'loader_version="Unit02"','exec_version="Unit04"',
     ]
+    miss = [b for b in req if b not in src]
+    assert not miss, f"nvqa_cli.py missing Unit06 bits: {miss}"
 
-    missing = [bit for bit in required_bits if bit not in src]
-    assert not missing, f"nvqa_cli.py missing required Unit06 contract bits: {missing}"
+
+def test_unit06_doc_contract_strings_present():
+    root = pathlib.Path(__file__).resolve().parents[1]
+    doc = (root / "Units" / "Unit06.md").read_text()
+    req = [
+        "## CONTRACT (DO NOT CHANGE)","nve-quentroy-cert","--counts","--basis","--out-cert",
+        'quentroy_version="Unit06"','"endianness": "little"','"qft_kernel_sign": "+"',
+        '"loader_version": "Unit02"','"exec_version": "Unit04"',
+        '"H_Z_bits"','"H_X_bits"','"KL_to_uniform_bits"','"min_entropy_bits"','"MU_lower_bound_bits"',
+        '"counts_source"','"psi_source"','"rail_layout"','"qubit_order"',
+    ]
+    miss = [b for b in req if b not in doc]
+    assert not miss, f"Unit06.md missing tokens: {miss}"
