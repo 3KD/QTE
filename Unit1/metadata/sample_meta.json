@@ -1,0 +1,15 @@
+{
+  "label": "Maclaurin[sin(x)] egf",
+  "n_qubits": 8,
+  "N_trunc": 256,
+  "amp_mode": "complex",
+  "norm_info": {
+    "l2_norm_raw": 12.345,
+    "l2_norm_after": 0.999999999
+  },
+  "endianness": "little-endian index<->qubit map",
+  "bitstring_display": "msb-left in JSON counts",
+  "qft_kernel_sign": "+",
+  "fft_normalization": "unitary (1/sqrt(N))",
+  "timestamp_utc": "2025-10-29T04:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "time_utc": "2025-10-18T07:49:43.464323Z",
+  "params": {
+    "n": 4,
+    "samples": 192,
+    "rounds": 2,
+    "t_bits": 12,
+    "m_shadow": 256,
+    "seed": 123
+  },
+  "metrics": {
+    "trace_distance": 0.12742409118623907,
+    "shadow_score": 0.018592511338331938
+  },
+  "targets": {
+    "epsilon": 0.2
+  }
+}

@@ -1,0 +1,375 @@
+#!/usr/bin/env python3
+import argparse, json, math, datetime
+from pathlib import Path
+
+import numpy as np
+
+import sys, pathlib
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+# Qiskit (hardware)
+from qiskit import QuantumCircuit, transpile
+try:
+    # preferred (Runtime)
+    from qiskit_ibm_runtime import QiskitRuntimeService, Session
+from tools.ibm_runtime_shim import _Sampler, _make_sampler
+def _angles_from_prf(master_key: bytes, nonce: bytes, n: int, rounds: int, t_bits: int, seed: int = 0):
+    """Deterministic angles in [0, 2π) using your PRF output (t_bits each)."""
+    rngsalt = seed.to_bytes(4, "big")
+    T = 1 << t_bits
+    out = []
+    c = 0
+    for _ in range(rounds):
+        layer = []
+        for q in range(n):
+            bits = prf_bits(master_key, nonce + r":" + rngsalt, c, t_bits) if False else prf_bits(master_key, nonce, c, t_bits)  # stable
+            theta = (2*math.pi) * (bits / T)
+            layer.append(theta)
+            c += 1
+        out.append(layer)
+    return out
+
+def build_circuit(n: int, rounds: int, t_bits: int, nonce: bytes, key: bytes, measure_basis: str = "X"):
+    """|0^n> --H--> |+^n> -- phase-mix (Z-diagonal + sparse CX) -- H (optional) -- measure."""
+    qc = QuantumCircuit(n, n)
+    qc.h(range(n))  # prepare |+...+>
+    # diagonal phase + sparse entangling ring
+    angles_layers = _angles_from_prf(key, nonce, n, rounds, t_bits, seed=123)
+    for l, thetas in enumerate(angles_layers):
+        for q, th in enumerate(thetas):
+            qc.rz(th, q)
+        # sparse entangler: a simple ring of CX
+        for q in range(n-1):
+            qc.cx(q, q+1)
+        if n > 1:
+            qc.cx(n-1, 0)
+        qc.barrier()
+    if measure_basis.upper() == "X":
+        qc.h(range(n))
+    elif measure_basis.upper() == "Z":
+        pass
+    else:
+        raise ValueError("measure_basis must be X or Z")
+    qc.measure(range(n), range(n))
+    return qc
+
+def metrics_from_counts(counts, n):
+    """Return Shannon entropy (bits), KL divergence to uniform, and spectral flatness proxy."""
+    shots = sum(counts.values())
+    d = 2**n
+    p = np.zeros(d, float)
+    # map bitstring->index little-endian (match Qiskit classical bit order)
+    for bits, c in counts.items():
+        # Qiskit returns e.g. '0101' with qubit 0 on the right by default; reverse for index
+        idx = int(bits[::-1], 2)
+        p[idx] = c / shots
+    # Shannon entropy
+    nz = p[p>0]
+    H = float(-np.sum(nz * np.log2(nz)))
+    # KL to uniform
+    q = 1.0/d
+    KL = float(np.sum([pi * math.log(pi/q) for pi in nz]))
+    # spectral flatness (geom mean / arith mean) of probabilities (avoid zeros)
+    gm = float(np.exp(np.mean(np.log(nz)))) if len(nz) else 0.0
+    am = float(np.mean(p))
+    flat = gm / am if am > 0 and gm > 0 else 0.0
+    return {"entropy_bits": H, "kl_to_uniform": KL, "flatness": flat, "shots": shots}
+
+
+
+def _counts_from_sampler_result(res, shots):
+    """
+    Normalize Sampler results of various shapes to a {bitstring: count} dict.
+    Supports SamplerV2 (pub result) and legacy Sampler (quasi_dists).
+    """
+    # SamplerV2 typical: list-like, each item has .data.meas with probs or counts
+    try:
+        item = res[0] if isinstance(res, (list, tuple)) else res
+        # Try direct counts
+        try:
+            d = item.data.meas.get_counts()
+            return {k: int(v) for k, v in d.items()}
+        except Exception:
+            pass
+        # Try probabilities -> counts
+        try:
+            probs = item.data.meas.get_probabilities()
+            return {k: int(round(v * shots)) for k, v in probs.items()}
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+    # Legacy Sampler: res.quasi_dists[0]
+    try:
+        quasi = res.quasi_dists[0]
+        return {k: int(round(v * shots)) for k, v in quasi.items()}
+    except Exception:
+        pass
+
+    # Last resorts
+    try:
+        return dict(res.get_counts())  # if some backend already returns counts-like
+    except Exception:
+        pass
+
+    raise RuntimeError("Unsupported Sampler result shape; cannot extract counts.")
+
+def _run_sampler_sessionless(backend_obj, qc, shots):
+    sampler = _make_sampler(backend=backend_obj, session=None)
+    job = sampler.run(qc, shots=shots)
+    res = job.result()
+    counts = _counts_from_sampler_result(res, shots)
+    return job, counts
+def pick_torino_backend(service, backend_name: str):
+    """
+    Return a backend object matching backend_name (case-insensitive, alias-friendly).
+    Accepts "ibm_torino", "torino", "IBM Torino", etc.
+    """
+    try:
+        backends = service.backends()
+    except Exception as e:
+        raise RuntimeError(f"Could not list backends: {e}")
+
+    def _norm(x: str) -> str:
+        return (x or "").lower().replace(" ", "").replace("-", "").replace("_", "")
+
+    # collect (pretty_name, obj) and normalized keys
+    pairs, index = [], {}
+    for b in backends:
+        if isinstance(b, str):
+            name = b
+        else:
+            nm = getattr(b, "name", None)
+            name = nm() if callable(nm) else nm or str(b)
+        pairs.append((name, b))
+        index[_norm(name)] = b
+        # also index without leading "ibm"
+        if _norm(name).startswith("ibm"):
+            index[_norm(name)[3:]] = b
+
+    want = _norm(backend_name)
+    # exact normalized hit (including alias without "ibm")
+    if want in index:
+        return index[want]
+
+    # suffix / contains fallbacks
+    for nm, obj in pairs:
+        if _norm(nm).endswith(want):
+            return obj
+    for nm, obj in pairs:
+        if want in _norm(nm):
+            return obj
+
+    available = ', '.join(sorted({nm for nm, _ in pairs}))
+    raise ValueError(f"Backend '{backend_name}' not found. Available: {available}")
+def _resolve_backend_obj(service_obj, backend_or_name):
+    """Return an IBM backend object from either an object or a string name."""
+    try:
+        if hasattr(backend_or_name, "run") or hasattr(backend_or_name, "name"):
+            return backend_or_name
+    except Exception:
+        pass
+    name = str(backend_or_name)
+    for meth in ("backend", "get_backend"):
+        fn = getattr(service_obj, meth, None)
+        if fn:
+            try:
+                return fn(name)
+            except TypeError:
+                try:
+                    return fn(name=name)
+                except Exception:
+                    pass
+    try:
+        for b in service_obj.backends():
+            nm = getattr(b, "name", b)
+            nm = nm() if callable(nm) else nm
+            if nm == name:
+                return b
+    except Exception:
+        pass
+    return name  # last resort (will fail later loudly)
+
+def _open_session(service_obj, backend_obj_or_name):
+    """
+    Try to open a Session; return the Session or None.
+    Open plan forbids sessions (HTTP 400 code 1352), so we gracefully return None.
+    """
+    from qiskit_ibm_runtime.api.exceptions import RequestsApiError
+    bobj = _resolve_backend_obj(service_obj, backend_obj_or_name)
+    try:
+        return Session(backend=bobj)
+    except TypeError:
+        try:
+            return Session(service_obj, bobj)  # very old signature
+        except Exception:
+            return None
+    except RequestsApiError as ex:
+        # If it's the open-plan "not authorized to run a session" error, fall back.
+        return None
+    except Exception:
+        return None
+def run_job(service, backend_obj, qc, shots):
+    """
+    Preferred: Sampler with Session when permitted.
+    Open plan / any session error: fallback to sessionless Sampler.
+    Returns (job, counts).
+    """
+    sess = None
+    try:
+        sess = _open_session(service, backend_obj)
+    except Exception:
+        sess = None
+    if sess is not None:
+        try:
+            sampler = _make_sampler(session=sess)
+            job = sampler.run(qc, shots=shots)
+            res = job.result()
+            counts = _counts_from_sampler_result(res, shots)
+            try:
+                sess.close()
+            except Exception:
+                pass
+            return job, counts
+        except Exception:
+            try:
+                sess.close()
+            except Exception:
+                pass
+    # Session unavailable or failed -> sessionless
+    bobj = _resolve_backend_obj(service, backend_obj)
+    return _run_sampler_sessionless(bobj, qc, shots)
+def main():
+    ap = argparse.ArgumentParser(description="Run IND-CPA proxy on IBM backend (torino).")
+    ap.add_argument("--backend", default="torino", help="substring to match backend name (default: torino)")
+    ap.add_argument("--n", type=int, default=3)
+    ap.add_argument("--rounds", type=int, default=2)
+    ap.add_argument("--t_bits", type=int, default=12)
+    ap.add_argument("--shots", type=int, default=4096)
+    ap.add_argument("--basis", default="X", choices=["X","Z"])
+    ap.add_argument("--nonce", default="N"*12, help="nonce bytes (hex or raw text)")
+    ap.add_argument("--key",   default="K"*32, help="master key bytes (hex or raw text)")
+    ap.add_argument("--out",   default="docs/results/torino_run.json")
+    args = ap.parse_args()
+
+    # bytes parsing
+    def _parse_bytes(s):
+        s = str(s)
+        if all(ch in "0123456789abcdefABCDEF" for ch in s) and len(s)%2==0:
+            try: return bytes.fromhex(s)
+            except Exception: pass
+        return s.encode("utf-8")
+    key = _parse_bytes(args.key); nonce = _parse_bytes(args.nonce)
+
+    if not _HAS_RUNTIME:
+        raise SystemExit("qiskit-ibm-runtime not available in this env.")
+
+    service = QiskitRuntimeService()  # relies on saved account (ibm_quantum or cloud)
+    backend = pick_torino_backend(service, args.backend)
+    if backend is None:
+        names = [b.name for b in service.backends()]
+        raise SystemExit(f'No backend matching "{args.backend}". Available: {names}')
+
+    qc = build_circuit(args.n, args.rounds, args.t_bits, nonce=nonce, key=key, measure_basis=args.basis)
+
+    job, counts = run_job(service, backend, qc, args.shots)
+    print(f"[submit] backend={backend.name}, job_id={job.job_id()}")
+
+    # poll quickly; user can also check queue in the IBM portal
+    result = job.result(timeout=None)
+    counts = result.get_counts()
+
+    m = metrics_from_counts(counts, args.n)
+    stamp = {
+        "time_utc": datetime.datetime.utcnow().isoformat()+"Z",
+        "backend": backend.name,
+        "n": args.n,
+        "rounds": args.rounds,
+        "t_bits": args.t_bits,
+        "shots": args.shots,
+        "basis": args.basis,
+        "counts": counts,
+        "metrics": m,
+    }
+
+    outp = Path(args.out); outp.parent.mkdir(parents=True, exist_ok=True)
+    outp.write_text(json.dumps(stamp, indent=2)+"\n", encoding="utf-8")
+
+    # quick human line
+    print(json.dumps({
+        "backend": backend.name,
+        "entropy_bits": round(m["entropy_bits"], 4),
+        "kl_to_uniform": round(m["kl_to_uniform"], 6),
+        "flatness": round(m["flatness"], 6),
+        "out": str(outp),
+        "job_id": job.job_id(),
+    }, indent=2))
+    return 0
+
+
+def _extract_counts_from_sampler_result(res, shots: int, nbits: int):
+    """Try multiple result shapes (classic Sampler and V2). Return dict bitstring->count."""
+    # Classic Sampler (result.quasi_dists)
+    quasi = getattr(res, "quasi_dists", None)
+    if quasi is not None:
+        qd = quasi[0]
+        counts = {}
+        for k, p in qd.items():
+            if isinstance(k, int):
+                bs = format(k, f"0{nbits}b")
+            elif isinstance(k, str):
+                bs = k
+            else:
+                try:
+                    bs = "".join("1" if int(x) else "0" for x in k)
+                except Exception:
+                    bs = str(k)
+            counts[bs] = counts.get(bs, 0) + int(round(float(p) * shots))
+        return counts
+
+    # V2-ish variants
+    try:
+        first = res[0] if isinstance(res, (list, tuple)) else res
+        data = getattr(first, "data", None)
+        if isinstance(data, dict):
+            meas = data.get("meas", data)
+            for key in ("quasi_dist", "quasi_dists", "quasi_probs"):
+                if key in meas:
+                    qd = meas[key]
+                    if isinstance(qd, list):
+                        qd = qd[0]
+                    counts = {}
+                    items = qd.items() if hasattr(qd, "items") else qd
+                    for k, p in items:
+                        if isinstance(k, int):
+                            bs = format(k, f"0{nbits}b")
+                        elif isinstance(k, str):
+                            bs = k
+                        else:
+                            try:
+                                bs = "".join("1" if int(x) else "0" for x in k)
+                            except Exception:
+                                bs = str(k)
+                        counts[bs] = counts.get(bs, 0) + int(round(float(p) * shots))
+                    return counts
+            if "bitstrings" in meas and isinstance(meas["bitstrings"], (list, tuple)):
+                counts = {}
+                for sample in meas["bitstrings"]:
+                    if isinstance(sample, (list, tuple)):
+                        bs = "".join("1" if int(x) else "0" for x in sample)
+                    elif isinstance(sample, (bytes, bytearray)):
+                        bs = sample.hex()  # fallback
+                    else:
+                        bs = str(sample)
+                    counts[bs] = counts.get(bs, 0) + 1
+                return counts
+    except Exception:
+        pass
+
+    raise RuntimeError("Could not parse Sampler result format")
+
+if __name__ == "__main__":
+    raise SystemExit(main())
