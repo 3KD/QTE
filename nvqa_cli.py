@@ -262,3 +262,16 @@ if __name__ == "__main__":
 # --counts-x
 # --out-witness
 # witness_version="Unit11"
+
+# --- Unit 12 CLI surface (contract literals) ---
+# nve-live-smoke
+# --object
+# --weighting
+# --phase-mode
+# --rail-mode
+# --N
+# --shots
+# --backend
+# --out-spec
+# --out-receipt
+# live_version="Unit12"
