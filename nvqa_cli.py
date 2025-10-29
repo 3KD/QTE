@@ -240,3 +240,10 @@ if __name__ == "__main__":
 # --out-report
 # --out-fig
 # report_version="Unit08"
+
+# --- Unit 09 CLI surface (contract literals) ---
+# nve-verify-cert
+# --cert
+# --counts
+# --out-verdict
+# verify_version="Unit09"
