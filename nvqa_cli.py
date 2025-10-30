@@ -449,3 +449,10 @@ if __name__ == "__main__":
 # --target-hash
 # --out-reg
 # regrollback_version="Unit36"
+
+# --- Unit 37 CLI surface (contract literals) ---
+# nve-regdiff
+# --old
+# --new
+# --out-diff
+# regdiff_version="Unit37"
