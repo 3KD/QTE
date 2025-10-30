@@ -4,6 +4,7 @@
 
 import os, sys, json, subprocess, argparse, datetime
 from pathlib import Path
+from typing import Optional, Any, Dict
 
 # --- robust import of metrics version (works as script or as package import) ---
 sys.path.insert(0, os.path.dirname(__file__))
@@ -29,7 +30,7 @@ def write(path: str = "docs/results/claims.md",
           eps: str = "2^-20",
           fmin_chip: str = "0.99",
           fmin_metro: str = "0.90",
-          extra: dict | None = None) -> dict:
+          extra: Optional[Dict[str, Any]] = None) -> dict:
     """
     Create a stamped claims file and return the metadata dict.
     """
