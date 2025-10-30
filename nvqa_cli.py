@@ -437,3 +437,9 @@ if __name__ == "__main__":
 # --attestation
 # --out-reg
 # regsync_version="Unit34"
+
+# --- Unit 35 CLI surface (contract literals) ---
+# nve-regverify
+# --reg
+# --out-report
+# regverify_version="Unit35"
