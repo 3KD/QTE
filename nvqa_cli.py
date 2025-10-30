@@ -379,3 +379,11 @@ if __name__ == "__main__":
 # --metrics
 # --out-report
 # calib_version="Unit25"
+
+# --- Unit 26 CLI surface (contract literals) ---
+# nve-queue-forecast
+# --backend
+# --horizon
+# --shots
+# --out-plan
+# queue_version="Unit26"
