@@ -275,3 +275,14 @@ if __name__ == "__main__":
 # --out-spec
 # --out-receipt
 # live_version="Unit12"
+
+# --- Unit 13 CLI surface (contract literals) ---
+# nve-replay
+# --receipt
+# --out-counts
+# --backend
+# replay_version="Unit13"
+# endianness="little"
+# qft_kernel_sign="+"
+# loader_version="Unit02"
+# exec_version="Unit04"
