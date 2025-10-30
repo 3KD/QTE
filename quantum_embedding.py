@@ -66,15 +66,27 @@ def simulate_statevector(qc: QuantumCircuit) -> Statevector:
 def run_circuit(qc: QuantumCircuit, *, use_ibm: bool = False, measure: bool = True, shots: int = 2048):
     if not measure:
         return qc, {}
-        backend = Aer.get_backend("qasm_simulator")
-        # fallback
-        backend = AerSimulator() if AerSimulator is not None else None
-        if backend is None:
-            raise RuntimeError("No simulator backend available (Aer missing).")
+    backend = None
+    if use_ibm:
+        # (placeholder: route to your ibm_backend if desired)
+        pass
+    if backend is None:
+        try:
+            from qiskit_aer import Aer
+            backend = Aer.get_backend("qasm_simulator")
+        except Exception:
+            backend = None
+    if backend is None:
+        try:
+            from qiskit_aer.backends import AerSimulator
+            backend = AerSimulator()
+        except Exception:
+            backend = None
+    if backend is None:
+        raise RuntimeError("No simulator backend available (Aer missing).")
     tqc = transpile(qc, backend)
     result = backend.run(tqc, shots=shots).result()
     return qc, result.get_counts()
-
 def generate_series_encoding(
     label: str,
     *,
