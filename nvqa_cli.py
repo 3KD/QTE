@@ -300,3 +300,10 @@ if __name__ == "__main__":
 # --out-consistency
 # --out-transfer
 # cross_version="Unit15"
+
+# --- Unit 16 CLI surface (contract literals) ---
+# nve-drift
+# --inputs
+# --out-trend
+# --out-alerts
+# drift_version="Unit16"
