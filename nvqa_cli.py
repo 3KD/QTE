@@ -401,3 +401,9 @@ if __name__ == "__main__":
 # --b
 # --out-diff
 # diff_version="Unit28"
+
+# --- Unit 29 CLI surface (contract literals) ---
+# nve-drift
+# --inputs
+# --out-trend
+# drift_version="Unit29"
