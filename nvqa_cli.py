@@ -425,3 +425,9 @@ if __name__ == "__main__":
 # --archive
 # --out-report
 # verify_version="Unit32"
+
+# --- Unit 33 CLI surface (contract literals) ---
+# nve-attest
+# --report
+# --out-attestation
+# attest_version="Unit33"
