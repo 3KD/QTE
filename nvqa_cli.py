@@ -314,3 +314,11 @@ if __name__ == "__main__":
 # --out-equivalence
 # --metric
 # xbackend_version="Unit17"
+
+# --- Unit 18 CLI surface (contract literals) ---
+# nve-drift
+# --inputs
+# --out-drift
+# --metric
+# --window
+# drift_version="Unit18"
