@@ -293,3 +293,10 @@ if __name__ == "__main__":
 # --out-report
 # --out-trend
 # drift_version="Unit14"
+
+# --- Unit 15 CLI surface (contract literals) ---
+# nve-xbackend
+# --inputs
+# --out-consistency
+# --out-transfer
+# cross_version="Unit15"
