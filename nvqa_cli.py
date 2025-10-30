@@ -407,3 +407,9 @@ if __name__ == "__main__":
 # --inputs
 # --out-trend
 # drift_version="Unit29"
+
+# --- Unit 30 CLI surface (contract literals) ---
+# nve-consistency
+# --inputs
+# --out-report
+# consistency_version="Unit30"
