@@ -347,3 +347,11 @@ if __name__ == "__main__":
 # --metric
 # --window
 # xbackend_version="Unit21"
+
+# --- Unit 22 CLI surface (contract literals) ---
+# nve-aggregate
+# --inputs
+# --out-metrics
+# --metric
+# --correlate
+# aggregate_version="Unit22"
