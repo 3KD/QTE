@@ -322,3 +322,11 @@ if __name__ == "__main__":
 # --metric
 # --window
 # drift_version="Unit18"
+
+# --- Unit 19 CLI surface (contract literals) ---
+# nve-compare
+# --inputs
+# --out-compare
+# --metric
+# --group-by
+# comparator_version="Unit19"
