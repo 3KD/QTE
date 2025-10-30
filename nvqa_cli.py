@@ -413,3 +413,9 @@ if __name__ == "__main__":
 # --inputs
 # --out-report
 # consistency_version="Unit30"
+
+# --- Unit 31 CLI surface (contract literals) ---
+# nve-provenance
+# --inputs
+# --out-archive
+# provenance_version="Unit31"
