@@ -394,3 +394,10 @@ if __name__ == "__main__":
 # --window
 # --out-calib
 # calib_version="Unit27"
+
+# --- Unit 28 CLI surface (contract literals) ---
+# nve-receipt-diff
+# --a
+# --b
+# --out-diff
+# diff_version="Unit28"
