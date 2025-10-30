@@ -387,3 +387,10 @@ if __name__ == "__main__":
 # --shots
 # --out-plan
 # queue_version="Unit26"
+
+# --- Unit 27 CLI surface (contract literals) ---
+# nve-calib-tag
+# --backend
+# --window
+# --out-calib
+# calib_version="Unit27"
