@@ -371,3 +371,11 @@ if __name__ == "__main__":
 # --shots
 # --out-matrix
 # matrix_version="Unit24"
+
+# --- Unit 25 CLI surface (contract literals) ---
+# nve-calib-snap
+# --backends
+# --window
+# --metrics
+# --out-report
+# calib_version="Unit25"
