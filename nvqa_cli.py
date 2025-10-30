@@ -338,3 +338,12 @@ if __name__ == "__main__":
 # --window
 # --metric
 # drift_version="Unit20"
+
+# --- Unit 21 CLI surface (contract literals) ---
+# nve-xbackend
+# --inputs
+# --out-audit
+# --backends
+# --metric
+# --window
+# xbackend_version="Unit21"
