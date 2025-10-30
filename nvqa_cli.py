@@ -363,3 +363,11 @@ if __name__ == "__main__":
 # --threshold
 # --out-report
 # drift_version="Unit23"
+
+# --- Unit 24 CLI surface (contract literals) ---
+# nve-backend-matrix
+# --backends
+# --program
+# --shots
+# --out-matrix
+# matrix_version="Unit24"
