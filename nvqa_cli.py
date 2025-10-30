@@ -419,3 +419,9 @@ if __name__ == "__main__":
 # --inputs
 # --out-archive
 # provenance_version="Unit31"
+
+# --- Unit 32 CLI surface (contract literals) ---
+# nve-verify
+# --archive
+# --out-report
+# verify_version="Unit32"
