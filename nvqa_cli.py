@@ -307,3 +307,10 @@ if __name__ == "__main__":
 # --out-trend
 # --out-alerts
 # drift_version="Unit16"
+
+# --- Unit 17 CLI surface (contract literals) ---
+# nve-xbackend
+# --inputs
+# --out-equivalence
+# --metric
+# xbackend_version="Unit17"
