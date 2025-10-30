@@ -286,3 +286,10 @@ if __name__ == "__main__":
 # qft_kernel_sign="+"
 # loader_version="Unit02"
 # exec_version="Unit04"
+
+# --- Unit 14 CLI surface (contract literals) ---
+# nve-drift-scan
+# --inputs
+# --out-report
+# --out-trend
+# drift_version="Unit14"
