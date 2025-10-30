@@ -355,3 +355,11 @@ if __name__ == "__main__":
 # --metric
 # --correlate
 # aggregate_version="Unit22"
+
+# --- Unit 23 CLI surface (contract literals) ---
+# nve-drift
+# --inputs
+# --window
+# --threshold
+# --out-report
+# drift_version="Unit23"
