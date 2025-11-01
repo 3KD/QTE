@@ -8,7 +8,7 @@ from qte_cli_ext_register import add_qte_ext
 def main():
     ap = argparse.ArgumentParser(description="Quantum series encoder CLI")
     ap.add_argument("--nq", type=int, default=6, help="number of qubits (vector length = 2**nq)")
-    ap.add_argument("--mode", choices=["terms","egf"], default="terms", help="amplitude mode")
+    ap.add_argument("--mode", choices=["terms","egf"], help="amplitude mode", default=None)
     ap.add_argument("--rail", action="store_true", help="append [rail] to the label")
     ap.add_argument("--label", required=True, help="series/transform label")
     ap.add_argument("--value", action="store_true", help="print scalar value instead of vector")
@@ -60,7 +60,7 @@ def main():
         return
 
     dim = 2 ** int(args.nq)
-    v = se.get_series_amplitudes(label, dim, amp_mode=args.mode, normalize=True)
+    v = se.get_series_amplitudes(label, dim, amp_mode=(args.mode if args.mode else None), normalize=True)
     print(f"len={len(v)} norm={np.linalg.norm(v):.12g}")
 
     if args.dump:
