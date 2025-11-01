@@ -1,4 +1,3 @@
-import math
 import numpy as np
 from typing import Tuple, Optional
 
@@ -7,46 +6,63 @@ def _parse_label(label: str) -> Tuple[str, str]:
     mode = None
     low = s.lower()
     if low.endswith(" egf"):
-        mode = "egf"
-        s = s[:-4].rstrip()
+        mode = "egf"; s = s[:-4].rstrip()
     elif low.endswith(" terms"):
-        mode = "terms"
-        s = s[:-6].rstrip()
+        mode = "terms"; s = s[:-6].rstrip()
     return s, (mode or "terms")
 
-def _maclaurin_coeff(name: str, n: int) -> float:
-    nm = name.strip().lower()
-    if nm in {"maclaurin[sin(x)]", "maclaurin[sin]"}:
-        if n % 2 == 0:
-            return 0.0
+def _series_terms_sin(dim: int) -> np.ndarray:
+    # sin: n = 1,3,5,...  c_{n+2} = - c_n / ((n+1)(n+2)), c_1 = 1
+    a = np.zeros(dim, dtype=np.complex128)
+    if dim <= 1: return a
+    n, c = 1, 1.0
+    while n < dim:
+        a[n] = c
+        # next odd: n+2
+        c = -c / ((n + 1) * (n + 2))
+        n += 2
+    return a
+
+def _series_terms_cos(dim: int) -> np.ndarray:
+    # cos: n = 0,2,4,...  c_{n+2} = - c_n / ((n+1)(n+2)), c_0 = 1
+    a = np.zeros(dim, dtype=np.complex128)
+    if dim <= 0: return a
+    n, c = 0, 1.0
+    while n < dim:
+        a[n] = c
+        c = -c / ((n + 1) * (n + 2))
+        n += 2
+    return a
+
+def _series_egf_sin(dim: int) -> np.ndarray:
+    # EGF multiplies terms by n!: for sin this yields (-1)^k at odd n = 2k+1
+    a = np.zeros(dim, dtype=np.complex128)
+    for n in range(1, dim, 2):
         k = (n - 1) // 2
-        return ((-1.0) ** k) / math.factorial(n)
-    if nm in {"maclaurin[cos(x)]", "maclaurin[cos]"}:
-        if n % 2 == 1:
-            return 0.0
+        a[n] = -1.0 if (k & 1) else 1.0
+    return a
+
+def _series_egf_cos(dim: int) -> np.ndarray:
+    # EGF for cos: (-1)^k at even n = 2k
+    a = np.zeros(dim, dtype=np.complex128)
+    for n in range(0, dim, 2):
         k = n // 2
-        return ((-1.0) ** k) / math.factorial(n)
-    raise ValueError(f"unknown series label: {name}")
-
-def _series_terms(name: str, dim: int) -> np.ndarray:
-    a = np.zeros(dim, dtype=np.complex128)
-    for n in range(dim):
-        a[n] = _maclaurin_coeff(name, n)
+        a[n] = -1.0 if (k & 1) else 1.0
     return a
 
-def _series_egf(name: str, dim: int) -> np.ndarray:
-    a = np.zeros(dim, dtype=np.complex128)
-    for n in range(dim):
-        c = _maclaurin_coeff(name, n)
-        if c != 0.0:
-            a[n] = c * math.factorial(n)
-    return a
+def _build_raw(base: str, dim: int, mode: str) -> np.ndarray:
+    nm = base.strip().lower()
+    if nm in {"maclaurin[sin(x)]", "maclaurin[sin]"}:
+        return _series_terms_sin(dim) if mode == "terms" else _series_egf_sin(dim)
+    if nm in {"maclaurin[cos(x)]", "maclaurin[cos]"}:
+        return _series_terms_cos(dim) if mode == "terms" else _series_egf_cos(dim)
+    raise ValueError(f"unknown series label: {base}")
 
 def _l2_normalize(x: np.ndarray) -> np.ndarray:
-    nrm = float(np.linalg.norm(x))
+    nrm = float(np.vdot(x, x).real)
     if nrm == 0.0:
-        return x
-    return (x / nrm).astype(np.complex128)
+        return x.astype(np.complex128)
+    return (x / (nrm ** 0.5)).astype(np.complex128)
 
 def get_series_amplitudes(label: str, dim: int, amp_mode: Optional[str] = None, normalize: bool = True) -> np.ndarray:
     base, label_mode = _parse_label(label)
@@ -55,15 +71,10 @@ def get_series_amplitudes(label: str, dim: int, amp_mode: Optional[str] = None, 
         raise ValueError(f"amp_mode must be terms|egf, got {mode}")
     if dim <= 0:
         raise ValueError("dim must be positive")
-    if (dim & (dim - 1)) != 0:
-        pass
-    if mode == "terms":
-        v = _series_terms(base, dim)
-    else:
-        v = _series_egf(base, dim)
+    v = _build_raw(base, dim, mode)
     return _l2_normalize(v) if normalize else v
 
-def build_state(label: str, nq: int, mode: Optional[str] = None) -> Tuple[np.ndarray, dict]:
+def build_state(label: str, nq: int, mode: Optional[str] = None):
     dim = 1 << int(nq)
     vec = get_series_amplitudes(label, dim, amp_mode=mode, normalize=True)
     meta = {
